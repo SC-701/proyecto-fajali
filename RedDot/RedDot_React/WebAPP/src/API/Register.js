@@ -22,16 +22,12 @@ export async function registerUser(username, password,email) {
 
 
         if (!response.ok) {
-            return { success: false, error: data.error };
-        }
-
-        if (data.error) {
-            return { success: false, error: data.error };
+            return { success: false, error:  [{errorData : data,title:"Registro fallido"}] };
         }
 
 
         return { success: true };
     } catch (err) {
-        return { success: false, error: err };
+        return { success: false, error: [{errorData : err,title:"Error de servidor"}] };
     }
 } 

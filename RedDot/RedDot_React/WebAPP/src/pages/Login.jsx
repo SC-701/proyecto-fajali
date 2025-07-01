@@ -26,9 +26,7 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
-
-        try {
+       
             const { success, error } = await loginUser(
 
                 formData["username"],
@@ -38,8 +36,8 @@ const Login = () => {
             if (!success) {
                 Swal.fire({
                     icon: "error",
-                    title: "Error del servidor",
-                    text: error,
+                    title: error[0].title || "Error",
+                    text: error[0].errorData,
                     confirmButtonColor: "#d33",
                 })
                 return
@@ -58,15 +56,7 @@ const Login = () => {
 
 
 
-        } catch (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Error del servidor",
-                text: error,
-                confirmButtonColor: "#d33",
-            })
-
-        }
+        
 
     }
 
