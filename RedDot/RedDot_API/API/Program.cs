@@ -10,6 +10,7 @@ using Flujo.Authentication;
 using Flujo.Usuarios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,13 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionString = config["RedDotDatabase:ConnectionString"];
+    return new MongoClient(connectionString);
+});
+
 #region Dependency Injection
 
 
@@ -38,6 +46,7 @@ builder.Services.AddScoped<IUsuariosDA, UsuariosDA>();
 builder.Services.AddScoped<IUsuariosFlujo,UsuariosFlujo>();
 builder.Services.AddScoped<IAuthenticationDA, AuthenticationDA>();
 builder.Services.AddScoped<IAuthenticationFlujo, AuthenticationFlujo>();
+builder.Services.AddScoped<IMongoDbContext, MongoDbContext>();
 
 #endregion
 

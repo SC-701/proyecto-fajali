@@ -14,20 +14,20 @@ namespace DA.Authentication
 {
     public class AuthenticationDA : IAuthenticationDA
     {
-        private readonly MongoDbContext _context;
+       
         private readonly IMongoCollection<User> users;
         private readonly IMongoCollection<Roles> roles;
         private readonly IMongoCollection<Role_users> rolesuser;
         private readonly IConfiguration _configuracion;
 
 
-        public AuthenticationDA(IConfiguration configuration)
+        public AuthenticationDA(IMongoDbContext context,IConfiguration configuration)
         {
             this._configuracion = configuration;
-            this._context = new MongoDbContext(configuration);
-            this.users = _context.Users;
-            this.roles = _context.Roles;
-            this.rolesuser = _context.Roles_Users;
+            
+            this.users = context.GetCollection<User>("users");
+            this.roles = context.GetCollection<Roles>("roles");
+            this.rolesuser = context.GetCollection<Role_users>("roles_users");
         }
         public async Task<string> GetRole(string username)
         {

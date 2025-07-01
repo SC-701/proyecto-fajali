@@ -19,17 +19,17 @@ namespace DA.Usuarios
 {
     public class UsuariosDA : IUsuariosDA
     {
-        private readonly MongoDbContext _context;
+        
         private readonly IMongoCollection<User> _conexion;
         private readonly IConfiguration _configuracion;
 
 
-        public UsuariosDA(IConfiguration configuration)
+        public UsuariosDA(IMongoDbContext context,IConfiguration configuration)
         {
             this._configuracion = configuration; 
-            this._context = new MongoDbContext(configuration);
+            
                
-            this._conexion = _context.Users;
+            this._conexion = context.GetCollection<User>("users");
         }
         public async Task<TokenDTO> Login(UserBase usuario)
         {
