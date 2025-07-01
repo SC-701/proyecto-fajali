@@ -40,7 +40,7 @@ namespace API.Controllers
 
             if (!resultado)
             {
-                return BadRequest("Error al registrar el usuario");
+                return BadRequest( "El usuario o email ya esta registrado");
             }
 
             return Ok("Usuario registrado correctamente");

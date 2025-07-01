@@ -22,18 +22,16 @@ export async function loginUser(username, password) {
       
 
         if (!response.ok) {
-            return { success: false, error: data.error };
+            return { success: false, error: [{errorData : data,title:"Inicio de sesión fallido"}] 
+             };
         }
 
-        if (data.error) {
-            return { success: false, error: data.error };
-        }
 
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("token", data.accessToken);
 
         return { success: true };
     } catch (err) {
-        return { success: false, error: err };
+        return { success: false, error: [{errorData : err,title:"Error de servidor"}] };
     }
 } 
