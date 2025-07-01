@@ -6,6 +6,7 @@ import "../styles/Register.css"
 import { Link } from "react-router-dom"
 import { registerUser } from "../API/Register.js"
 import Swal from "sweetalert2"
+import { useNavigate } from "react-router-dom"
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const Register = () => {
     
   })
   
+   const navigate = useNavigate()
 
 
   const [showPassword, setShowPassword] = useState(false)
@@ -59,7 +61,7 @@ const Register = () => {
                   timer: 1500,
                   showConfirmButton: false,
               }).then(() => {
-                  <Link to="/"></Link>
+                 navigate("/")
               })
           }
 

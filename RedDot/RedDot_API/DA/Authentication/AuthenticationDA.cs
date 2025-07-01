@@ -18,12 +18,11 @@ namespace DA.Authentication
         private readonly IMongoCollection<User> users;
         private readonly IMongoCollection<Roles> roles;
         private readonly IMongoCollection<Role_users> rolesuser;
-        private readonly IConfiguration _configuracion;
+  
 
 
         public AuthenticationDA(IMongoDbContext context,IConfiguration configuration)
         {
-            this._configuracion = configuration;
             
             this.users = context.GetCollection<User>("users");
             this.roles = context.GetCollection<Roles>("roles");
