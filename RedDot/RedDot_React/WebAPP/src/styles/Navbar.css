@@ -1,0 +1,18 @@
+:root {
+  --primary-dark: #1b222c; /* 27,34,44 */
+  --secondary-dark: #12151c; /* 18,21,28 */
+  --accent-red: #661b1c; /* 102,27,28 */
+  --accent-red-dark: #531516; /* 83,21,22 */
+  --tertiary-dark: #191d26; /* 25,29,38 */
+  --text-light: #ffffff;
+  --text-gray: #b0b0b0;
+  --border-color: #2a3441;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  color: var(--accent-red);
+  text-decoration: none;
+}
+
