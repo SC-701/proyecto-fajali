@@ -6,8 +6,10 @@ using Amazon.Auth.AccessControlPolicy;
 using DA.Authentication;
 using DA.Repositorio;
 using DA.Usuarios;
+using DA.Torneos;
 using Flujo.Authentication;
 using Flujo.Usuarios;
+using Flujo.Torneos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
@@ -41,15 +43,22 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 
 #region Dependency Injection
 
-
+// Usuarios
 builder.Services.AddScoped<IUsuariosDA, UsuariosDA>();
-builder.Services.AddScoped<IUsuariosFlujo,UsuariosFlujo>();
+builder.Services.AddScoped<IUsuariosFlujo, UsuariosFlujo>();
+
+// Autenticación
 builder.Services.AddScoped<IAuthenticationDA, AuthenticationDA>();
 builder.Services.AddScoped<IAuthenticationFlujo, AuthenticationFlujo>();
+
+// Torneos
+builder.Services.AddScoped<ITorneosDA, TorneosDA>();
+builder.Services.AddScoped<ITorneosFlujo, TorneosFlujo>();
+
+// Contexto MongoDB
 builder.Services.AddScoped<IMongoDbContext, MongoDbContext>();
 
 #endregion
-
 
 #region TokenMiddleware
 
@@ -90,8 +99,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 #endregion
 
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
