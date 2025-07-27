@@ -73,7 +73,7 @@ const Login = () => {
 
                     <div className="form-group">
                         <label htmlFor="username" className="form-label">
-                            Correo Electrónico
+                            Usuario
                         </label>
                         <input
                             type="text"

@@ -83,9 +83,9 @@ namespace Flujo.Torneos
             }
 
             // No permitir reducir el máximo de participantes por debajo del actual
-            if (torneo.CuposMaximos < torneoExistente.ParticipantesActuales)
+            if (torneo.CuposMaximos < torneoExistente.Participantes.Count)
             {
-                throw new ArgumentException($"No puedes reducir el máximo de participantes por debajo del número actual ({torneoExistente.ParticipantesActuales})");
+                throw new ArgumentException($"No puedes reducir el máximo de participantes por debajo del número actual ({torneoExistente.Participantes.Count})");
             }
 
             // Validar cambios de estado
@@ -169,6 +169,51 @@ namespace Flujo.Torneos
                 EstadoTorneo.Cancelado => false, // No se puede cambiar desde cancelado
                 _ => false
             };
+        }
+
+        public async Task<bool> AgregarParticipantes(ParticipantesBase Participantes,string idTorneo)
+        {
+            var torneoExistente = await _torneosDA.ObtenerTorneoPorId(idTorneo);
+            if (torneoExistente == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+            if (torneoExistente.CuposMaximos == torneoExistente.Participantes.Count)
+            {
+                throw new ArgumentException($"Limite de cupos alcanzado ({torneoExistente.Participantes.Count})");
+            }
+            return await _torneosDA.AgregarParticipantes(Participantes, idTorneo);
+        }
+
+        public async Task<bool> EliminarMienbroEquipo(string idTorneo, string NombreEquipo, string idUsuario)
+        {
+            var torneoExistente = await _torneosDA.ObtenerTorneoPorId(idTorneo);
+            if (torneoExistente == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+            return await _torneosDA.EliminarMienbroEquipo( idTorneo, NombreEquipo, idUsuario);
+
+        }
+
+        public async Task<bool> EliminarEquipo(string idTorneo, string NombreEquipo)
+        {
+            var torneoExistente = await _torneosDA.ObtenerTorneoPorId(idTorneo);
+            if (torneoExistente == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+            return await _torneosDA.EliminarEquipo(idTorneo, NombreEquipo);
+        }
+
+        public async Task<bool> EliminarParticipante(string idTorneo, string IdUsuario)
+        {
+            var torneoExistente = await _torneosDA.ObtenerTorneoPorId(idTorneo);
+            if (torneoExistente == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+            return await _torneosDA.EliminarParticipante(idTorneo, IdUsuario);
         }
     }
 }

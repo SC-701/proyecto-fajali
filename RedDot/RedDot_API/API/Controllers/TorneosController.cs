@@ -1,26 +1,29 @@
-﻿using Abstracciones.Interfaces.API;
+﻿using System.Security.Claims;
+using Abstracciones.Interfaces.API;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using DA.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class TorneosController : ControllerBase, ITorneosController
     {
         private readonly ITorneosFlujo _torneosFlujo;
+        private readonly IUsuariosFlujo _usuariosFlujo;
 
-        public TorneosController(ITorneosFlujo torneosFlujo)
+        public TorneosController(ITorneosFlujo torneosFlujo, IUsuariosFlujo usuariosFlujo)
         {
             _torneosFlujo = torneosFlujo;
+            _usuariosFlujo = usuariosFlujo;
         }
 
         [HttpPost("crear")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<ActionResult> CrearTorneo([FromBody] SolicitudCrearTorneo torneo)
         {
             try
@@ -55,7 +58,7 @@ namespace API.Controllers
         }
 
         [HttpPut("actualizar")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<ActionResult> ActualizarTorneo([FromBody] SolicitudActualizarTorneo torneo)
         {
             try
@@ -226,6 +229,55 @@ namespace API.Controllers
             {
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
+        }
+        [HttpPatch("AgregarParticipantes/{idTorneo}")]
+        public async Task<ActionResult> AgregarParticipantes([FromBody]ParticipantesBase Participantes,[FromRoute] string idTorneo)
+        {
+            var resultado = await _torneosFlujo.AgregarParticipantes(Participantes, idTorneo);
+            if (!resultado)
+            {
+                return BadRequest("No se pudo agregar al participantes");
+            }
+
+            return Ok(new { Mensaje = "Participantes agregados exitosamente" });
+        }
+        [HttpDelete("EliminarMienbroEquipo/{idUsuario}/{idTorneo}/{NombreEquipo}")]
+        public async Task<ActionResult> EliminarMienbroEquipo(string idTorneo,string NombreEquipo, string idUsuario)
+        {
+            var resultado = await _torneosFlujo.EliminarMienbroEquipo(idTorneo, NombreEquipo, idUsuario);
+
+            if (!resultado)
+            {
+                return BadRequest("No se pudo eliminar el participante");
+            }
+
+            return Ok(new { Mensaje = "Participante eliminado exitosamente" });
+        }
+        [HttpDelete("EliminarEquipo/{idTorneo}/{NombreEquipo}")]
+
+        public async Task<ActionResult> EliminarEquipo(string idTorneo, string NombreEquipo)
+        {
+            var resultado = await _torneosFlujo.EliminarEquipo(idTorneo, NombreEquipo);
+
+            if (!resultado)
+            {
+                return BadRequest("No se pudo eliminar el Equipo");
+            }
+
+            return Ok(new { Mensaje = "Equipo eliminado exitosamente" });
+        }
+
+        [HttpDelete("EliminarParticipante/{idTorneo}/{IdUsuario}")]
+        public async Task<ActionResult> EliminarParticipante(string idTorneo, string IdUsuario)
+        {
+            var resultado = await _torneosFlujo.EliminarParticipante(idTorneo, IdUsuario);
+
+            if (!resultado)
+            {
+                return BadRequest("No se pudo eliminar el participante");
+            }
+
+            return Ok(new { Mensaje = "Participante eliminado exitosamente" });
         }
     }
 }

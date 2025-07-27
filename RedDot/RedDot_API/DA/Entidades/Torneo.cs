@@ -23,6 +23,8 @@ namespace DA.Entidades
 
         [BsonElement("reglas")]
         public string Reglas { get; set; }
+        [BsonElement("modalidad")]
+        public string Modalidad { get; set; }
 
         [BsonElement("fecha_inicio")]
         public DateTime FechaInicio { get; set; }
@@ -35,9 +37,6 @@ namespace DA.Entidades
 
         [BsonElement("cupos_maximos")]
         public int CuposMaximos { get; set; }
-
-        [BsonElement("participantes_actuales")]
-        public int ParticipantesActuales { get; set; } = 0;
 
         [BsonElement("estado")]
         public EstadoTorneo Estado { get; set; } = EstadoTorneo.Abierto;
@@ -56,5 +55,9 @@ namespace DA.Entidades
 
         [BsonElement("descripcion_premio")]
         public string? DescripcionPremio { get; set; }
+        [BsonElement("participantes")]
+        public List<ParticipantesBase> Participantes { get; set; }
+
+
     }
 }

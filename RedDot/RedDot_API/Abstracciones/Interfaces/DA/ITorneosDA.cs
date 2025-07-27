@@ -1,9 +1,10 @@
-﻿using Abstracciones.Modelos;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Abstracciones.Modelos;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Abstracciones.Interfaces.DA
 {
@@ -17,5 +18,12 @@ namespace Abstracciones.Interfaces.DA
         Task<List<RespuestaTorneo>> ObtenerTorneosPorCreador(string creadoPor);
         Task<bool> ActualizarEstadoTorneo(string idTorneo, EstadoTorneo estado);
         Task<bool> ExisteTorneo(string idTorneo);
+        Task<bool> AgregarParticipantes(ParticipantesBase Participantes, string idTorneo);
+        Task<bool> EliminarMienbroEquipo(string idTorneo, string NombreEquipo,string idUsuario);
+        Task<bool> EliminarEquipo(string idTorneo,string NombreEquipo);
+        Task<bool> EliminarParticipante(string idTorneo, string IdUsuario);
+   
+
+
     }
 }

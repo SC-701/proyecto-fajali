@@ -17,6 +17,19 @@ namespace Flujo.Usuarios
         {
             _usuariosDA = usuariosDA;
         }
+
+        public Task<bool> EliminarUsuarioEnTorneo(RespuestaTorneo torneo, string idUsuario)
+        {
+          var resultado = _usuariosDA.EliminarUsuarioEnTorneo(torneo, idUsuario);
+            return resultado;
+        }
+
+        public Task<bool> InscribirUsuarioTorneo(RespuestaTorneo torneo, string IdUsuario)
+        {
+            var resultado = _usuariosDA.InscribirUsuarioTorneo(torneo, IdUsuario);
+            return resultado;
+        }
+
         public async Task<TokenDTO> Login(UserBase usuario)
         {
             var resultado =  await _usuariosDA.Login(usuario);
