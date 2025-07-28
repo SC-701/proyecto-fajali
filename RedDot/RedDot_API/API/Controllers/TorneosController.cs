@@ -190,6 +190,16 @@ namespace API.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
+        [HttpGet("LeaderBoardPorTorneo/{idTorneo}")]
+        public Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo)
+        {
+            var resultado = _torneosFlujo.LeaderBoardPorTorneo(idTorneo);
+            if (resultado == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+            return resultado;
+        }
 
         [HttpPatch("cambiar-estado")]
         [Authorize(Roles = "Admin")]
@@ -309,6 +319,7 @@ namespace API.Controllers
 
             return Ok(new { Mensaje = "Participante eliminado exitosamente" });
         }
+        
         private List<string> ObtenerIdsUsuariosDesdeParticipante(ParticipantesBase participante)
         {
             var ids = new List<string>();

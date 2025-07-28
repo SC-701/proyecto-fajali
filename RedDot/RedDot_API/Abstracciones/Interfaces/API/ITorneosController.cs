@@ -17,7 +17,7 @@ namespace Abstracciones.Interfaces.API
         Task<ActionResult> EliminarMienbroEquipo(string idTorneo, string NombreEquipo, string idUsuario);
         Task<ActionResult> EliminarEquipo(string idTorneo, string NombreEquipo);
         Task<ActionResult> EliminarParticipante(string idTorneo, string IdUsuario);
-
+        Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
 
     }
 }

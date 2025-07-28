@@ -170,7 +170,7 @@ namespace Abstracciones.Modelos
     }
     public class Equipo : ParticipantesBase
     {
-        [Required(ErrorMessage ="El nombre del equipo es obligatorio")]
+        [Required(ErrorMessage = "El nombre del equipo es obligatorio")]
         public string NombreEquipo { get; set; }
         public int Puntuacion { get; set; }
 
@@ -180,5 +180,10 @@ namespace Abstracciones.Modelos
     {
         public List<ParticipantesBase> Participantes { get; set; }
 
+    }
+    public class LeaderBoardPorTorneo
+    {
+        public string NombreTorneo { get; set; }
+        public List<ParticipantesBase> Participantes { get; set; } = new();
     }
 }

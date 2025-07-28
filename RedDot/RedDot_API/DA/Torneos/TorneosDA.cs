@@ -267,8 +267,8 @@ namespace DA.Torneos
             if (torneo == null)
                 return false;
             var equipo = torneo.Participantes.OfType<Equipo>().FirstOrDefault(e => e.NombreEquipo == NombreEquipo);
-            if (equipo == null )
-                return false; 
+            if (equipo == null)
+                return false;
             var eliminado = equipo.Integrantes.RemoveAll(i => i.UsuarioId == idUsuario) > 0;
             if (!eliminado)
                 return false;
@@ -297,7 +297,7 @@ namespace DA.Torneos
             var torneoDA = ConvertirDA(torneo);
             var resultado = await _coleccionTorneos.ReplaceOneAsync(filtro, torneoDA);
             return resultado.ModifiedCount > 0;
-        } 
+        }
         public async Task<bool> EliminarParticipante(string idTorneo, string IdUsuario)
         {
             var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
@@ -313,6 +313,16 @@ namespace DA.Torneos
             var torneoDA = ConvertirDA(torneo);
             var resultado = await _coleccionTorneos.ReplaceOneAsync(filtro, torneoDA);
             return resultado.ModifiedCount > 0;
+        }
+        public async Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo)
+        {
+            var torneo = await ObtenerTorneoPorId(idTorneo);
+            var leaderBoard = new LeaderBoardPorTorneo();
+            if (torneo == null)
+                return null;
+            leaderBoard.NombreTorneo = torneo.Nombre;
+            leaderBoard.Participantes = torneo.Participantes;
+            return leaderBoard;
         }
         private Torneo ConvertirDA(RespuestaTorneo torneo)
         {
@@ -337,6 +347,6 @@ namespace DA.Torneos
             };
         }
 
-       
+
     }
 }

@@ -215,5 +215,15 @@ namespace Flujo.Torneos
             }
             return await _torneosDA.EliminarParticipante(idTorneo, IdUsuario);
         }
+
+        public async Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo)
+        {
+            var torneoExistente = await _torneosDA.ObtenerTorneoPorId(idTorneo);
+            if (torneoExistente == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+            return await _torneosDA.LeaderBoardPorTorneo(idTorneo);
+        }
     }
 }

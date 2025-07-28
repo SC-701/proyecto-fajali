@@ -21,7 +21,9 @@ namespace Abstracciones.Interfaces.Flujo
         Task<bool> EliminarMienbroEquipo(string idTorneo, string NombreEquipo, string idUsuario);
         Task<bool> EliminarEquipo(string idTorneo, string NombreEquipo);
         Task<bool> EliminarParticipante(string idTorneo, string IdUsuario);
-     
+        Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
+
+
 
 
     }
