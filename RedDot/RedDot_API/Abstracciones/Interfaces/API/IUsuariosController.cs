@@ -12,7 +12,5 @@ namespace Abstracciones.Interfaces.API
     {
         Task<ActionResult> Login(UserBase usuario);
         Task<ActionResult> Register(UserRegister usuario);
-        Task<ActionResult> InscribirUsuarioTorneo(string idTorneo, string IdUsuario);
-        Task<ActionResult> EliminarUsuarioEnTorneo(string idTorneo, string idUsuario);
     }
 }

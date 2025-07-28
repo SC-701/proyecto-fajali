@@ -137,6 +137,8 @@ namespace DA.Usuarios
             var torneos = usuarioDB.Torneos ?? new List<string>();
             if (torneos == null)
                 return false;
+            if (torneos.Contains(torneoBD.Id))
+                return false; // El usuario ya está inscrito en el torneo
             torneos.Add(torneoBD.Id);
             var actualizacion = Builders<User>.Update.Set(t => t.Torneos, torneos);
             var resultado = await _conexion.UpdateOneAsync(filtro, actualizacion);
@@ -151,7 +153,9 @@ namespace DA.Usuarios
                 return false;
             var torneos = usuarioDB.Torneos ?? new List<string>();
             if (torneos == null)
-                return false;
+                 return false;
+            if (!torneos.Contains(torneoBD.Id))
+                return false; // El usuario no está inscrito en el torneo
             var eliminacion = torneos.Remove(torneoBD.Id);
             if (!eliminacion)
                 return false;

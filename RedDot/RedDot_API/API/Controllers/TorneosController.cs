@@ -231,37 +231,67 @@ namespace API.Controllers
             }
         }
         [HttpPatch("AgregarParticipantes/{idTorneo}")]
-        public async Task<ActionResult> AgregarParticipantes([FromBody]ParticipantesBase Participantes,[FromRoute] string idTorneo)
+        public async Task<ActionResult> AgregarParticipantes([FromBody] ParticipantesBase Participantes, [FromRoute] string idTorneo)
         {
+            var torneo = await _torneosFlujo.ObtenerTorneoPorId(idTorneo);
+            if (torneo == null)
+                return NotFound("Torneo no encontrado");
+
             var resultado = await _torneosFlujo.AgregarParticipantes(Participantes, idTorneo);
             if (!resultado)
+                return BadRequest("No se pudo agregar al participante");
+
+            var usuariosIds = ObtenerIdsUsuariosDesdeParticipante(Participantes);
+
+            foreach (var idUsuario in usuariosIds)
             {
-                return BadRequest("No se pudo agregar al participantes");
+                var inscrito = await _usuariosFlujo.InscribirUsuarioTorneo(torneo, idUsuario);
+                if (!inscrito)
+                    return BadRequest($"No se pudo inscribir al usuario {idUsuario} al torneo");
             }
 
-            return Ok(new { Mensaje = "Participantes agregados exitosamente" });
+            return Ok(new { Mensaje = "Participante agregado exitosamente" });
         }
         [HttpDelete("EliminarMienbroEquipo/{idUsuario}/{idTorneo}/{NombreEquipo}")]
-        public async Task<ActionResult> EliminarMienbroEquipo(string idTorneo,string NombreEquipo, string idUsuario)
+        public async Task<ActionResult> EliminarMienbroEquipo(string idTorneo, string NombreEquipo, string idUsuario)
         {
             var resultado = await _torneosFlujo.EliminarMienbroEquipo(idTorneo, NombreEquipo, idUsuario);
-
             if (!resultado)
-            {
                 return BadRequest("No se pudo eliminar el participante");
-            }
-
+            var torneo = await _torneosFlujo.ObtenerTorneoPorId(idTorneo);
+            var eliminar = await _usuariosFlujo.EliminarUsuarioEnTorneo(torneo, idUsuario);
             return Ok(new { Mensaje = "Participante eliminado exitosamente" });
         }
         [HttpDelete("EliminarEquipo/{idTorneo}/{NombreEquipo}")]
 
         public async Task<ActionResult> EliminarEquipo(string idTorneo, string NombreEquipo)
         {
-            var resultado = await _torneosFlujo.EliminarEquipo(idTorneo, NombreEquipo);
+            var torneo = await _torneosFlujo.ObtenerTorneoPorId(idTorneo);
+            if (torneo == null)
+                return NotFound("Torneo no encontrado");
 
+            // Buscar el equipo ANTES de eliminarlo
+            var equipoEliminado = torneo.Participantes
+                .OfType<Equipo>()
+                .FirstOrDefault(e => e.NombreEquipo == NombreEquipo);
+
+            if (equipoEliminado == null)
+                return NotFound("Equipo no encontrado");
+
+            // Obtener los IDs de usuarios antes de eliminar
+            var usuariosIds = ObtenerIdsUsuariosDesdeParticipante(equipoEliminado);
+
+            // Eliminar el equipo
+            var resultado = await _torneosFlujo.EliminarEquipo(idTorneo, NombreEquipo);
             if (!resultado)
-            {
                 return BadRequest("No se pudo eliminar el Equipo");
+
+            // Desinscribir a los usuarios del torneo
+            foreach (var idUsuario in usuariosIds)
+            {
+                var desinscrito = await _usuariosFlujo.EliminarUsuarioEnTorneo(torneo, idUsuario);
+                if (!desinscrito)
+                    return BadRequest($"No se pudo desinscribir al usuario {idUsuario} del torneo");
             }
 
             return Ok(new { Mensaje = "Equipo eliminado exitosamente" });
@@ -273,11 +303,34 @@ namespace API.Controllers
             var resultado = await _torneosFlujo.EliminarParticipante(idTorneo, IdUsuario);
 
             if (!resultado)
-            {
                 return BadRequest("No se pudo eliminar el participante");
-            }
+            var torneo = await _torneosFlujo.ObtenerTorneoPorId(idTorneo);
+            var eliminar = await _usuariosFlujo.EliminarUsuarioEnTorneo(torneo, IdUsuario);
 
             return Ok(new { Mensaje = "Participante eliminado exitosamente" });
+        }
+        private List<string> ObtenerIdsUsuariosDesdeParticipante(ParticipantesBase participante)
+        {
+            var ids = new List<string>();
+
+            switch (participante)
+            {
+                case ParticipanteIndividual individual:
+                    if (!string.IsNullOrEmpty(individual.UsuarioId))
+                        ids.Add(individual.UsuarioId);
+                    break;
+
+                case Equipo equipo:
+                    if (equipo.Integrantes != null)
+                    {
+                        ids.AddRange(equipo.Integrantes
+                            .Where(i => !string.IsNullOrEmpty(i.UsuarioId))
+                            .Select(i => i.UsuarioId));
+                    }
+                    break;
+            }
+
+            return ids;
         }
     }
 }
