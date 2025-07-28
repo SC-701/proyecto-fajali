@@ -1,33 +1,32 @@
-import { appsettings } from "../settings/appsettings";
+import ApiService from '../services/apiService.js';
 
+export async function registerUser(username, password, email) {
+    const userData = {
+        username,
+        password,
+        email
+    };
 
+    return await ApiService.post('Usuarios/register', userData);
+}
 
-export async function registerUser(username, password,email) {
-    try {
+export async function loginUser(username, password) {
+    const loginData = {
+        username,
+        password
+    };
 
-        const response = await fetch(`${appsettings.apiUrl}Usuarios/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
+    return await ApiService.post('Usuarios/login', loginData);
+}
 
-            },
-            body: JSON.stringify({ username, password,email }),
-        });
+export async function logoutUser() {
+    return await ApiService.post('Usuarios/logout');
+}
 
-        const data = await response.json();
+export async function verifyEmail(token) {
+    return await ApiService.post('Usuarios/verify-email', { token });
+}
 
-
-
-
-
-        if (!response.ok) {
-            return { success: false, error:  [{errorData : data,title:"Registro fallido"}] };
-        }
-
-
-        return { success: true };
-    } catch (err) {
-        return { success: false, error: [{errorData : err,title:"Error de servidor"}] };
-    }
-} 
+export async function resetPassword(email) {
+    return await ApiService.post('Usuarios/reset-password', { email });
+}
