@@ -1,0 +1,350 @@
+.dashboard {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #111827;
+    min-height: 100vh;
+    color: #f9fafb;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #374151;
+}
+
+.welcome-section h1 {
+    color: #dc2626;
+    font-size: 2.5rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.welcome-section p {
+    color: #9ca3af;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background-color: #dc2626;
+    color: white;
+}
+
+    .btn-primary:hover {
+        background-color: #b91c1c;
+        transform: translateY(-1px);
+    }
+
+.btn-success {
+    background-color: #059669;
+    color: white;
+}
+
+    .btn-success:hover {
+        background-color: #047857;
+        transform: translateY(-1px);
+    }
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background-color: var(--accent-color);
+    }
+
+    .stat-card.primary {
+        --accent-color: #dc2626;
+    }
+
+    .stat-card.success {
+        --accent-color: #059669;
+    }
+
+    .stat-card.info {
+        --accent-color: #0ea5e9;
+    }
+
+    .stat-card.warning {
+        --accent-color: #f59e0b;
+    }
+
+.stat-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(220, 38, 38, 0.1);
+    border-radius: 50%;
+}
+
+.stat-content h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    color: #f9fafb;
+}
+
+.stat-content p {
+    color: #9ca3af;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.section {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #374151;
+}
+
+    .section-header h2 {
+        color: #dc2626;
+        font-size: 1.3rem;
+        margin: 0;
+    }
+
+.view-all-link {
+    color: #dc2626;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+    .view-all-link:hover {
+        text-decoration: underline;
+    }
+
+/* Tournament List */
+.tournaments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tournament-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #374151;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+    .tournament-item:hover {
+        background-color: #4b5563;
+    }
+
+.tournament-info h4 {
+    color: #f9fafb;
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+}
+
+.tournament-meta {
+    color: #9ca3af;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+    .status-badge.activo {
+        background-color: rgba(5, 150, 105, 0.2);
+        color: #059669;
+    }
+
+    .status-badge.pendiente {
+        background-color: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+    }
+
+    .status-badge.finalizado {
+        background-color: rgba(107, 114, 128, 0.2);
+        color: #9ca3af;
+    }
+
+/* Activity List */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background-color: #374151;
+    border-radius: 8px;
+}
+
+.activity-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(220, 38, 38, 0.1);
+    border-radius: 50%;
+}
+
+.activity-content p {
+    color: #f9fafb;
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.activity-time {
+    color: #9ca3af;
+    font-size: 0.75rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #9ca3af;
+}
+
+    .empty-state p {
+        margin: 0;
+        font-style: italic;
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard {
+        padding: 1rem;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .quick-actions {
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-section h1 {
+        font-size: 2rem;
+    }
+
+    .tournament-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        width: 50px;
+        height: 50px;
+    }
+
+    .stat-content h3 {
+        font-size: 1.5rem;
+    }
+}
