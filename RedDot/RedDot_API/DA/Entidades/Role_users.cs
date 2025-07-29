@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace Abstracciones.Modelos
+namespace DA.Entidades
 {
     public class Role_users
     {

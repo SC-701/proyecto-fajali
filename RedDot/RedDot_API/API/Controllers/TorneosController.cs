@@ -10,7 +10,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class TorneosController : ControllerBase, ITorneosController
     {
         private readonly ITorneosFlujo _torneosFlujo;
@@ -23,7 +23,7 @@ namespace API.Controllers
         }
 
         [HttpPost("crear")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> CrearTorneo([FromBody] SolicitudCrearTorneo torneo)
         {
             try
@@ -58,7 +58,7 @@ namespace API.Controllers
         }
 
         [HttpPut("actualizar")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> ActualizarTorneo([FromBody] SolicitudActualizarTorneo torneo)
         {
             try
@@ -160,7 +160,7 @@ namespace API.Controllers
             [FromQuery] string? tipoDeporte = null)
         {
             try
-            {
+             {
                 var torneos = await _torneosFlujo.ObtenerTorneos(numeroPagina, tamanoPagina, estado, tipoDeporte);
                 return Ok(torneos);
             }

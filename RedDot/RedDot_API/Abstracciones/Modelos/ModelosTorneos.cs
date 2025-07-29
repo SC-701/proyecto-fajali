@@ -158,6 +158,7 @@ namespace Abstracciones.Modelos
 
     public class ParticipanteIndividual : ParticipantesBase
     {
+        [BsonRepresentation(BsonType.ObjectId)]
         public String UsuarioId { get; set; }
         public String Username { get; set; }
         public Double Calificacion { get; set; }
@@ -165,6 +166,7 @@ namespace Abstracciones.Modelos
 
     public class IntegranteEquipo
     {
+        [BsonRepresentation(BsonType.ObjectId)]
         public String UsuarioId { get; set; }
         public String Username { get; set; }
     }
