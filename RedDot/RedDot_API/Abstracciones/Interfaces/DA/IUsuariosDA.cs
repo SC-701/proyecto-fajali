@@ -11,6 +11,7 @@ namespace Abstracciones.Interfaces.DA
     {
         Task<TokenDTO> Login(UserBase usuario);
         Task<bool> Register(UserRegister usuario);
-
+        Task<bool> InscribirUsuarioTorneo(RespuestaTorneo torneo , string IdUsuario);
+        Task<bool> EliminarUsuarioEnTorneo(RespuestaTorneo torneo, string idUsuario);
     }
 }

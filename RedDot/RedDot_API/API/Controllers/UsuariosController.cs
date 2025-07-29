@@ -11,13 +11,15 @@ namespace API.Controllers
     public class UsuariosController : ControllerBase, IUsuariosController
     {
         private readonly IUsuariosFlujo _usuariosFlujo;
-        public UsuariosController(IUsuariosFlujo usuariosFlujo)
+        private readonly ITorneosFlujo _torneosFlujo;
+        public UsuariosController(IUsuariosFlujo usuariosFlujo, ITorneosFlujo torneosFlujo = null)
         {
             _usuariosFlujo = usuariosFlujo;
+            _torneosFlujo = torneosFlujo;
         }
-
+       
         [HttpPost("login")]
-        public async Task<ActionResult> Login( [FromBody] UserBase usuario)
+        public async Task<ActionResult> Login([FromBody] UserBase usuario)
         {
             var resultado = await _usuariosFlujo.Login(usuario);
 
@@ -34,13 +36,13 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult> Register( [FromBody] UserRegister usuario)
+        public async Task<ActionResult> Register([FromBody] UserRegister usuario)
         {
             var resultado = await _usuariosFlujo.Register(usuario);
 
             if (!resultado)
             {
-                return BadRequest( "El usuario o email ya esta registrado");
+                return BadRequest("El usuario o email ya esta registrado");
             }
 
             return Ok("Usuario registrado correctamente");

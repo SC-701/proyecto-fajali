@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Abstracciones.Modelos
 {
@@ -30,6 +32,9 @@ namespace Abstracciones.Modelos
         [Required(ErrorMessage = "Las reglas son requeridas")]
         public string Reglas { get; set; }
 
+        [Required(ErrorMessage = "La modalidad es requerida")]
+        public string Modalidad { get; set; }
+
         [Required(ErrorMessage = "La fecha de inicio es requerida")]
         public DateTime FechaInicio { get; set; }
 
@@ -53,6 +58,8 @@ namespace Abstracciones.Modelos
 
         [StringLength(300, ErrorMessage = "La descripción del premio no puede exceder 300 caracteres")]
         public string? DescripcionPremio { get; set; }
+
+        public List<ParticipantesBase> Participantes { get; set; } = new();
     }
 
     public class SolicitudActualizarTorneo
@@ -70,6 +77,9 @@ namespace Abstracciones.Modelos
 
         [Required(ErrorMessage = "Las reglas son requeridas")]
         public string Reglas { get; set; }
+
+        [Required(ErrorMessage = "La modalidad es requerida")]
+        public string Modalidad { get; set; }
 
         [Required(ErrorMessage = "La fecha de inicio es requerida")]
         public DateTime FechaInicio { get; set; }
@@ -97,6 +107,9 @@ namespace Abstracciones.Modelos
 
         [Required(ErrorMessage = "El estado del torneo es requerido")]
         public EstadoTorneo Estado { get; set; }
+        public List<ParticipantesBase> Participantes { get; set; }
+
+
     }
 
     public class RespuestaTorneo
@@ -105,11 +118,11 @@ namespace Abstracciones.Modelos
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public string Reglas { get; set; }
+        public string Modalidad { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
         public DateTime FechaLimiteInscripcion { get; set; }
         public int CuposMaximos { get; set; }
-        public int ParticipantesActuales { get; set; }
         public EstadoTorneo Estado { get; set; }
         public string CreadoPor { get; set; }
         public DateTime FechaCreacion { get; set; }
@@ -118,6 +131,9 @@ namespace Abstracciones.Modelos
         public string? DescripcionPremio { get; set; }
         public string EstadoTexto { get; set; }
         public bool PuedeInscribirse { get; set; }
+        public List<ParticipantesBase> Participantes { get; set; }
+
+
     }
 
     public class RespuestaListaTorneos
@@ -136,5 +152,40 @@ namespace Abstracciones.Modelos
 
         [Required(ErrorMessage = "El nuevo estado es requerido")]
         public EstadoTorneo NuevoEstado { get; set; }
+    }
+    [BsonKnownTypes(typeof(ParticipanteIndividual), typeof(Equipo))]
+    public abstract class ParticipantesBase { }
+
+    public class ParticipanteIndividual : ParticipantesBase
+    {
+        [BsonRepresentation(BsonType.ObjectId)]
+        public String UsuarioId { get; set; }
+        public String Username { get; set; }
+        public Double Calificacion { get; set; }
+    }
+
+    public class IntegranteEquipo
+    {
+        [BsonRepresentation(BsonType.ObjectId)]
+        public String UsuarioId { get; set; }
+        public String Username { get; set; }
+    }
+    public class Equipo : ParticipantesBase
+    {
+        [Required(ErrorMessage = "El nombre del equipo es obligatorio")]
+        public string NombreEquipo { get; set; }
+        public int Puntuacion { get; set; }
+
+        public List<IntegranteEquipo> Integrantes { get; set; } = new();
+    }
+    public class AgregarParticipantes
+    {
+        public List<ParticipantesBase> Participantes { get; set; }
+
+    }
+    public class LeaderBoardPorTorneo
+    {
+        public string NombreTorneo { get; set; }
+        public List<ParticipantesBase> Participantes { get; set; } = new();
     }
 }

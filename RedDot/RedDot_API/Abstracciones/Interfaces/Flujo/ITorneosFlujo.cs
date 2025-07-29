@@ -17,5 +17,14 @@ namespace Abstracciones.Interfaces.Flujo
         Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null);
         Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario);
         Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario);
+        Task<bool> AgregarParticipantes(ParticipantesBase Participantes, string idTorneo);
+        Task<bool> EliminarMienbroEquipo(string idTorneo, string NombreEquipo, string idUsuario);
+        Task<bool> EliminarEquipo(string idTorneo, string NombreEquipo);
+        Task<bool> EliminarParticipante(string idTorneo, string IdUsuario);
+        Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
+
+
+
+
     }
 }

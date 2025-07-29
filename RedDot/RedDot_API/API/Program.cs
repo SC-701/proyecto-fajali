@@ -13,6 +13,9 @@ using Flujo.Torneos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +25,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 builder.Services.AddCors(options =>
 {
@@ -40,7 +44,11 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
     var connectionString = config["RedDotDatabase:ConnectionString"];
     return new MongoClient(connectionString);
 });
-
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+    });
 #region Dependency Injection
 
 // Usuarios

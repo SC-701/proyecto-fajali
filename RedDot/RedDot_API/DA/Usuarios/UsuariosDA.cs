@@ -19,16 +19,16 @@ namespace DA.Usuarios
 {
     public class UsuariosDA : IUsuariosDA
     {
-        
+
         private readonly IMongoCollection<User> _conexion;
         private readonly IConfiguration _configuracion;
 
 
-        public UsuariosDA(IMongoDbContext context,IConfiguration configuration)
+        public UsuariosDA(IMongoDbContext context, IConfiguration configuration)
         {
-            this._configuracion = configuration; 
-            
-               
+            this._configuracion = configuration;
+
+
             this._conexion = context.GetCollection<User>("users");
         }
         public async Task<TokenDTO> Login(UserBase usuario)
@@ -38,7 +38,7 @@ namespace DA.Usuarios
 
             if (usuarioDB == null)
             {
-                return new TokenDTO { ValidationSuccess = false,AccessToken = string.Empty };
+                return new TokenDTO { ValidationSuccess = false, AccessToken = string.Empty };
             }
             var passwordHash = HashSHA256(usuario.Password);
             if (usuarioDB.Password != passwordHash)
@@ -73,7 +73,8 @@ namespace DA.Usuarios
                 {
                     UserName = usuario.UserName,
                     Email = usuario.Email,
-                    Password = usuario.Password
+                    Password = usuario.Password,
+                    Torneos = usuario.Torneos
 
                 });
 
@@ -86,7 +87,7 @@ namespace DA.Usuarios
                 return false;
             }
         }
-           
+
         private static string HashSHA256(string texto)
         {
             using var sha256 = SHA256.Create();
@@ -112,19 +113,55 @@ namespace DA.Usuarios
             return token;
         }
 
-        private async Task<List<Claim>> ClaimsGeneration(User user)
+        private Task<List<Claim>> ClaimsGeneration(User user)
         {
             var claims = new List<Claim>
         {
-            
+
             new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.Email, user.Email),
-            
+
         };
 
 
-            return claims;
+            return Task.FromResult(claims);
 
+        }
+
+        public async Task<bool> InscribirUsuarioTorneo(RespuestaTorneo torneoBD, string IdUsuario)
+        {
+            var filtro = Builders<User>.Filter.Eq(u => u.Id, IdUsuario);
+            var usuarioDB = await _conexion.Find(x => x.Id == IdUsuario).FirstOrDefaultAsync();
+            if (usuarioDB == null)
+                return false;
+            var torneos = usuarioDB.Torneos ?? new List<string>();
+            if (torneos == null)
+                return false;
+            if (torneos.Contains(torneoBD.Id))
+                return false; // El usuario ya está inscrito en el torneo
+            torneos.Add(torneoBD.Id);
+            var actualizacion = Builders<User>.Update.Set(t => t.Torneos, torneos);
+            var resultado = await _conexion.UpdateOneAsync(filtro, actualizacion);
+            return resultado.ModifiedCount > 0;
+        }
+
+        public async Task<bool> EliminarUsuarioEnTorneo(RespuestaTorneo torneoBD, string idUsuario)
+        {
+            var filtro = Builders<User>.Filter.Eq(u => u.Id, idUsuario);
+            var usuarioDB = await _conexion.Find(x => x.Id == idUsuario).FirstOrDefaultAsync();
+            if (usuarioDB == null)
+                return false;
+            var torneos = usuarioDB.Torneos ?? new List<string>();
+            if (torneos == null)
+                 return false;
+            if (!torneos.Contains(torneoBD.Id))
+                return false; // El usuario no está inscrito en el torneo
+            var eliminacion = torneos.Remove(torneoBD.Id);
+            if (!eliminacion)
+                return false;
+            var actualizacion = Builders<User>.Update.Set(t => t.Torneos, torneos);
+            var resultado = await _conexion.UpdateOneAsync(filtro, actualizacion);
+            return resultado.ModifiedCount > 0;
         }
     }
 }
