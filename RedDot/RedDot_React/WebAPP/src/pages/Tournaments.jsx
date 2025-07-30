@@ -7,29 +7,43 @@ import './Tournaments.css';
 
 const Tournaments = () => {
     const { user } = useAuth();
-    const [tournaments, setTournaments] = useState([]);
+    const [tournaments, setTournaments] = useState([]); // ← AGREGADO: estado faltante
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
 
     useEffect(() => {
-        loadTournaments();
-    }, []);
+    console.log('🎯 useEffect triggered, calling loadTournaments'); // Debug
+    loadTournaments();
+}, []);
 
-    const loadTournaments = async () => {
-        setLoading(true);
-        try {
-            const result = await getAllTournaments();
-            if (result.success) {
-                setTournaments(result.data || []);
-            } else {
-                console.error('Error loading tournaments:', result.error);
-            }
-        } catch (error) {
-            console.error('Error loading tournaments:', error);
-        } finally {
-            setLoading(false);
+   const loadTournaments = async () => {
+    console.log('🚀 loadTournaments STARTED'); // Debug
+    setLoading(true);
+    try {
+        console.log('🔄 Calling getAllTournaments...'); // Debug
+        const result = await getAllTournaments();
+        console.log('🔍 API Response:', result); // Debug
+        console.log('🔍 result.success:', result.success); // Debug
+        console.log('🔍 result.data:', result.data); // Debug
+        
+        if (result.success) {
+            const tournamentsData = Array.isArray(result.data.torneos) ? result.data.torneos : [];
+            console.log('🔍 Tournaments Data (processed):', tournamentsData); // Debug
+            console.log('🔍 About to call setTournaments...'); // Debug
+            setTournaments(tournamentsData);
+            console.log('✅ setTournaments called'); // Debug
+        } else {
+            console.error('❌ API returned success: false', result.error);
+            setTournaments([]);
         }
-    };
+    } catch (error) {
+        console.error('💥 Exception in loadTournaments:', error);
+        setTournaments([]);
+    } finally {
+        console.log('🏁 loadTournaments FINISHED'); // Debug
+        setLoading(false);
+    }
+};
 
     const handleJoinTournament = async (tournamentId) => {
         try {
@@ -37,7 +51,7 @@ const Tournaments = () => {
             if (result.success) {
                 Swal.fire({
                     icon: 'success',
-                    title: '�Inscrito!',
+                    title: '¡Inscrito!',
                     text: 'Te has inscrito al torneo exitosamente',
                     timer: 1500,
                     showConfirmButton: false
@@ -54,20 +68,20 @@ const Tournaments = () => {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Error inesperado al inscribirse'
+                text: 'Error inesperado al inscribirse :' + error.message || 'Error inesperado'
             });
         }
     };
 
     const handleLeaveTournament = async (tournamentId) => {
         const confirmResult = await Swal.fire({
-            title: '�Salir del torneo?',
-            text: "�Est�s seguro que deseas salir de este torneo?",
+            title: '¿Salir del torneo?',
+            text: "¿Estás seguro que deseas salir de este torneo?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
             cancelButtonColor: '#6b7280',
-            confirmButtonText: 'S�, salir',
+            confirmButtonText: 'Sí, salir',
             cancelButtonText: 'Cancelar'
         });
 
@@ -75,27 +89,28 @@ const Tournaments = () => {
             try {
                 const result = await leaveTournament(tournamentId);
                 if (result.success) {
-                    Swal.fire('�Listo!', 'Has salido del torneo', 'success');
+                    Swal.fire('¡Listo!', 'Has salido del torneo', 'success');
                     loadTournaments();
                 }
             } catch (error) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error al salir del torneo'
+                    text: 'Error al salir del torneo :'+ error.message || 'Error inesperado'
                 });
             }
         }
     };
 
-    const getStatusColor = (estado) => {
-        switch (estado?.toLowerCase()) {
-            case 'activo': return 'status-active';
-            case 'pendiente': return 'status-pending';
-            case 'finalizado': return 'status-finished';
-            default: return 'status-pending';
-        }
-    };
+   const getStatusColor = (estado) => {
+    switch (estado) {
+        case 0: return 'status-open';       // Abierto
+        case 1: return 'status-active';     // EnCurso
+        case 2: return 'status-finished';   // Finalizado
+        case 3: return 'status-cancelled';  // Cancelado
+        default: return 'status-pending';
+    }
+};
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
@@ -111,9 +126,9 @@ const Tournaments = () => {
         return total > 0 ? Math.round((occupied / total) * 100) : 0;
     };
 
-    const filteredTournaments = tournaments.filter(tournament => {
+    const filteredTournaments = (tournaments || []).filter(tournament => {
         if (filter === 'all') return true;
-        if (filter === 'active') return tournament.estado?.toLowerCase() === 'activo';
+if (filter === 'active') return tournament.estado === 1; // EnCurso
         if (filter === 'joined') return tournament.participantes?.includes(user?.id);
         return true;
     });
@@ -121,14 +136,17 @@ const Tournaments = () => {
     if (loading) {
         return <LoadingSpinner />;
     }
-
+console.log('🔍 Tournaments state:', tournaments);
+console.log('🔍 Filter:', filter);
+console.log('🔍 Filtered tournaments:', filteredTournaments);
+console.log('🔍 Loading:', loading);
     return (
         <div className="tournaments-page">
             <div className="tournaments-header">
                 <h1>Torneos</h1>
                 {user?.role === 'admin' && (
                     <button className="create-tournament-btn">
-                        ? Crear Torneo
+                        🏆 Crear Torneo
                     </button>
                 )}
             </div>
@@ -138,19 +156,19 @@ const Tournaments = () => {
                     className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
                     onClick={() => setFilter('all')}
                 >
-                    Todos ({tournaments.length})
+                    Todos ({(tournaments || []).length})
                 </button>
                 <button
                     className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
                     onClick={() => setFilter('active')}
                 >
-                    Activos ({tournaments.filter(t => t.estado?.toLowerCase() === 'activo').length})
+Activos ({(tournaments || []).filter(t => t.estado === 1).length})
                 </button>
                 <button
                     className={`filter-btn ${filter === 'joined' ? 'active' : ''}`}
                     onClick={() => setFilter('joined')}
                 >
-                    Mis Torneos ({tournaments.filter(t => t.participantes?.includes(user?.id)).length})
+                    Mis Torneos ({(tournaments || []).filter(t => t.participantes?.includes(user?.id)).length})
                 </button>
             </div>
 
@@ -177,7 +195,7 @@ const Tournaments = () => {
                                 </div>
 
                                 <div className="tournament-game">
-                                    ?? {tournament.juego || 'No especificado'}
+                                    🎮 {tournament.juego || 'No especificado'}
                                 </div>
 
                                 <div className="tournament-dates">
@@ -231,7 +249,7 @@ const Tournaments = () => {
                                         </button>
                                     ) : (
                                         <button className="btn btn-disabled" disabled>
-                                            {tournament.cuposDisponibles === 0 ? 'Cupos Agotados' : 'No Disponible'}
+                                                    {tournament.participantes >= tournament.cupos_maximos === 0 ? 'Cupos Agotados' : 'No Disponible'}
                                         </button>
                                     )}
 
