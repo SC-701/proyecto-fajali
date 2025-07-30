@@ -1,7 +1,7 @@
 import ApiService from '../services/apiService.js';
 
 export async function getAllTournaments() {
-    return await ApiService.get('Torneos');
+    return await ApiService.get('Torneos/listar');
 }
 
 export async function getTournamentById(id) {

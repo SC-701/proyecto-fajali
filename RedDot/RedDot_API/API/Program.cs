@@ -92,6 +92,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var claimsIdentity = context.Principal.Identity as System.Security.Claims.ClaimsIdentity;
                 var userName = claimsIdentity?.Name;
 
+                //var userRole = "Admin";
+
                 var userRole = await context.HttpContext.RequestServices
                     .GetRequiredService<IAuthenticationFlujo>()
                     .GetRole(userName);

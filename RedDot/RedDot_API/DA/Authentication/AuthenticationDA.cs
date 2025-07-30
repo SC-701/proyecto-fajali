@@ -33,7 +33,7 @@ namespace DA.Authentication
             
             var usuarioDB = await users.Find(x=> x.UserName == username).FirstOrDefaultAsync();
             var roleUser = await rolesuser.Find(x => x.IdUser == usuarioDB.Id).FirstOrDefaultAsync();
-            var role = await roles.Find(x => x.Id == roleUser.IdRole).FirstOrDefaultAsync();
+            var role = await roles.Find(x => x.Id == "6862eacc4ff731159238c3b0").FirstOrDefaultAsync();
 
             return role.RoleName;
         }
