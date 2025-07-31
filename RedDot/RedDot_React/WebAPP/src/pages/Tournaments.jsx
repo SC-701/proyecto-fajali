@@ -3,7 +3,7 @@ import { getAllTournaments, joinTournament, leaveTournament } from '../API/Tourn
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import Swal from 'sweetalert2';
-import './Tournaments.css';
+import '../styles/Tournaments.css';
 
 const Tournaments = () => {
     const { user } = useAuth();
