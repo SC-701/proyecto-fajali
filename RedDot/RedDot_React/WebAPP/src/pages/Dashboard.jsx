@@ -4,7 +4,7 @@ import { getAllTournaments } from '../API/Tournament.js';
 import ApiService from '../services/apiService.js';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import { Link } from 'react-router-dom';
-import './Dashboard.css';
+import '../styles/Dashboard.css';
 
 const Dashboard = () => {
     const { user } = useAuth();
