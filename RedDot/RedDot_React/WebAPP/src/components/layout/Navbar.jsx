@@ -1,14 +1,34 @@
-﻿import React from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Swal from 'sweetalert2';
 import '../../styles/Navbar.css';
+import { getUserProfile } from '../../API/User.js';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const [username, setUsername] = useState("");
 
+    useEffect( () => {
+        loadUsername();
+    })
+
+    const loadUsername = async () => {
+        try {
+            const result = await getUserProfile(user);
+            if (result.success) {
+                setUsername(result.data.username);
+            } else {
+                setUsername("Usuario");
+            }
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+        }
+
+
+    }
     const handleLogout = () => {
         Swal.fire({
             title: '¿Cerrar Sesión?',
@@ -33,6 +53,8 @@ const Navbar = () => {
             }
         });
     };
+
+
 
     const isActive = (path) => location.pathname === path;
 
@@ -78,11 +100,9 @@ const Navbar = () => {
                 <div className="navbar-user">
                     <div className="user-info">
                         <span className="user-name">
-                            {user?.username || 'Usuario'}
+                            {username}
                         </span>
-                        <span className="user-role">
-                            {user?.role || 'Participante'}
-                        </span>
+                        
                     </div>
                     <div className="user-menu">
                         <Link to="/profile" className="profile-link">

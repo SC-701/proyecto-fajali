@@ -21,6 +21,7 @@ namespace DA.Usuarios
     {
 
         private readonly IMongoCollection<User> _conexion;
+        private readonly IMongoCollection<Torneo> _torneos;
         private readonly IConfiguration _configuracion;
 
 
@@ -30,6 +31,7 @@ namespace DA.Usuarios
 
 
             this._conexion = context.GetCollection<User>("users");
+            this._torneos = context.GetCollection<Torneo>("torneos");
         }
         public async Task<TokenDTO> Login(UserBase usuario)
         {
@@ -52,6 +54,7 @@ namespace DA.Usuarios
 
             respuestaToken.AccessToken = new JwtSecurityTokenHandler().WriteToken(token);
             respuestaToken.ValidationSuccess = true;
+            respuestaToken.user = usuarioDB.Id;
 
             return respuestaToken;
 
@@ -162,6 +165,55 @@ namespace DA.Usuarios
             var actualizacion = Builders<User>.Update.Set(t => t.Torneos, torneos);
             var resultado = await _conexion.UpdateOneAsync(filtro, actualizacion);
             return resultado.ModifiedCount > 0;
+        }
+
+        public async Task<bool> EditarUsuario(UserUI usuario)
+        {
+            var user = await _conexion.UpdateOneAsync(
+                Builders<User>.Filter.Eq(u => u.Id, usuario.Id),
+                Builders<User>.Update
+                    .Set(u => u.UserName, usuario.username)
+                    .Set(u => u.Email, usuario.email)
+                    .Set(u => u.Descripcion, usuario.description)
+
+                );
+
+            return user.ModifiedCount > 0;
+
+
+        }
+
+        public async Task<UserResponse?> ObtenerUsuarioPorId(string idUsuario)
+        {
+            var user = await _conexion.Find(x => x.Id == idUsuario).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return null;
+            }
+            var torneos = _torneos.FindAsync(x => user.Torneos.Contains(x.Id)).Result.ToList();
+
+            var listaTorneos = torneos.Select(t => new RespuestaTorneo
+            {
+                Id = t.Id,
+                Nombre = t.Nombre,
+                Descripcion = t.Descripcion,
+                FechaInicio = t.FechaInicio,
+                FechaFin = t.FechaFin,
+                Estado = t.Estado,
+                Participantes = t.Participantes
+            }).ToList();
+
+            var userResponse = new UserResponse
+            {
+                Id = user.Id,
+                username = user.UserName,
+                email = user.Email,
+                description = user.Descripcion,
+                tournaments = listaTorneos ,
+                tournamentsWon = user.TournamentsWon,
+                tournamentsJoined = user.TournamentsJoined
+            };
+            return userResponse;
         }
     }
 }

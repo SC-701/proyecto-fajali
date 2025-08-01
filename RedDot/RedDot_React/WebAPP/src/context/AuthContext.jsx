@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import ApiService from '../services/apiService.js'; 
+import {loginUser,logoutUser,registerUser} from '../API/Register.js'; 
 
 const AuthContext = createContext();
 
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Verificar autenticación al cargar la app
+        
         const checkAuth = () => {
             const token = localStorage.getItem("token");
             const isAuth = localStorage.getItem("isAuthenticated");
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
             if (token && isAuth === "true") {
                 setIsAuthenticated(true);
                 if (userData) {
-                    setUser(JSON.parse(userData));
+                    setUser(userData);
                 }
             }
             setLoading(false);
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (username, password) => {
         setLoading(true);
         try {
-            const result = await ApiService.post('Usuarios/login', { username, password });
+            const result = await loginUser(username, password);
 
             if (result.success) {
                 localStorage.setItem("isAuthenticated", "true");
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
 
                 // Guardar datos del usuario si existen
                 if (result.data.user) {
-                    localStorage.setItem("user", JSON.stringify(result.data.user));
+                    localStorage.setItem("user", result.data.user);
                     setUser(result.data.user);
                 }
 
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (username, password, email) => {
-        return await ApiService.post('Usuarios/register', { username, password, email });
+        return await registerUser( username, password, email );
     };
 
     const logout = () => {

@@ -47,6 +47,11 @@ class ApiService {
         return this.request(endpoint, { method: 'GET' });
     }
 
+    static getWithParams(endpoint, params) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`${endpoint}?${queryString}`, { method: 'GET' });
+    }
+
     static post(endpoint, body) {
         return this.request(endpoint, {
             method: 'POST',
