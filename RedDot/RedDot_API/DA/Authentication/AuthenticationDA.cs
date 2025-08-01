@@ -8,6 +8,7 @@ using Abstracciones.Modelos;
 using DA.Entidades;
 using DA.Repositorio;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace DA.Authentication
@@ -32,8 +33,8 @@ namespace DA.Authentication
         {
             
             var usuarioDB = await users.Find(x=> x.UserName == username).FirstOrDefaultAsync();
-            var roleUser = await rolesuser.Find(x => x.IdUser == usuarioDB.Id).FirstOrDefaultAsync();
-            var role = await roles.Find(x => x.Id == "6862eacc4ff731159238c3b0").FirstOrDefaultAsync();
+            var roleUser = await rolesuser.Find(x => x.idUser == usuarioDB.Id).FirstOrDefaultAsync();
+            var role = await roles.Find(x => x.Id == roleUser.idRole).FirstOrDefaultAsync();
 
             return role.RoleName;
         }

@@ -15,11 +15,11 @@ namespace DA.Entidades
         public string? Id { get; set; }
 
         
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string IdRole { get; set; }
+       
+        public string idRole { get; set; }
 
         
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string IdUser { get; set; }
+    
+        public string idUser { get; set; }
     }
 }

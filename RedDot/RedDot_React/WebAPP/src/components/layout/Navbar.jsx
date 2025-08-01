@@ -2,7 +2,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Swal from 'sweetalert2';
-import './Navbar.css';
+import '../../styles/Navbar.css';
 
 const Navbar = () => {
     const { user, logout } = useAuth();

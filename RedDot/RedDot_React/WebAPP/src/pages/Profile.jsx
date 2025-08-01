@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import ApiService from '../services/apiService.js';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import Swal from 'sweetalert2';
-import './Profile.css';
+import '../styles/Profile.css';
 
 const Profile = () => {
     const { user, login } = useAuth();
@@ -141,14 +141,7 @@ const Profile = () => {
                             <span className="stat-label">🥇 Torneos Ganados</span>
                             <span className="stat-value">{stats.tournamentsWon}</span>
                         </div>
-                        <div className="stat-item">
-                            <span className="stat-label">⭐ Puntos Totales</span>
-                            <span className="stat-value">{stats.totalPoints}</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-label">📊 Ranking Actual</span>
-                            <span className="stat-value">#{stats.currentRank || 'N/A'}</span>
-                        </div>
+                        
                     </div>
                 </div>
 
