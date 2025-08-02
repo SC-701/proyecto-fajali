@@ -22,7 +22,7 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
         return texts[estado] || 'Desconocido';
     };
 
-    const formatDate = (dateString) => {
+    const formatDateTime = (dateString) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'short',
@@ -92,8 +92,17 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
                 {tournament.accessKey && tournament.esCreador && (
                     <button
                         className="btn btn-secondary"
-                        onClick={() => {
-                            navigator.clipboard.writeText(tournament.accessKey);
+                        onClick={async () => {
+                            if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+                                try {
+                                    await navigator.clipboard.writeText(tournament.accessKey);
+                                    window.alert('Clave copiada al portapapeles.');
+                                } catch (err) {
+                                    window.alert('No se pudo copiar la clave. Inténtalo de nuevo.');
+                                }
+                            } else {
+                                window.alert('La función de copiar no está disponible en este navegador.');
+                            }
                         }}
                     >
                         📋 Copiar Clave

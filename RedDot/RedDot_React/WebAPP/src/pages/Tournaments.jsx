@@ -250,11 +250,6 @@ const Tournaments = () => {
         return <LoadingSpinner />;
     }
 
-    console.log('🔍 Tournaments state:', tournaments);
-    console.log('🔍 Filter:', filter);
-    console.log('🔍 Filtered tournaments:', filteredTournaments);
-    console.log('🔍 Loading:', loading);
-
     return (
         <div className="tournaments-page">
             <div className="tournaments-header">
