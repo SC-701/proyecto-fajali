@@ -23,8 +23,11 @@ namespace Abstracciones.Interfaces.Flujo
         Task<bool> EliminarParticipante(string idTorneo, string IdUsuario);
         Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
 
-
-
-
+        Task<RespuestaTorneoEliminacion> CrearTorneoEliminacion(SolicitudCrearTorneoEliminacion solicitud, string creadoPor);
+        Task<bool> ActualizarPuntajePartido(SolicitudActualizarPuntaje solicitud, string nombreUsuario);
+        Task<bool> AvanzarRonda(SolicitudAvanzarRonda solicitud, string nombreUsuario);
+        Task<List<RespuestaTorneoEliminacion>> ObtenerMisTorneosEliminacion(string nombreUsuario, EstadoTorneo? estado = null);
+        Task<RespuestaTorneoEliminacion?> AccederTorneoConClave(string accessKey, string nombreUsuario);
+        Task<RespuestaTorneoEliminacion?> ObtenerTorneoEliminacion(string idTorneo, string nombreUsuario, string? accessKey = null);
     }
 }
