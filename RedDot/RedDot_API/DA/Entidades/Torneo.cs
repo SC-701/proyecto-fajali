@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Abstracciones.Modelos;
 
@@ -22,24 +17,25 @@ namespace DA.Entidades
         public string Descripcion { get; set; }
 
         [BsonElement("reglas")]
-        public string Reglas { get; set; }
+        public string? Reglas { get; set; }
+
         [BsonElement("modalidad")]
-        public string Modalidad { get; set; }
+        public string? Modalidad { get; set; }
 
         [BsonElement("fecha_inicio")]
-        public DateTime FechaInicio { get; set; }
+        public DateTime? FechaInicio { get; set; }
 
         [BsonElement("fecha_fin")]
-        public DateTime FechaFin { get; set; }
+        public DateTime? FechaFin { get; set; }
 
         [BsonElement("fecha_limite_inscripcion")]
-        public DateTime FechaLimiteInscripcion { get; set; }
+        public DateTime? FechaLimiteInscripcion { get; set; }
 
         [BsonElement("cupos_maximos")]
-        public int CuposMaximos { get; set; }
+        public int? CuposMaximos { get; set; }
 
         [BsonElement("estado")]
-        public EstadoTorneo Estado { get; set; } = EstadoTorneo.Abierto;
+        public EstadoTorneo Estado { get; set; } = EstadoTorneo.PorIniciar;
 
         [BsonElement("creado_por")]
         public string CreadoPor { get; set; }
@@ -51,13 +47,27 @@ namespace DA.Entidades
         public string TipoDeporte { get; set; }
 
         [BsonElement("ubicacion")]
-        public string Ubicacion { get; set; }
+        public string? Ubicacion { get; set; }
 
         [BsonElement("descripcion_premio")]
         public string? DescripcionPremio { get; set; }
+
         [BsonElement("participantes")]
-        public List<ParticipantesBase> Participantes { get; set; }
+        public List<ParticipantesBase>? Participantes { get; set; }
 
+        [BsonElement("categoria")]
+        public CategoriaTorneo? Categoria { get; set; }
 
+        [BsonElement("access_key")]
+        public string? AccessKey { get; set; }
+
+        [BsonElement("rondas")]
+        public Rondas? Rondas { get; set; }
+
+        [BsonElement("participantes_eliminacion")]
+        public List<string>? ParticipantesEliminacion { get; set; }
+
+        [BsonElement("es_eliminacion_directa")]
+        public bool EsEliminacionDirecta { get; set; } = false;
     }
 }

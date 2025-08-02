@@ -24,6 +24,12 @@ namespace Abstracciones.Interfaces.DA
         Task<bool> EliminarParticipante(string idTorneo, string IdUsuario);
         Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
 
-
+        Task<string> CrearTorneoEliminacion(SolicitudCrearTorneoEliminacion solicitud, string creadoPor);
+        Task<bool> ActualizarPuntajePartido(string idTorneo, string ronda, int indicePartido, List<Participante> participantes);
+        Task<bool> AvanzarRondaTorneo(string idTorneo, string rondaActual);
+        Task<List<RespuestaTorneoEliminacion>> ObtenerTorneosEliminacionPorUsuario(string nombreUsuario, EstadoTorneo? estado = null);
+        Task<RespuestaTorneoEliminacion?> ObtenerTorneoPorAccessKey(string accessKey);
+        Task<RespuestaTorneoEliminacion?> ObtenerTorneoEliminacionPorId(string idTorneo);
+        Task<bool> UsuarioTieneAccesoTorneo(string idTorneo, string nombreUsuario);
     }
 }
