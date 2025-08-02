@@ -1,0 +1,232 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: #1f2937;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ===== MODAL DE ACCESO CON CLAVE ===== */
+.access-modal {
+    width: 100%;
+    max-width: 500px;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+}
+
+    .access-modal .modal-header {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+        padding: 1.5rem;
+        margin: -1px -1px 0 -1px;
+        border-radius: 11px 11px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .access-modal .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+    .access-modal .modal-close {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+
+        .access-modal .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+    .access-modal .modal-body {
+        padding: 2rem;
+    }
+
+.access-description {
+    color: #9ca3af;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.access-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+    .access-form .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .access-form label {
+        color: #f9fafb;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+.access-key-input {
+    padding: 0.75rem 1rem;
+    background-color: #374151;
+    border: 2px solid #4b5563;
+    border-radius: 8px;
+    color: #f9fafb;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+    .access-key-input:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        background-color: #4b5563;
+    }
+
+    .access-key-input::placeholder {
+        color: #6b7280;
+        text-transform: none;
+        letter-spacing: normal;
+    }
+
+.form-hint {
+    color: #6b7280;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.access-info {
+    margin: 1.5rem 0;
+}
+
+    .access-info .info-box {
+        background-color: #374151;
+        border-left: 4px solid #dc2626;
+        padding: 1rem;
+        border-radius: 0 8px 8px 0;
+    }
+
+        .access-info .info-box h4 {
+            color: #f9fafb;
+            font-size: 0.95rem;
+            margin: 0 0 0.75rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .access-info .info-box ul {
+            margin: 0;
+            padding-left: 1.2rem;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        .access-info .info-box li {
+            margin-bottom: 0.3rem;
+            line-height: 1.4;
+        }
+
+.access-modal .modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.access-modal .btn {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+    .access-modal .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.access-modal .btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+    .access-modal .btn-secondary:hover:not(:disabled) {
+        background-color: #4b5563;
+    }
+
+.access-modal .btn-primary {
+    background-color: #dc2626;
+    color: white;
+}
+
+    .access-modal .btn-primary:hover:not(:disabled) {
+        background-color: #b91c1c;
+        transform: translateY(-1px);
+    }
+
+/* Responsive */
+@media (max-width: 480px) {
+    .access-modal {
+        max-width: 95vw;
+        margin: 1rem;
+    }
+
+        .access-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .access-modal .modal-actions {
+            flex-direction: column;
+        }
+}

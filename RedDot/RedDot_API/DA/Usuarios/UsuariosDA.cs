@@ -19,33 +19,30 @@ namespace DA.Usuarios
 {
     public class UsuariosDA : IUsuariosDA
     {
-
         private readonly IMongoCollection<User> _conexion;
         private readonly IMongoCollection<Torneo> _torneos;
         private readonly IConfiguration _configuracion;
 
-
         public UsuariosDA(IMongoDbContext context, IConfiguration configuration)
         {
             this._configuracion = configuration;
-
-
             this._conexion = context.GetCollection<User>("users");
             this._torneos = context.GetCollection<Torneo>("torneos");
         }
+
         public async Task<TokenDTO> Login(UserBase usuario)
         {
-
             var usuarioDB = await _conexion.Find(x => x.UserName == usuario.UserName).FirstOrDefaultAsync();
 
             if (usuarioDB == null)
             {
                 return new TokenDTO { ValidationSuccess = false, AccessToken = string.Empty };
             }
+
             var passwordHash = HashSHA256(usuario.Password);
             if (usuarioDB.Password != passwordHash)
             {
-                return new TokenDTO { ValidationSuccess = false, AccessToken = string.Empty }; ;
+                return new TokenDTO { ValidationSuccess = false, AccessToken = string.Empty };
             }
 
             TokenDTO respuestaToken = new TokenDTO() { AccessToken = string.Empty, ValidationSuccess = false };
@@ -57,7 +54,6 @@ namespace DA.Usuarios
             respuestaToken.user = usuarioDB.Id;
 
             return respuestaToken;
-
         }
 
         public async Task<bool> Register(UserRegister usuario)
@@ -70,6 +66,7 @@ namespace DA.Usuarios
                 {
                     return false;
                 }
+
                 usuario.Password = HashSHA256(usuario.Password);
 
                 await _conexion.InsertOneAsync(new User
@@ -78,14 +75,12 @@ namespace DA.Usuarios
                     Email = usuario.Email,
                     Password = usuario.Password,
                     Torneos = usuario.Torneos
-
                 });
 
                 return true;
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine($"Error al registrar usuario: {ex.Message}");
                 return false;
             }
@@ -96,7 +91,7 @@ namespace DA.Usuarios
             using var sha256 = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(texto);
             var hash = sha256.ComputeHash(bytes);
-            return Convert.ToHexString(hash); // .NET 5+; para versiones anteriores usa BitConverter.ToString(hash).Replace("-", "")
+            return Convert.ToHexString(hash);
         }
 
         private async Task<JwtSecurityToken> JWTTokenGenerator(User user, TokenConfiguration tokenConfiguration)
@@ -119,32 +114,31 @@ namespace DA.Usuarios
         private Task<List<Claim>> ClaimsGeneration(User user)
         {
             var claims = new List<Claim>
-        {
-
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Email, user.Email),
-
-        };
-
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
 
             return Task.FromResult(claims);
-
         }
 
         public async Task<bool> InscribirUsuarioTorneo(RespuestaTorneo torneoBD, string IdUsuario)
         {
             var filtro = Builders<User>.Filter.Eq(u => u.Id, IdUsuario);
             var usuarioDB = await _conexion.Find(x => x.Id == IdUsuario).FirstOrDefaultAsync();
+
             if (usuarioDB == null)
                 return false;
+
             var torneos = usuarioDB.Torneos ?? new List<string>();
-            if (torneos == null)
-                return false;
+
             if (torneos.Contains(torneoBD.Id))
-                return false; // El usuario ya está inscrito en el torneo
+                return false;
+
             torneos.Add(torneoBD.Id);
             var actualizacion = Builders<User>.Update.Set(t => t.Torneos, torneos);
             var resultado = await _conexion.UpdateOneAsync(filtro, actualizacion);
+
             return resultado.ModifiedCount > 0;
         }
 
@@ -152,18 +146,22 @@ namespace DA.Usuarios
         {
             var filtro = Builders<User>.Filter.Eq(u => u.Id, idUsuario);
             var usuarioDB = await _conexion.Find(x => x.Id == idUsuario).FirstOrDefaultAsync();
+
             if (usuarioDB == null)
                 return false;
+
             var torneos = usuarioDB.Torneos ?? new List<string>();
-            if (torneos == null)
-                 return false;
+
             if (!torneos.Contains(torneoBD.Id))
-                return false; // El usuario no está inscrito en el torneo
+                return false;
+
             var eliminacion = torneos.Remove(torneoBD.Id);
             if (!eliminacion)
                 return false;
+
             var actualizacion = Builders<User>.Update.Set(t => t.Torneos, torneos);
             var resultado = await _conexion.UpdateOneAsync(filtro, actualizacion);
+
             return resultado.ModifiedCount > 0;
         }
 
@@ -175,12 +173,9 @@ namespace DA.Usuarios
                     .Set(u => u.UserName, usuario.username)
                     .Set(u => u.Email, usuario.email)
                     .Set(u => u.Descripcion, usuario.description)
-
-                );
+            );
 
             return user.ModifiedCount > 0;
-
-
         }
 
         public async Task<UserResponse?> ObtenerUsuarioPorId(string idUsuario)
@@ -190,30 +185,57 @@ namespace DA.Usuarios
             {
                 return null;
             }
+
             var torneos = _torneos.FindAsync(x => user.Torneos.Contains(x.Id)).Result.ToList();
 
             var listaTorneos = torneos.Select(t => new RespuestaTorneo
             {
-                Id = t.Id,
-                Nombre = t.Nombre,
-                Descripcion = t.Descripcion,
-                FechaInicio = t.FechaInicio,
-                FechaFin = t.FechaFin,
+                Id = t.Id ?? string.Empty,
+                Nombre = t.Nombre ?? string.Empty,
+                Descripcion = t.Descripcion ?? string.Empty,
+                Reglas = t.Reglas ?? string.Empty,
+                Modalidad = t.Modalidad ?? string.Empty,
+                FechaInicio = t.FechaInicio ?? DateTime.MinValue,
+                FechaFin = t.FechaFin ?? DateTime.MinValue,
+                FechaLimiteInscripcion = t.FechaLimiteInscripcion ?? DateTime.MinValue,
+                CuposMaximos = t.CuposMaximos ?? 0,
                 Estado = t.Estado,
-                Participantes = t.Participantes
+                CreadoPor = t.CreadoPor ?? string.Empty,
+                FechaCreacion = t.FechaCreacion,
+                TipoDeporte = t.TipoDeporte ?? string.Empty,
+                Ubicacion = t.Ubicacion ?? string.Empty,
+                DescripcionPremio = t.DescripcionPremio ?? string.Empty,
+                EstadoTexto = ObtenerTextoEstado(t.Estado),
+                PuedeInscribirse = t.Estado == EstadoTorneo.PorIniciar &&
+                                 (t.Participantes?.Count ?? 0) < (t.CuposMaximos ?? 0) &&
+                                 DateTime.UtcNow <= (t.FechaLimiteInscripcion ?? DateTime.MinValue),
+                Participantes = t.Participantes ?? new List<ParticipantesBase>()
             }).ToList();
 
             var userResponse = new UserResponse
             {
-                Id = user.Id,
-                username = user.UserName,
-                email = user.Email,
-                description = user.Descripcion,
-                tournaments = listaTorneos ,
+                Id = user.Id ?? string.Empty,
+                username = user.UserName ?? string.Empty,
+                email = user.Email ?? string.Empty,
+                description = user.Descripcion ?? string.Empty,
+                tournaments = listaTorneos,
                 tournamentsWon = user.TournamentsWon,
                 tournamentsJoined = user.TournamentsJoined
             };
+
             return userResponse;
+        }
+
+        private static string ObtenerTextoEstado(EstadoTorneo estado)
+        {
+            return estado switch
+            {
+                EstadoTorneo.PorIniciar => "Por iniciar",
+                EstadoTorneo.EnProgreso => "En progreso",
+                EstadoTorneo.Terminado => "Terminado",
+                EstadoTorneo.Cancelado => "Cancelado",
+                _ => "Desconocido"
+            };
         }
     }
 }
