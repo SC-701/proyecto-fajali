@@ -1,15 +1,22 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1738743">
-  <PropertyGroup>
-    <StartupCommand>npm run dev</StartupCommand>
-    <JavaScriptTestRoot>src\</JavaScriptTestRoot>
-    <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
-    <!-- Allows the build (or compile) script located on package.json to run on Build -->
-    <ShouldRunBuildScript>false</ShouldRunBuildScript>
-    <!-- Folder where production build objects will be placed -->
-    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
-  </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="src\components\NewFolder\" />
-    <Folder Include="src\styles\" />
-  </ItemGroup>
+	<PropertyGroup>
+		<StartupCommand>npm run dev</StartupCommand>
+		<JavaScriptTestRoot>src\</JavaScriptTestRoot>
+		<JavaScriptTestFramework>Jest</JavaScriptTestFramework>
+		<ShouldRunBuildScript>false</ShouldRunBuildScript>
+		<BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
+	</PropertyGroup>
+	<ItemGroup>
+		<Folder Include="src\API\" />
+		<Folder Include="src\components\Tournament\" />
+		<Folder Include="src\components\UI\" />
+		<Folder Include="src\components\common\" />
+		<Folder Include="src\components\layout\" />
+		<Folder Include="src\context\" />
+		<Folder Include="src\hooks\" />
+		<Folder Include="src\pages\" />
+		<Folder Include="src\services\" />
+		<Folder Include="src\settings\" />
+		<Folder Include="src\styles\" />
+	</ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
-import './styles/app.css'
+﻿import './styles/app.css'
+import './styles/Modal.css' 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/common/ProtectedRoute.jsx'
@@ -12,7 +13,6 @@ import Tournaments from './pages/Tournaments.jsx'
 import Profile from './pages/Profile.jsx'
 
 function App() {
-    // Aplicar tema oscuro al body
     document.body.style.backgroundColor = '#111827';
     document.body.style.color = '#f9fafb';
     document.body.style.margin = '0';

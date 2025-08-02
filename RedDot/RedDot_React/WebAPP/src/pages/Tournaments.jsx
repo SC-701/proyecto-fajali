@@ -2,48 +2,58 @@ import React, { useState, useEffect } from 'react';
 import { getAllTournaments, joinTournament, leaveTournament } from '../API/Tournament.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
+import EliminationTournamentManager from '../components/Tournament/EliminationTournamentManager.jsx';
+import TournamentBracket from '../components/Tournament/TournamentBracket.jsx';
+import { showScoreInputModal, showAdvanceRoundModal } from '../components/Tournament/ScoreInputModal.jsx';
+import { useTournament } from '../hooks/useTournament.js';
+import { updateMatchScore, advanceRound } from '../API/TournamentElimination.js';
 import Swal from 'sweetalert2';
 import '../styles/Tournaments.css';
 
 const Tournaments = () => {
     const { user } = useAuth();
-    const [tournaments, setTournaments] = useState([]); // ← AGREGADO: estado faltante
+    const [activeView, setActiveView] = useState('traditional'); // 'traditional' | 'elimination' | 'bracket'
+    const [selectedTournament, setSelectedTournament] = useState(null);
+    const [tournaments, setTournaments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
 
-    useEffect(() => {
-    console.log('🎯 useEffect triggered, calling loadTournaments'); // Debug
-    loadTournaments();
-}, []);
+    // Hook para torneo de eliminación seleccionado
+    const { tournament: eliminationTournament, refreshTournament } = useTournament(
+        selectedTournament?.id,
+        selectedTournament?.accessKey
+    );
 
-   const loadTournaments = async () => {
-    console.log('🚀 loadTournaments STARTED'); // Debug
-    setLoading(true);
-    try {
-        console.log('🔄 Calling getAllTournaments...'); // Debug
-        const result = await getAllTournaments();
-        console.log('🔍 API Response:', result); // Debug
-        console.log('🔍 result.success:', result.success); // Debug
-        console.log('🔍 result.data:', result.data); // Debug
-        
-        if (result.success) {
-            const tournamentsData = Array.isArray(result.data.torneos) ? result.data.torneos : [];
-            console.log('🔍 Tournaments Data (processed):', tournamentsData); // Debug
-            console.log('🔍 About to call setTournaments...'); // Debug
-            setTournaments(tournamentsData);
-            console.log('✅ setTournaments called'); // Debug
-        } else {
-            console.error('❌ API returned success: false', result.error);
-            setTournaments([]);
+    useEffect(() => {
+        if (activeView === 'traditional') {
+            loadTournaments();
         }
-    } catch (error) {
-        console.error('💥 Exception in loadTournaments:', error);
-        setTournaments([]);
-    } finally {
-        console.log('🏁 loadTournaments FINISHED'); // Debug
-        setLoading(false);
-    }
-};
+    }, [activeView]);
+
+    const loadTournaments = async () => {
+        console.log('🎯 useEffect triggered, calling loadTournaments');
+        setLoading(true);
+        try {
+            console.log('🔄 Calling getAllTournaments...');
+            const result = await getAllTournaments();
+            console.log('🔍 API Response:', result);
+
+            if (result.success) {
+                const tournamentsData = Array.isArray(result.data.torneos) ? result.data.torneos : [];
+                console.log('🔍 Tournaments Data (processed):', tournamentsData);
+                setTournaments(tournamentsData);
+            } else {
+                console.error('❌ API returned success: false', result.error);
+                setTournaments([]);
+            }
+        } catch (error) {
+            console.error('💥 Exception in loadTournaments:', error);
+            setTournaments([]);
+        } finally {
+            console.log('🏁 loadTournaments FINISHED');
+            setLoading(false);
+        }
+    };
 
     const handleJoinTournament = async (tournamentId) => {
         try {
@@ -56,7 +66,7 @@ const Tournaments = () => {
                     timer: 1500,
                     showConfirmButton: false
                 });
-                loadTournaments(); // Recargar la lista
+                loadTournaments();
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -68,7 +78,7 @@ const Tournaments = () => {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Error inesperado al inscribirse :' + error.message || 'Error inesperado'
+                text: 'Error inesperado al inscribirse: ' + error.message || 'Error inesperado'
             });
         }
     };
@@ -96,21 +106,73 @@ const Tournaments = () => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error al salir del torneo :'+ error.message || 'Error inesperado'
+                    text: 'Error al salir del torneo: ' + error.message || 'Error inesperado'
                 });
             }
         }
     };
 
-   const getStatusColor = (estado) => {
-    switch (estado) {
-        case 0: return 'status-open';       // Abierto
-        case 1: return 'status-active';     // EnCurso
-        case 2: return 'status-finished';   // Finalizado
-        case 3: return 'status-cancelled';  // Cancelado
-        default: return 'status-pending';
-    }
-};
+    // Handlers para torneos de eliminación
+    const handleTournamentSelect = (tournament) => {
+        setSelectedTournament(tournament);
+        setActiveView('bracket');
+    };
+
+    const handleMatchClick = async (matchData) => {
+        if (!selectedTournament || !eliminationTournament?.esCreador) return;
+
+        await showScoreInputModal(matchData, selectedTournament.id, refreshTournament);
+    };
+
+    const handleAdvanceRound = async (round) => {
+        if (!selectedTournament || !eliminationTournament?.esCreador) return;
+
+        await showAdvanceRoundModal(round, async (confirmedRound) => {
+            try {
+                Swal.fire({
+                    title: 'Avanzando ronda...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                const result = await advanceRound({
+                    idTorneo: selectedTournament.id,
+                    rondaActual: confirmedRound
+                });
+
+                if (result.success) {
+                    await refreshTournament();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Ronda avanzada!',
+                        text: confirmedRound === 'final' ?
+                            '🏆 ¡Torneo finalizado!' :
+                            `Avanzando a la siguiente ronda`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    throw new Error(result.error || 'Error al avanzar ronda');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'No se pudo avanzar la ronda'
+                });
+            }
+        });
+    };
+
+    const getStatusColor = (estado) => {
+        switch (estado) {
+            case 0: return 'status-open';
+            case 1: return 'status-active';
+            case 2: return 'status-finished';
+            case 3: return 'status-cancelled';
+            default: return 'status-pending';
+        }
+    };
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
@@ -128,27 +190,88 @@ const Tournaments = () => {
 
     const filteredTournaments = (tournaments || []).filter(tournament => {
         if (filter === 'all') return true;
-if (filter === 'active') return tournament.estado === 1; // EnCurso
+        if (filter === 'active') return tournament.estado === 1;
         if (filter === 'joined') return tournament.participantes?.includes(user?.id);
         return true;
     });
 
+    // Renderizado condicional basado en la vista activa
+    if (activeView === 'bracket' && selectedTournament) {
+        return (
+            <div className="tournaments-page">
+                <div className="tournaments-header">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => {
+                            setActiveView('elimination');
+                            setSelectedTournament(null);
+                        }}
+                    >
+                        ← Volver a Torneos
+                    </button>
+                    <h1>Bracket del Torneo</h1>
+                </div>
+
+                {eliminationTournament ? (
+                    <TournamentBracket
+                        tournament={eliminationTournament}
+                        onMatchClick={handleMatchClick}
+                        onAdvanceRound={handleAdvanceRound}
+                    />
+                ) : (
+                    <LoadingSpinner />
+                )}
+            </div>
+        );
+    }
+
+    if (activeView === 'elimination') {
+        return (
+            <div className="tournaments-page">
+                <div className="tournaments-header">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => setActiveView('traditional')}
+                    >
+                        ← Torneos Tradicionales
+                    </button>
+                    <h1>Torneos de Eliminación Directa</h1>
+                </div>
+
+                <EliminationTournamentManager
+                    onTournamentSelect={handleTournamentSelect}
+                />
+            </div>
+        );
+    }
+
+    // Vista tradicional de torneos
     if (loading) {
         return <LoadingSpinner />;
     }
-console.log('🔍 Tournaments state:', tournaments);
-console.log('🔍 Filter:', filter);
-console.log('🔍 Filtered tournaments:', filteredTournaments);
-console.log('🔍 Loading:', loading);
+
+    console.log('🔍 Tournaments state:', tournaments);
+    console.log('🔍 Filter:', filter);
+    console.log('🔍 Filtered tournaments:', filteredTournaments);
+    console.log('🔍 Loading:', loading);
+
     return (
         <div className="tournaments-page">
             <div className="tournaments-header">
                 <h1>Torneos</h1>
-                {user?.role === 'admin' && (
-                    <button className="create-tournament-btn">
-                        🏆 Crear Torneo
+                <div className="header-actions">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => setActiveView('elimination')}
+                    >
+                        ⚡ Torneos de Eliminación
                     </button>
-                )}
+                    {user?.role === 'admin' && (
+                        <button className="create-tournament-btn">
+                            🏆 Crear Torneo
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="tournaments-filters">
@@ -162,7 +285,7 @@ console.log('🔍 Loading:', loading);
                     className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
                     onClick={() => setFilter('active')}
                 >
-Activos ({(tournaments || []).filter(t => t.estado === 1).length})
+                    Activos ({(tournaments || []).filter(t => t.estado === 1).length})
                 </button>
                 <button
                     className={`filter-btn ${filter === 'joined' ? 'active' : ''}`}
@@ -249,7 +372,7 @@ Activos ({(tournaments || []).filter(t => t.estado === 1).length})
                                         </button>
                                     ) : (
                                         <button className="btn btn-disabled" disabled>
-                                                    {tournament.participantes >= tournament.cupos_maximos === 0 ? 'Cupos Agotados' : 'No Disponible'}
+                                            {tournament.participantes >= tournament.cupos_maximos === 0 ? 'Cupos Agotados' : 'No Disponible'}
                                         </button>
                                     )}
 
