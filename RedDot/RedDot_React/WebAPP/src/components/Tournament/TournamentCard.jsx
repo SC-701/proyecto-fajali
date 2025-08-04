@@ -22,18 +22,13 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
         return texts[estado] || 'Desconocido';
     };
 
-    const formatDateTime = (dateString) => {
+    const formatDate = (dateString) => { 
         return new Date(dateString).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            year: 'numeric'
         });
     };
-
-    const isUserJoined = tournament.participantes?.includes(user?.id);
-    const canJoin = tournament.cuposDisponibles > 0 && !isUserJoined;
 
     return (
         <div className="tournament-card-modern">
@@ -61,8 +56,7 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
                 <div className="detail-item">
                     <span className="detail-label">Participantes:</span>
                     <span className="detail-value">
-                        {tournament.participantes?.length || 0}/
-                        {tournament.cuposMaximos || tournament.participantes?.length || 8}
+                        {tournament.participantes?.length || 0}/8
                     </span>
                 </div>
                 <div className="detail-item">

@@ -1,0 +1,175 @@
+/* TARJETAS DE TORNEO MEJORADAS */
+.tournament-card-modern {
+    background: white;
+    border-radius: 15px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+    .tournament-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+    }
+
+    .tournament-card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+.card-header {
+    margin-bottom: 20px;
+}
+
+.tournament-info h3 {
+    color: #1a202c;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+}
+
+.tournament-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-finished {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.category-badge {
+    padding: 4px 10px;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.tournament-details {
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+.detail-label {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.detail-value {
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.access-key {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.tournament-description {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+    .tournament-description p {
+        color: #4b5563;
+        margin: 0;
+        line-height: 1.5;
+        font-size: 14px;
+    }
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+    .card-actions .btn {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+        font-size: 13px;
+        padding: 10px 16px;
+    }
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .tournament-card-modern {
+        padding: 20px;
+    }
+
+    .tournament-info h3 {
+        font-size: 1.2rem;
+    }
+
+    .tournament-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .card-actions {
+        flex-direction: column;
+    }
+
+        .card-actions .btn {
+            width: 100%;
+        }
+}
