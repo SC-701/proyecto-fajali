@@ -26,5 +26,23 @@ namespace Abstracciones.Modelos
         public string Email { get; set; }
     }
 
-  
+    public class UserUI
+    {
+        public string Id { get; set; }
+        public string username { get; set; }
+        public string email { get; set; }
+        public string description { get; set; }
+       
+    }
+     
+    public class UserResponse : UserUI
+    {
+        public int tournamentsWon { get; set; } = 0;
+        public int tournamentsJoined { get; set; } = 0;
+
+        public List<RespuestaTorneo> tournaments { get; set; } = default(List<RespuestaTorneo>); // Inicializar como lista vacía
+    }
+
+    
+
 }
