@@ -1,5 +1,5 @@
 ﻿import './styles/app.css'
-import './styles/Modal.css' 
+import './components/UI/Modal.css' 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/common/ProtectedRoute.jsx'

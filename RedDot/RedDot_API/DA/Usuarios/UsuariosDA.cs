@@ -193,23 +193,18 @@ namespace DA.Usuarios
                 Id = t.Id ?? string.Empty,
                 Nombre = t.Nombre ?? string.Empty,
                 Descripcion = t.Descripcion ?? string.Empty,
-                Reglas = t.Reglas ?? string.Empty,
-                Modalidad = t.Modalidad ?? string.Empty,
-                FechaInicio = t.FechaInicio ?? DateTime.MinValue,
-                FechaFin = t.FechaFin ?? DateTime.MinValue,
-                FechaLimiteInscripcion = t.FechaLimiteInscripcion ?? DateTime.MinValue,
-                CuposMaximos = t.CuposMaximos ?? 0,
-                Estado = t.Estado,
-                CreadoPor = t.CreadoPor ?? string.Empty,
-                FechaCreacion = t.FechaCreacion,
                 TipoDeporte = t.TipoDeporte ?? string.Empty,
                 Ubicacion = t.Ubicacion ?? string.Empty,
                 DescripcionPremio = t.DescripcionPremio ?? string.Empty,
-                EstadoTexto = ObtenerTextoEstado(t.Estado),
-                PuedeInscribirse = t.Estado == EstadoTorneo.PorIniciar &&
-                                 (t.Participantes?.Count ?? 0) < (t.CuposMaximos ?? 0) &&
-                                 DateTime.UtcNow <= (t.FechaLimiteInscripcion ?? DateTime.MinValue),
-                Participantes = t.Participantes ?? new List<ParticipantesBase>()
+                Estado = t.Estado,
+                CreadoPor = t.CreadoPor ?? string.Empty,
+                FechaCreacion = t.FechaCreacion,
+                Participantes = t.Participantes?.Select(p => p.ToString()).ToList() ?? new List<string>(),
+                Categoria = t.Categoria ?? default,
+                AccessKey = t.AccessKey,
+                Rondas = t.Rondas ?? new Rondas(),
+                EsCreador = false,
+                TieneAcceso = true
             }).ToList();
 
             var userResponse = new UserResponse
