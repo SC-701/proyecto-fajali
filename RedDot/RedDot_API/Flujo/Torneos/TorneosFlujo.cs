@@ -22,16 +22,7 @@ namespace Flujo.Torneos
         // MÉTODO PRINCIPAL - Crear Torneo (siempre de eliminación)
         public async Task<RespuestaTorneo> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor)
         {
-            // Validar que siempre sean exactamente 8 participantes
-            if (solicitud.ParticipantesIds.Count != 8)
-            {
-                throw new ArgumentException("Los torneos requieren exactamente 8 participantes");
-            }
-
-            if (solicitud.ParticipantesIds.Distinct().Count() != 8)
-            {
-                throw new ArgumentException("No se permiten participantes duplicados");
-            }
+           
 
             var idTorneo = await _torneosDA.CrearTorneo(solicitud, creadoPor);
 
