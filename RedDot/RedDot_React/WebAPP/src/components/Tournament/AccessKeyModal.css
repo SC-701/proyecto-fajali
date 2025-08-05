@@ -1,77 +1,35 @@
 .access-key-form {
-    padding: 20px 0;
+    width: 100%;
 }
 
-    .access-key-form .form-group {
-        margin-bottom: 20px;
-    }
+.form-group {
+    margin-bottom: 1.5rem;
+}
 
-    .access-key-form label {
+    .form-group label {
         display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: #374151;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
     }
 
-    .access-key-form input[type="text"] {
+    .form-group input {
         width: 100%;
-        padding: 12px;
-        border: 2px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 16px;
-        font-family: 'Courier New', monospace;
-        letter-spacing: 2px;
-        text-align: center;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
     }
 
-        .access-key-form input[type="text"]:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
+.help-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
 
-    .access-key-form .help-text {
-        display: block;
-        margin-top: 6px;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-    .access-key-form .modal-actions {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-        margin-top: 24px;
-    }
-
-    .access-key-form .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-        .access-key-form .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-    .access-key-form .btn-secondary {
-        background-color: #6b7280;
-        color: white;
-    }
-
-        .access-key-form .btn-secondary:hover:not(:disabled) {
-            background-color: #4b5563;
-        }
-
-    .access-key-form .btn-primary {
-        background-color: #3b82f6;
-        color: white;
-    }
-
-        .access-key-form .btn-primary:hover:not(:disabled) {
-            background-color: #2563eb;
-        }
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 2rem;
+}

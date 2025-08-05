@@ -15,8 +15,6 @@ namespace DA.Torneos
         {
             _coleccionTorneos = context.GetCollection<Torneo>("torneos");
         }
-
-        // MÉTODO UNIFICADO - Crear Torneo (siempre de eliminación con 8 participantes)
         public async Task<string> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor)
         {
             try
@@ -190,6 +188,7 @@ namespace DA.Torneos
             }
         }
 
+
         public async Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null)
         {
             try
@@ -303,7 +302,22 @@ namespace DA.Torneos
             };
         }
 
-        // MÉTODOS AUXILIARES PRIVADOS
+        public async Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds)
+        {
+            try
+            {
+                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
+                var actualizacion = Builders<Torneo>.Update.PushEach(t => t.ParticipantesEliminacion, participantesIds);
+                
+                var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
+                return resultado.ModifiedCount > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         private static string GenerarAccessKey()
         {
             return Guid.NewGuid().ToString("N")[..8].ToUpper();

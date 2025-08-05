@@ -36,7 +36,14 @@ namespace Abstracciones.Modelos
         [BsonElement("isWinner")]
         public bool IsWinner { get; set; } = false;
     }
+    public class SolicitudAgregarParticipantes
+    {
+        [Required(ErrorMessage = "El ID del torneo es requerido")]
+        public string IdTorneo { get; set; }
 
+        [Required(ErrorMessage = "La lista de participantes es requerida")]
+        public List<string> ParticipantesIds { get; set; } = new();
+    }
     public class Partido
     {
         [BsonElement("participantes")]
@@ -60,8 +67,6 @@ namespace Abstracciones.Modelos
         [BsonElement("ganador")]
         public string? Ganador { get; set; }
     }
-
-    // MODELO UNIFICADO - Solo este existe ahora
     public class SolicitudCrearTorneo
     {
         [Required(ErrorMessage = "El nombre del torneo es requerido")]
@@ -79,14 +84,12 @@ namespace Abstracciones.Modelos
         [StringLength(50, ErrorMessage = "El tipo de deporte no puede exceder 50 caracteres")]
         public string TipoDeporte { get; set; }
 
-        // Campos opcionales
         [StringLength(200, ErrorMessage = "La ubicación no puede exceder 200 caracteres")]
         public string? Ubicacion { get; set; }
 
         [StringLength(300, ErrorMessage = "La descripción del premio no puede exceder 300 caracteres")]
         public string? DescripcionPremio { get; set; }
 
-        // Siempre requiere exactamente 8 participantes
         public List<string> ParticipantesIds { get; set; } = new();
     }
 
@@ -96,7 +99,7 @@ namespace Abstracciones.Modelos
         public string IdTorneo { get; set; }
 
         [Required]
-        public string Ronda { get; set; } // "cuartos", "semis", "final"
+        public string Ronda { get; set; } 
 
         [Required]
         public int IndicePartido { get; set; }
@@ -120,7 +123,6 @@ namespace Abstracciones.Modelos
         public string AccessKey { get; set; }
     }
 
-    // MODELO UNIFICADO - Solo este existe ahora
     public class RespuestaTorneo
     {
         public string Id { get; set; }

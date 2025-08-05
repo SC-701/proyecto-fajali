@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Modal from '../UI/Modal.jsx'; 
 import Swal from 'sweetalert2';
 import './AccessKeyModal.css';
 
