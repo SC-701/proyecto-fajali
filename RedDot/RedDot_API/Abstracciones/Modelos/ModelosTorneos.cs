@@ -73,7 +73,7 @@ namespace Abstracciones.Modelos
         public string Descripcion { get; set; }
 
         [Required(ErrorMessage = "La categoría es requerida")]
-        public CategoriaTorneo Categoria { get; set; }
+        public int Categoria { get; set; }
 
         [Required(ErrorMessage = "El tipo de deporte es requerido")]
         [StringLength(50, ErrorMessage = "El tipo de deporte no puede exceder 50 caracteres")]
@@ -86,8 +86,19 @@ namespace Abstracciones.Modelos
         [StringLength(300, ErrorMessage = "La descripción del premio no puede exceder 300 caracteres")]
         public string? DescripcionPremio { get; set; }
 
-        // Siempre requiere exactamente 8 participantes
-        public List<string> ParticipantesIds { get; set; } = new();
+        [StringLength(500, ErrorMessage = "Las reglas no pueden exceder mas de 500 caracteres")]
+        public string reglas { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La fecha de inicio es requerida")]
+        public DateTime fecha_inicio { get; set; }
+
+        [Required(ErrorMessage = "El numero de cupos es requerido")]
+        public int cupos { get; set; }
+        [Required(ErrorMessage = "El ID del creador es requerido")]
+
+        public string CreadorId { get; set; } 
+
+
     }
 
     public class SolicitudActualizarPuntaje

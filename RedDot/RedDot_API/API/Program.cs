@@ -16,6 +16,8 @@ using MongoDB.Driver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Newtonsoft.Json;
+using DA.Categorias;
+using Flujo.Categorias;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +67,10 @@ builder.Services.AddScoped<ITorneosFlujo, TorneosFlujo>();
 
 // Contexto MongoDB
 builder.Services.AddScoped<IMongoDbContext, MongoDbContext>();
+
+builder.Services.AddScoped<ICategoriaDA, CategoriaDA>();
+builder.Services.AddScoped<ICategoriasFlujo, CategoriasFlujo>();
+
 
 #endregion
 

@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { createTournament, TournamentCategories } from '../../API/Tournament.js';
+﻿import React, { useState, useEffect } from 'react';
+import { createTournament, TournamentCategories, getCategorias } from '../../API/Tournament.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Swal from 'sweetalert2';
 import Modal from '../UI/Modal.jsx';
@@ -10,22 +10,69 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: '',
-        categoria: TournamentCategories.OTROS,
+        categorias: '',
         tipoDeporte: '',
         ubicacion: '',
-        descripcionPremio: ''
+        descripcionPremio: '',
+        reglas: '',
+        creadorId: user,
+        cupos: 0,
+        fecha_inicio: '',
+
     });
+    const [categorias, setCategories] = useState([]);
+    const [deportes, setDeportes] = useState([]);
+    const [isSelected, setIsSelected] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
+
+   
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const result = await getCategorias();
+                if (result.success) {
+                    setCategories(result.data);
+                } else {
+                    throw new Error(result.error || 'Error al cargar las categorías');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'No se pudieron cargar las categorías'
+                });
+            }
+        }
+        fetchCategories();
+    }, []);
+
+
+
+    const setSportType = (idCategoria) => {
+
+        var deportes = categorias.find(category => category.id_categoria === idCategoria)?.deportes || '';
+        setDeportes(deportes);
+    };
+
+    const isCategorySelected = () => {
+        setIsSelected(true);
+
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'categoria' ? parseInt(value) : value
+            [name]: name === 'categoria' || name === 'cupos'? parseInt(value) : value
         }));
 
         if (validationErrors[name]) {
             setValidationErrors(prev => ({ ...prev, [name]: '' }));
+        }
+        if (name === 'categoria') {
+            isCategorySelected();
+            setSportType(parseInt(value));
         }
     };
 
@@ -35,6 +82,18 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
         if (!formData.nombre.trim()) errors.nombre = 'El nombre es requerido';
         if (!formData.descripcion.trim()) errors.descripcion = 'La descripción es requerida';
         if (!formData.tipoDeporte.trim()) errors.tipoDeporte = 'El tipo de deporte es requerido';
+        if (!formData.categoria) errors.categoria = 'La categoría es requerida';
+        if (!formData.fecha_inicio) errors.fecha_inicio = 'La fecha de inicio es requerida';
+        if (formData.cupos <= 0) errors.cupos = 'Los cupos deben ser mayores a 0';
+        if (formData.descripcionPremio && formData.descripcionPremio.length > 100) {
+            errors.descripcionPremio = 'La descripción del premio no puede exceder los 100 caracteres';
+        }
+        if (formData.reglas && formData.reglas.length > 500) {
+            errors.reglas = 'Las reglas no pueden exceder los 500 caracteres';
+        }
+        if (formData.ubicacion && formData.ubicacion.length > 100) {
+            errors.ubicacion = 'La ubicación no puede exceder los 100 caracteres';
+        }
 
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
@@ -107,6 +166,18 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                     ></textarea>
                     {validationErrors.descripcion && <div className="error-message">{validationErrors.descripcion}</div>}
                 </div>
+                <div className="form-group">
+                    <label htmlFor="reglas">Reglas *</label>
+                    <textarea
+                        id="reglas"
+                        name="reglas"
+                        value={formData.reglas}
+                        onChange={handleChange}
+                        rows="3"
+                        className={validationErrors.reglas ? 'input-error' : ''}
+                    ></textarea>
+                    {validationErrors.reglas && <div className="error-message">{validationErrors.reglas}</div>}
+                </div>
 
                 <div className="form-row">
                     <div className="form-group">
@@ -116,25 +187,35 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                             name="categoria"
                             value={formData.categoria}
                             onChange={handleChange}
+
                         >
-                            <option value={TournamentCategories.CONTACTO}>Contacto</option>
-                            <option value={TournamentCategories.EQUIPO}>Equipo</option>
-                            <option value={TournamentCategories.RAQUETA}>Raqueta</option>
-                            <option value={TournamentCategories.OTROS}>Otros</option>
+                            <option value="">Seleccione una categoría</option>
+                            {categorias.map(category => (
+                                <option key={category.id_categoria} value={category.id_categoria}>
+                                    {category.categoria}
+                                </option>
+                            ))}
                         </select>
+                        {validationErrors.categoria && <div className="error-message">{validationErrors.categoria}</div>}
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="tipoDeporte">Tipo de Deporte *</label>
-                        <input
-                            type="text"
+                        <select
                             id="tipoDeporte"
                             name="tipoDeporte"
                             value={formData.tipoDeporte}
                             onChange={handleChange}
-                            className={validationErrors.tipoDeporte ? 'input-error' : ''}
-                            placeholder="Ej: Fútbol, Tenis, etc."
-                        />
+                            disabled={!isSelected}
+
+                        >
+                            <option value="">Seleccione un deporte</option>
+                            {deportes.map(deporte=> (
+                                <option key={deporte.nombre} value={deporte.nombre}>
+                                    {deporte.nombre}
+                                </option>
+                            ))}
+                        </select>
                         {validationErrors.tipoDeporte && <div className="error-message">{validationErrors.tipoDeporte}</div>}
                     </div>
                 </div>
@@ -163,7 +244,38 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                             placeholder="Descripción del premio"
                         />
                     </div>
+                   
                 </div>
+                <div className="form-row">
+                    <div className="form-group">
+                        <label htmlFor="fecha_inicio">Fecha de Inicio *</label>
+                        <input
+                            type="date"
+                            id="fecha_inicio"
+                            name="fecha_inicio"
+                            value={formData.fecha_inicio}
+                            onChange={handleChange}
+                            className={validationErrors.fecha_inicio ? 'input-error' : ''}
+                        />
+                        {validationErrors.fecha_inicio && <div className="error-message">{validationErrors.fecha_inicio}</div>}
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="cupos">Cupos *</label>
+                        <select
+                            id="cupos"
+                            name="cupos"
+                            value={formData.cupos}
+                            onChange={handleChange}
+                            className={validationErrors.cupos ? 'input-error' : ''}
+                        >
+                            <option value="">Seleccione los cupos</option>
+                            <option value="4">4</option>
+                            <option value="8">8</option>
+                        </select>
+                        {validationErrors.cupos && <div className="error-message">{validationErrors.cupos}</div>}
+                    </div>
+                    </div>
 
                 <div className="modal-actions">
                     <button type="button" className="btn btn-secondary" onClick={onClose}>
