@@ -20,7 +20,7 @@ namespace DA.Torneos
             try
             {
                 var accessKey = GenerarAccessKey();
-                var rondas = InicializarRondas(solicitud.ParticipantesIds);
+              
 
                 var nuevoTorneo = new Torneo
                 {
@@ -34,9 +34,6 @@ namespace DA.Torneos
                     CreadoPor = creadoPor,
                     Estado = EstadoTorneo.PorIniciar,
                     FechaCreacion = DateTime.UtcNow,
-                    ParticipantesEliminacion = solicitud.ParticipantesIds,
-                    Rondas = rondas,
-                    EsEliminacionDirecta = true
                 };
 
                 await _coleccionTorneos.InsertOneAsync(nuevoTorneo);
@@ -134,8 +131,7 @@ namespace DA.Torneos
             {
                 var constructorFiltro = Builders<Torneo>.Filter;
                 var filtro = constructorFiltro.Or(
-                    constructorFiltro.Eq(t => t.CreadoPor, nombreUsuario),
-                    constructorFiltro.AnyEq(t => t.ParticipantesEliminacion, nombreUsuario)
+                    constructorFiltro.Eq(t => t.CreadoPor, nombreUsuario)
                 );
 
                 if (estado.HasValue)
@@ -281,8 +277,7 @@ namespace DA.Torneos
 
                 if (torneo == null) return false;
 
-                return torneo.CreadoPor == nombreUsuario ||
-                       (torneo.ParticipantesEliminacion?.Contains(nombreUsuario) ?? false);
+                return torneo.CreadoPor == nombreUsuario;
             }
             catch (Exception)
             {
@@ -381,7 +376,6 @@ namespace DA.Torneos
                 Id = torneo.Id ?? string.Empty,
                 Nombre = torneo.Nombre,
                 Descripcion = torneo.Descripcion,
-                Categoria = torneo.Categoria ?? CategoriaTorneo.Otros,
                 TipoDeporte = torneo.TipoDeporte,
                 Ubicacion = torneo.Ubicacion,
                 DescripcionPremio = torneo.DescripcionPremio,
@@ -389,7 +383,6 @@ namespace DA.Torneos
                 Estado = torneo.Estado,
                 CreadoPor = torneo.CreadoPor,
                 FechaCreacion = torneo.FechaCreacion,
-                Participantes = torneo.ParticipantesEliminacion ?? new List<string>(),
                 Rondas = torneo.Rondas ?? new Rondas(),
                 EsCreador = torneo.CreadoPor == nombreUsuario,
                 TieneAcceso = false

@@ -21,15 +21,6 @@ namespace Flujo.Torneos
 
         public async Task<RespuestaTorneo> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor)
         {
-            if (solicitud.ParticipantesIds.Count > 0 && solicitud.ParticipantesIds.Count != 8)
-            {
-                throw new ArgumentException("Los torneos requieren 0 o exactamente 8 participantes");
-            }
-
-            if (solicitud.ParticipantesIds.Count > 0 && solicitud.ParticipantesIds.Distinct().Count() != solicitud.ParticipantesIds.Count)
-            {
-                throw new ArgumentException("No se permiten participantes duplicados");
-            }
 
             var idTorneo = await _torneosDA.CrearTorneo(solicitud, creadoPor);
 

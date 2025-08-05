@@ -5,7 +5,7 @@
     padding: 25px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
-    border: 1px solid #374151; /* Añadido borde sutil */
+    border: 1px solid #374151; /* Aï¿½adido borde sutil */
 }
 
 .tournament-controls {
@@ -85,8 +85,8 @@
         border-radius: 8px;
         font-size: 14px;
         transition: border-color 0.3s ease;
-        background-color: #1f2937; /* Añadido fondo oscuro */
-        color: #f9fafb; /* Añadido texto blanco */
+        background-color: #1f2937; /* Aï¿½adido fondo oscuro */
+        color: #f9fafb; /* Aï¿½adido texto blanco */
     }
 
         .filter select:focus,
@@ -94,7 +94,7 @@
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            background-color: #374151; /* Fondo más claro al hacer focus */
+            background-color: #374151; /* Fondo mï¿½s claro al hacer focus */
         }
 
         .filter input::placeholder {
@@ -132,7 +132,7 @@
         padding: 10px 16px;
         border: 2px solid #4b5563; /* Cambiado borde */
         background: #374151; /* Cambiado fondo */
-        color: #f9fafb; /* Añadido color de texto */
+        color: #f9fafb; /* Aï¿½adido color de texto */
         border-radius: 8px;
         cursor: pointer;
         font-weight: 600;

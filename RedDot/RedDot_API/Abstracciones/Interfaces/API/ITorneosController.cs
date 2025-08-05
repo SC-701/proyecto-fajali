@@ -16,5 +16,7 @@ namespace Abstracciones.Interfaces.API
         Task<ActionResult> CambiarEstadoTorneo(SolicitudCambiarEstado solicitud);
         Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
         Task<ActionResult> ObtenerTorneoPorId(string idTorneo);
+
+        Task<ActionResult> ObtenerCategorias();
     }
 }

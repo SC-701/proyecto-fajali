@@ -8,6 +8,11 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    max-width: 400px;
 }
 
     .tournament-card-modern::before {

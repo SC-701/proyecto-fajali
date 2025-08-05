@@ -16,11 +16,13 @@ namespace API.Controllers
     {
         private readonly ITorneosFlujo _torneosFlujo;
         private readonly IUsuariosFlujo _usuariosFlujo;
+        private readonly ICategoriasFlujo _categoriasFlujo;
 
-        public TorneosController(ITorneosFlujo torneosFlujo, IUsuariosFlujo usuariosFlujo)
+        public TorneosController(ITorneosFlujo torneosFlujo, IUsuariosFlujo usuariosFlujo, ICategoriasFlujo categoriasFlujo)
         {
             _torneosFlujo = torneosFlujo;
             _usuariosFlujo = usuariosFlujo;
+            _categoriasFlujo = categoriasFlujo;
         }
 
         [HttpPost("crear")]
@@ -340,6 +342,20 @@ namespace API.Controllers
                 }
 
                 return Ok(torneo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+        [HttpGet("categorias")]
+
+        public async Task<ActionResult> ObtenerCategorias()
+        {
+            try
+            {
+                var categorias = await _categoriasFlujo.ObtenerCategorias();
+                return Ok(categorias);
             }
             catch (Exception ex)
             {
