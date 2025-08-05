@@ -1,21 +1,41 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { createTournament, TournamentCategories } from '../../API/Tournament.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Modal from '../UI/Modal.jsx';
 import './CreateTournamentModal.css';
 
+const SPORTS_MAPPING = {
+    0: ['Boxeo', 'Karate', 'MMA', 'Taekwondo', 'Judo'], // Contacto
+    1: ['Fútbol', 'Baloncesto', 'Voleibol', 'Rugby', 'Hockey'], // Equipo
+    2: ['Tennis', 'Badminton', 'Squash', 'Paddle', 'Ping Pong'], // Raqueta
+    3: ['Ajedrez', 'Natación', 'Atletismo', 'Golf', 'Ciclismo'] // Otros
+};
+
 const CreateTournamentModal = ({ onClose, onSuccess }) => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: '',
         categoria: TournamentCategories.OTROS,
         tipoDeporte: '',
         ubicacion: '',
-        descripcionPremio: ''
+        descripcionPremio: '',
+        participantesIds: []
     });
     const [validationErrors, setValidationErrors] = useState({});
+    const [deportesDisponibles, setDeportesDisponibles] = useState([]);
+
+    // Actualizar deportes disponibles cuando cambia la categoría
+    useEffect(() => {
+        setDeportesDisponibles(SPORTS_MAPPING[formData.categoria] || []);
+        // Resetear el tipo de deporte si no está en la nueva lista
+        if (!SPORTS_MAPPING[formData.categoria]?.includes(formData.tipoDeporte)) {
+            setFormData(prev => ({ ...prev, tipoDeporte: '' }));
+        }
+    }, [formData.categoria]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -61,11 +81,17 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                         <strong>Clave de acceso:</strong> ${result.data.accessKey}<br>
                         <small>Guarda esta clave para compartirla con los participantes.</small>
                     `,
-                    confirmButtonText: 'Copiar clave y continuar'
-                }).then(() => {
-                    navigator.clipboard.writeText(result.data.accessKey);
-                    onSuccess();
-                    onClose();
+                    confirmButtonText: 'Copiar clave y continuar',
+                    showCancelButton: true,
+                    cancelButtonText: 'Agregar participantes ahora'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        navigator.clipboard.writeText(result.data.accessKey);
+                        onSuccess();
+                        onClose();
+                    } else {
+                        navigate(`/torneos/${result.data.id}/participantes`);
+                    }
                 });
             } else {
                 throw new Error(result.error || 'Error al crear el torneo');
@@ -126,15 +152,18 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
 
                     <div className="form-group">
                         <label htmlFor="tipoDeporte">Tipo de Deporte *</label>
-                        <input
-                            type="text"
+                        <select
                             id="tipoDeporte"
                             name="tipoDeporte"
                             value={formData.tipoDeporte}
                             onChange={handleChange}
                             className={validationErrors.tipoDeporte ? 'input-error' : ''}
-                            placeholder="Ej: Fútbol, Tenis, etc."
-                        />
+                        >
+                            <option value="">Selecciona un deporte</option>
+                            {deportesDisponibles.map(deporte => (
+                                <option key={deporte} value={deporte}>{deporte}</option>
+                            ))}
+                        </select>
                         {validationErrors.tipoDeporte && <div className="error-message">{validationErrors.tipoDeporte}</div>}
                     </div>
                 </div>
@@ -163,6 +192,10 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                             placeholder="Descripción del premio"
                         />
                     </div>
+                </div>
+
+                <div className="info-alert">
+                    Los participantes se agregarán después de crear el torneo. Necesitarás exactamente 8 participantes para poder iniciar el torneo.
                 </div>
 
                 <div className="modal-actions">
