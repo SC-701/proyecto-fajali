@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getEliminationTournament } from '../API/TournamentElimination.js';
-
+import { getTournament } from '../API/Tournament.js';
 
 export const useTournament = (tournamentId, accessKey = null) => {
     const [tournament, setTournament] = useState(null);
@@ -12,7 +11,7 @@ export const useTournament = (tournamentId, accessKey = null) => {
 
         setLoading(true);
         try {
-            const result = await getEliminationTournament(tournamentId, accessKey);
+            const result = await getTournament(tournamentId, accessKey);
             if (result.success) {
                 setTournament(result.data);
                 setError(null);
@@ -25,7 +24,6 @@ export const useTournament = (tournamentId, accessKey = null) => {
             setLoading(false);
         }
     };
-
 
     useEffect(() => {
         refreshTournament();

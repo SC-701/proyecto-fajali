@@ -1,7 +1,6 @@
 ﻿import React from 'react';
 import Swal from 'sweetalert2';
-import { updateMatchScore } from '../../API/TournamentElimination.js';
-
+import { updateMatchScore } from '../../API/Tournament.js';
 export const showScoreInputModal = async (matchData, tournamentId, onScoreUpdated) => {
     const { match, round, matchIndex, roundName } = matchData;
 

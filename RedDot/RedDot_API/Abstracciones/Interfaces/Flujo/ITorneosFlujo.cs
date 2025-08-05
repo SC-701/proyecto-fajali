@@ -5,29 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Abstracciones.Modelos;
 
-
 namespace Abstracciones.Interfaces.Flujo
 {
     public interface ITorneosFlujo
     {
-        Task<string> CrearTorneo(SolicitudCrearTorneo torneo, string creadoPor);
-        Task<bool> ActualizarTorneo(SolicitudActualizarTorneo torneo, string nombreUsuario);
-        Task<bool> EliminarTorneo(string idTorneo, string nombreUsuario);
-        Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo);
-        Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null);
-        Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario);
-        Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario);
-        Task<bool> AgregarParticipantes(ParticipantesBase Participantes, string idTorneo);
-        Task<bool> EliminarMienbroEquipo(string idTorneo, string NombreEquipo, string idUsuario);
-        Task<bool> EliminarEquipo(string idTorneo, string NombreEquipo);
-        Task<bool> EliminarParticipante(string idTorneo, string IdUsuario);
-        Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
-
-        Task<RespuestaTorneoEliminacion> CrearTorneoEliminacion(SolicitudCrearTorneoEliminacion solicitud, string creadoPor);
+        Task<RespuestaTorneo> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor);
         Task<bool> ActualizarPuntajePartido(SolicitudActualizarPuntaje solicitud, string nombreUsuario);
         Task<bool> AvanzarRonda(SolicitudAvanzarRonda solicitud, string nombreUsuario);
-        Task<List<RespuestaTorneoEliminacion>> ObtenerMisTorneosEliminacion(string nombreUsuario, EstadoTorneo? estado = null);
-        Task<RespuestaTorneoEliminacion?> AccederTorneoConClave(string accessKey, string nombreUsuario);
-        Task<RespuestaTorneoEliminacion?> ObtenerTorneoEliminacion(string idTorneo, string nombreUsuario, string? accessKey = null);
+        Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, EstadoTorneo? estado = null);
+        Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario);
+        Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo, string nombreUsuario, string? accessKey = null);
+        Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null);
+        Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario);
+        Task<bool> EliminarTorneo(string idTorneo, string nombreUsuario);
+        Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
+        Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo);
     }
 }

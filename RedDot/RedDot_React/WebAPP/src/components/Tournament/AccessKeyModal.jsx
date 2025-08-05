@@ -1,5 +1,4 @@
-﻿import React, { useState } from 'react';
-import Modal from '../UI/Modal.jsx';
+import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import './AccessKeyModal.css';
 
@@ -30,7 +29,7 @@ const AccessKeyModal = ({ onClose, onSuccess }) => {
             Swal.fire({
                 icon: 'error',
                 title: 'Error de acceso',
-                text: error.message || 'Clave de acceso inválida'
+                text: error.message || 'Clave de acceso inv�lida'
             });
         } finally {
             setLoading(false);
