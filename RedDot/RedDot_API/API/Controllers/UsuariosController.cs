@@ -17,7 +17,18 @@ namespace API.Controllers
             _usuariosFlujo = usuariosFlujo;
             _torneosFlujo = torneosFlujo;
         }
-       
+        [HttpPut("EditarUsuario")]
+        public async Task<ActionResult> EditarUsuario([FromBody]UserUI usuario)
+        {
+            var resultado = await _usuariosFlujo.EditarUsuario(usuario);
+
+            if (!resultado)
+            {
+                return BadRequest("Error al editar el usuario");
+            }
+            return Ok(resultado);
+        }
+
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] UserBase usuario)
         {
@@ -32,6 +43,16 @@ namespace API.Controllers
                 return Unauthorized("Credenciales incorrectas");
             }
 
+            return Ok(resultado);
+        }
+        [HttpGet("ObtenerUsuario")]
+        public async Task<ActionResult<UserResponse?>> ObtenerUsuarioPorId([FromQuery]string idUsuario)
+        {
+            var resultado = await _usuariosFlujo.ObtenerUsuarioPorId(idUsuario);
+            if (resultado == null)
+            {
+                return NotFound("Usuario no encontrado");
+            }
             return Ok(resultado);
         }
 

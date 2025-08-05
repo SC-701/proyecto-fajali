@@ -18,6 +18,16 @@ namespace Flujo.Usuarios
             _usuariosDA = usuariosDA;
         }
 
+        public async Task<bool> EditarUsuario(UserUI usuario)
+        {
+            var resultado = await _usuariosDA.EditarUsuario(usuario);
+            if (resultado == null)
+            {
+                return false;
+            }
+            return resultado;
+        }
+
         public Task<bool> EliminarUsuarioEnTorneo(RespuestaTorneo torneo, string idUsuario)
         {
           var resultado = _usuariosDA.EliminarUsuarioEnTorneo(torneo, idUsuario);
@@ -33,6 +43,16 @@ namespace Flujo.Usuarios
         public async Task<TokenDTO> Login(UserBase usuario)
         {
             var resultado =  await _usuariosDA.Login(usuario);
+            return resultado;
+        }
+
+        public async Task<UserResponse?> ObtenerUsuarioPorId(string idUsuario)
+        {
+            var resultado = await _usuariosDA.ObtenerUsuarioPorId(idUsuario);
+            if (resultado == null)
+            {
+                return null;
+            }
             return resultado;
         }
 

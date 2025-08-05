@@ -21,7 +21,13 @@ namespace DA.Entidades
         [BsonElement("email")]
         public string Email { get; set; }
         [BsonElement("torneos")]
-        public List<string> Torneos { get; set; } 
+        public List<string> Torneos { get; set; }
+        [BsonElement("descripcion")]
+        public string Descripcion { get; set; } = string.Empty;
+        [BsonElement("tournaments_won")]
+        public int TournamentsWon { get; set; } = 0;
+        [BsonElement("tournaments_joined")]
+        public int TournamentsJoined { get; set; } = 0;
 
     }
 }

@@ -34,7 +34,7 @@ namespace Abstracciones.Modelos
         public string description { get; set; }
        
     }
-     
+
     public class UserResponse : UserUI
     {
         public int tournamentsWon { get; set; } = 0;

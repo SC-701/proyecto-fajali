@@ -13,13 +13,9 @@ namespace DA.Entidades
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
-
-        
        
         public string idRole { get; set; }
-
         
-    
         public string idUser { get; set; }
     }
 }

@@ -10,20 +10,17 @@ namespace Abstracciones.Interfaces.DA
 {
     public interface ITorneosDA
     {
-        Task<string> CrearTorneo(SolicitudCrearTorneo torneo, string creadoPor);
-        Task<bool> ActualizarTorneo(SolicitudActualizarTorneo torneo);
-        Task<bool> EliminarTorneo(string idTorneo);
+        Task<string> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor);
+        Task<bool> ActualizarPuntajePartido(string idTorneo, string ronda, int indicePartido, List<Participante> participantes);
+        Task<bool> AvanzarRondaTorneo(string idTorneo, string rondaActual);
+        Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, EstadoTorneo? estado = null);
+        Task<RespuestaTorneo?> ObtenerTorneoPorAccessKey(string accessKey);
         Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo);
         Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null);
-        Task<List<RespuestaTorneo>> ObtenerTorneosPorCreador(string creadoPor);
         Task<bool> ActualizarEstadoTorneo(string idTorneo, EstadoTorneo estado);
+        Task<bool> EliminarTorneo(string idTorneo);
         Task<bool> ExisteTorneo(string idTorneo);
-        Task<bool> AgregarParticipantes(ParticipantesBase Participantes, string idTorneo);
-        Task<bool> EliminarMienbroEquipo(string idTorneo, string NombreEquipo,string idUsuario);
-        Task<bool> EliminarEquipo(string idTorneo,string NombreEquipo);
-        Task<bool> EliminarParticipante(string idTorneo, string IdUsuario);
+        Task<bool> UsuarioTieneAccesoTorneo(string idTorneo, string nombreUsuario);
         Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
-
-
     }
 }

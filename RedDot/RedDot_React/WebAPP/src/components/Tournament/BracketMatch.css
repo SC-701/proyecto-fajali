@@ -1,0 +1,242 @@
+.bracket-match {
+    background: linear-gradient(145deg, #1f2937, #111827);
+    border: 2px solid #374151;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+    .bracket-match::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #6b7280, #4b5563);
+        transition: all 0.3s ease;
+    }
+
+    .bracket-match.completed {
+        border-color: #059669;
+        background: linear-gradient(145deg, #064e3b, #065f46);
+    }
+
+        .bracket-match.completed::before {
+            background: linear-gradient(90deg, #059669, #047857);
+        }
+
+    .bracket-match.pending {
+        border-color: #6b7280;
+    }
+
+    .bracket-match.clickable {
+        cursor: pointer;
+    }
+
+        .bracket-match.clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border-color: #dc2626;
+        }
+
+            .bracket-match.clickable:hover::before {
+                background: linear-gradient(90deg, #dc2626, #b91c1c);
+            }
+
+/* Header del partido */
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.match-number {
+    color: #9ca3af;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.match-status {
+    color: #059669;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Participantes del partido */
+.match-participants {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-grow: 1;
+}
+
+.participant {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+    .participant.pending {
+        background-color: rgba(55, 65, 81, 0.3);
+        color: #9ca3af;
+    }
+
+    .participant.completed {
+        background-color: rgba(55, 65, 81, 0.5);
+        color: #f9fafb;
+    }
+
+    .participant.winner {
+        background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(4, 120, 87, 0.3));
+        border-color: #059669;
+        color: #f0fdf4;
+        transform: translateX(4px);
+        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+    }
+
+    .participant.placeholder {
+        background-color: rgba(75, 85, 99, 0.2);
+        color: #6b7280;
+        font-style: italic;
+        border: 1px dashed #4b5563;
+    }
+
+.participant-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-grow: 1;
+}
+
+.participant-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.winner-badge {
+    font-size: 0.8rem;
+    animation: crownBounce 2s ease-in-out infinite;
+}
+
+@keyframes crownBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+.participant-score {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #f9fafb;
+    min-width: 32px;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background-color: rgba(55, 65, 81, 0.5);
+}
+
+.participant.winner .participant-score {
+    background-color: #059669;
+    color: white;
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+}
+
+/* Acción del partido */
+.match-action {
+    margin-top: 0.75rem;
+    text-align: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+    .match-action small {
+        color: #6b7280;
+        font-size: 0.75rem;
+        font-style: italic;
+    }
+
+.bracket-match.clickable .match-action small {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.bracket-match.clickable:hover .participant:not(.placeholder) {
+    background-color: rgba(75, 85, 99, 0.4);
+}
+
+.bracket-match.clickable:hover .participant.winner {
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.3), rgba(4, 120, 87, 0.4));
+}
+
+.bracket-match.bye {
+    opacity: 0.6;
+    border-style: dashed;
+}
+
+    .bracket-match.bye .participant {
+        background-color: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+    }
+
+@media (max-width: 768px) {
+    .bracket-match {
+        min-height: 100px;
+        padding: 0.75rem;
+    }
+
+    .participant-name {
+        font-size: 0.85rem;
+    }
+
+    .participant-score {
+        font-size: 1rem;
+        min-width: 28px;
+    }
+
+    .match-action small {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .bracket-match {
+        min-height: 90px;
+        padding: 0.5rem;
+    }
+
+    .match-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .participant {
+        padding: 0.4rem 0.5rem;
+    }
+
+    .participant-name {
+        font-size: 0.8rem;
+    }
+
+    .participant-score {
+        min-width: 24px;
+        font-size: 0.9rem;
+    }
+}
