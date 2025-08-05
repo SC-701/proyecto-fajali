@@ -1,16 +1,15 @@
 ﻿import './styles/app.css'
-import './components/UI/Modal.css' 
+import './components/UI/Modal.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/common/ProtectedRoute.jsx'
 import Layout from './components/layout/Layout.jsx'
-
-// Pages
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Tournaments from './pages/Tournaments.jsx'
 import Profile from './pages/Profile.jsx'
+import TournamentParticipants from './components/Tournament/TournamentParticipants.jsx'
 
 function App() {
     document.body.style.backgroundColor = '#111827';
@@ -39,6 +38,14 @@ function App() {
                         <ProtectedRoute>
                             <Layout>
                                 <Tournaments />
+                            </Layout>
+                        </ProtectedRoute>
+                    } />
+
+                    <Route path="/torneos/:id/participantes" element={
+                        <ProtectedRoute>
+                            <Layout>
+                                <TournamentParticipants />
                             </Layout>
                         </ProtectedRoute>
                     } />
