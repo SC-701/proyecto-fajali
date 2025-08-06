@@ -11,6 +11,8 @@ namespace Abstracciones.Modelos
     {
         public bool ValidationSuccess { get; set; }
         public string AccessToken { get; set; }
+
+        public string user { get; set; } = string.Empty;
     }
 
     public class TokenConfiguration

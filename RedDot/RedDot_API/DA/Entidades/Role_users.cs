@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace Abstracciones.Modelos
+namespace DA.Entidades
 {
     public class Role_users
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
-
+       
+        public string idRole { get; set; }
         
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string IdRole { get; set; }
-
-        
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string IdUser { get; set; }
+        public string idUser { get; set; }
     }
 }

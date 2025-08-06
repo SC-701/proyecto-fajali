@@ -11,13 +11,28 @@ namespace API.Controllers
     public class UsuariosController : ControllerBase, IUsuariosController
     {
         private readonly IUsuariosFlujo _usuariosFlujo;
-        public UsuariosController(IUsuariosFlujo usuariosFlujo)
+        private readonly ITorneosFlujo _torneosFlujo;
+        private readonly ICategoriasFlujo _categoriasFlujo;
+        public UsuariosController(IUsuariosFlujo usuariosFlujo, ICategoriasFlujo categoriasFlujo, ITorneosFlujo torneosFlujo = null)
         {
             _usuariosFlujo = usuariosFlujo;
+            _torneosFlujo = torneosFlujo;
+            _categoriasFlujo = categoriasFlujo;
+        }
+        [HttpPut("EditarUsuario")]
+        public async Task<ActionResult> EditarUsuario([FromBody]UserUI usuario)
+        {
+            var resultado = await _usuariosFlujo.EditarUsuario(usuario);
+
+            if (!resultado)
+            {
+                return BadRequest("Error al editar el usuario");
+            }
+            return Ok(resultado);
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login( [FromBody] UserBase usuario)
+        public async Task<ActionResult> Login([FromBody] UserBase usuario)
         {
             var resultado = await _usuariosFlujo.Login(usuario);
 
@@ -32,18 +47,30 @@ namespace API.Controllers
 
             return Ok(resultado);
         }
+        [HttpGet("ObtenerUsuario")]
+        public async Task<ActionResult<UserResponse?>> ObtenerUsuarioPorId([FromQuery]string idUsuario)
+        {
+            var resultado = await _usuariosFlujo.ObtenerUsuarioPorId(idUsuario);
+            if (resultado == null)
+            {
+                return NotFound("Usuario no encontrado");
+            }
+            return Ok(resultado);
+        }
 
         [HttpPost("register")]
-        public async Task<ActionResult> Register( [FromBody] UserRegister usuario)
+        public async Task<ActionResult> Register([FromBody] UserRegister usuario)
         {
             var resultado = await _usuariosFlujo.Register(usuario);
 
             if (!resultado)
             {
-                return BadRequest( "El usuario o email ya esta registrado");
+                return BadRequest("El usuario o email ya esta registrado");
             }
 
             return Ok("Usuario registrado correctamente");
         }
+
+        
     }
 }

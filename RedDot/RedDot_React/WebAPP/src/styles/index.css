@@ -35,11 +35,7 @@ body {
 }
 
 /* Elemento main principal */
-main {
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--primary-dark) 50%, var(--tertiary-dark) 100%);
-  position: relative;
-}
+
 
 /* Efecto de fondo animado */
 main::before {

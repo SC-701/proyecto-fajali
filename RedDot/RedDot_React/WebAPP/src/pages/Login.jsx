@@ -1,9 +1,8 @@
-/* eslint-disable no-unused-vars */
 "use client"
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import "../styles/Login.css"
-import { loginUser } from "../API/Login.js"
+import { useAuth } from "../context/AuthContext.jsx"
 import Swal from "sweetalert2"
 import { useNavigate } from "react-router-dom"
 
@@ -14,7 +13,7 @@ const Login = () => {
     })
 
     const navigate = useNavigate()
-
+    const { login } = useAuth()
     const [showPassword, setShowPassword] = useState(false)
 
     const handleChange = (e) => {
@@ -26,38 +25,28 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-       
-            const { success, error } = await loginUser(
 
-                formData["username"],
-                formData["password"]
+        const result = await login(formData.username, formData.password);
 
-            );
-            if (!success) {
-                Swal.fire({
-                    icon: "error",
-                    title: error[0].title || "Error",
-                    text: error[0].errorData,
-                    confirmButtonColor: "#d33",
-                })
-                return
-            } else {
-                Swal.fire({
-                    icon: "success",
-                    title: "¡Bienvenido!",
-                    text: "Inicio de sesión exitoso",
-                    timer: 1500,
-                    showConfirmButton: false,
-                }).then(() => {
-                    navigate("/pepe")
-                })
-            }
-
-
-
-
-        
-
+        if (!result.success) {
+            Swal.fire({
+                icon: "error",
+                title: result.error[0].title || "Error",
+                text: result.error[0].errorData?.message || "Error de autenticación",
+                confirmButtonColor: "#d33",
+            })
+            return
+        } else {
+            Swal.fire({
+                icon: "success",
+                title: "¡Bienvenido!",
+                text: "Inicio de sesión exitoso",
+                timer: 1500,
+                showConfirmButton: false,
+            }).then(() => {
+                navigate("/dashboard")
+            })
+        }
     }
 
     return (
@@ -73,7 +62,7 @@ const Login = () => {
 
                     <div className="form-group">
                         <label htmlFor="username" className="form-label">
-                            Correo Electrónico
+                            Usuario
                         </label>
                         <input
                             type="text"
@@ -106,17 +95,6 @@ const Login = () => {
                                 {showPassword ? "👁️" : "👁️‍🗨️"}
                             </button>
                         </div>
-                    </div>
-
-                    <div className="form-options">
-                        <label className="checkbox-container">
-                            <input type="checkbox" />
-                            <span className="checkmark"></span>
-                            Recordarme
-                        </label>
-                        <a href="#" className="forgot-password">
-                            ¿Olvidaste tu contraseña?
-                        </a>
                     </div>
 
                     <button type="submit" className="login-button">

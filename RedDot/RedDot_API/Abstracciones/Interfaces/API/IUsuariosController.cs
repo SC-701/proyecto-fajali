@@ -12,5 +12,7 @@ namespace Abstracciones.Interfaces.API
     {
         Task<ActionResult> Login(UserBase usuario);
         Task<ActionResult> Register(UserRegister usuario);
+        Task<ActionResult> EditarUsuario(UserUI usuario);
+        Task<ActionResult<UserResponse?>> ObtenerUsuarioPorId(string idUsuario);
     }
 }
