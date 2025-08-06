@@ -50,13 +50,13 @@ namespace Abstracciones.Modelos
     public class Rondas
     {
         [BsonElement("cuartos")]
-        public List<Partido> Cuartos { get; set; } = new();
+        public List<Partido> Cuartos { get; set; } = new List<Partido>();
 
         [BsonElement("semis")]
-        public List<Partido> Semis { get; set; } = new();
+        public List<Partido> Semis { get; set; } = new List<Partido>();
 
         [BsonElement("final")]
-        public List<Partido> Final { get; set; } = new();
+        public List<Partido> Final { get; set; } = new List<Partido>();
 
         [BsonElement("ganador")]
         public string? Ganador { get; set; }
@@ -138,7 +138,7 @@ namespace Abstracciones.Modelos
         public string TipoDeporte { get; set; }
         public string? Ubicacion { get; set; }
         public string? DescripcionPremio { get; set; }
-        public string? AccessKey { get; set; } // Solo se muestra al creador
+        public string? AccessKey { get; set; } 
         public int Estado { get; set; }
         public string CreadoPor { get; set; }
         public DateTime FechaCreacion { get; set; }

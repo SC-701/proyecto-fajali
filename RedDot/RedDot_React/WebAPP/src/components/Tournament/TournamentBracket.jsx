@@ -81,7 +81,7 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                                 round="cuartos"
                                 roundName="Cuartos de Final"
                                 isAdmin={isAdmin}
-                                canEdit={tournament.estado === 1}
+                                canEdit={tournament.estado === 0}
                                 onMatchClick={(matchData) => onMatchClick?.({
                                     ...matchData,
                                     round: 'cuartos',

@@ -48,7 +48,7 @@ namespace DA.Entidades
         public string? DescripcionPremio { get; set; }
 
         [BsonElement("participantes")]
-        public List<string>? Participantes { get; set; }
+        public List<Equipo>? Participantes { get; set; }
 
         [BsonElement("categoria")]
         public int Categoria { get; set; }

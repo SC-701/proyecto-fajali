@@ -1,15 +1,13 @@
 ﻿import React from 'react';
 import Swal from 'sweetalert2';
-import { updateMatchScore } from '../../API/Tournament.js';
-export const showScoreInputModal = async (matchData, tournamentId, onScoreUpdated) => {
+import { updateMatchScore, getTournament } from '../../API/Tournament.js';
+
+export const showScoreInputModal = async (matchData, tournamentId, onScoreUpdated, isPlayersSet) => {
     const { match, round, matchIndex, roundName } = matchData;
 
-    if (!match.participantes || match.participantes.length < 2) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No hay suficientes participantes para este partido'
-        });
+    // Si no hay jugadores asignados, mostrar modal de selección de participantes
+    if (!isPlayersSet) {
+        await showAddParticipantsModal(matchData, tournamentId, onScoreUpdated);
         return;
     }
 
@@ -169,6 +167,188 @@ export const showScoreInputModal = async (matchData, tournamentId, onScoreUpdate
                 text: error.message || 'No se pudo guardar el resultado. Intenta de nuevo.'
             });
         }
+    }
+};
+
+// Función para agregar participantes (modal de selección)
+export const showAddParticipantsModal = async (matchData, tournamentId, onParticipantsUpdated) => {
+    const { match, round, matchIndex, roundName } = matchData;
+
+    // Mostrar loading mientras obtenemos los participantes
+    Swal.fire({
+        title: 'Cargando participantes...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    try {
+        // Obtener la información del torneo y sus participantes
+        const tournamentData = await getTournament(tournamentId);
+        
+        if (!tournamentData.success || !tournamentData.data.participantes) {
+            throw new Error('No se pudieron cargar los participantes del torneo');
+        }
+
+        const availableParticipants = tournamentData.data.participantes;
+
+        if (availableParticipants.length < 2) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No hay suficientes participantes en el torneo (mínimo 2 requeridos)'
+            });
+            return;
+        }
+
+        // Crear las opciones para los dropdowns
+        const participantOptions = availableParticipants
+            .map(participant => `<option value="${participant.idJugador}">${participant.idJugador}</option>`)
+            .join('');
+
+        // Obtener participantes actuales si existen
+        const currentParticipant1 = match?.participantes?.[0]?.idJugador || '';
+        const currentParticipant2 = match?.participantes?.[1]?.idJugador || '';
+
+        const { value: selectedParticipants } = await Swal.fire({
+            title: `${roundName} - Partido ${matchIndex + 1}`,
+            html: `
+                <div style="text-align: left; margin: 20px 0;">
+                    <h4 style="color: #374151; margin-bottom: 15px;">Selecciona los participantes:</h4>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #4b5563;">
+                            Participante 1:
+                        </label>
+                        <select 
+                            id="participant1" 
+                            style="width: 100%; padding: 8px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 16px; background-color: white;"
+                        >
+                            <option value="">-- Selecciona un participante --</option>
+                            ${participantOptions}
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #4b5563;">
+                            Participante 2:
+                        </label>
+                        <select 
+                            id="participant2" 
+                            style="width: 100%; padding: 8px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 16px; background-color: white;"
+                        >
+                            <option value="">-- Selecciona un participante --</option>
+                            ${participantOptions}
+                        </select>
+                    </div>
+                    
+                    <div style="background: #f3f4f6; padding: 10px; border-radius: 6px; margin-top: 15px;">
+                        <small style="color: #6b7280;">
+                            <strong>Nota:</strong> No puedes seleccionar el mismo participante dos veces.
+                        </small>
+                    </div>
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Asignar Participantes',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#059669',
+            cancelButtonColor: '#6b7280',
+            didOpen: () => {
+                // Establecer valores actuales si existen
+                if (currentParticipant1) {
+                    document.getElementById('participant1').value = currentParticipant1;
+                }
+                if (currentParticipant2) {
+                    document.getElementById('participant2').value = currentParticipant2;
+                }
+
+                // Agregar event listeners para evitar selección duplicada
+                const participant1Select = document.getElementById('participant1');
+                const participant2Select = document.getElementById('participant2');
+
+                const updateOptions = () => {
+                    const participant1Value = participant1Select.value;
+                    const participant2Value = participant2Select.value;
+
+                    // Deshabilitar opciones ya seleccionadas
+                    Array.from(participant1Select.options).forEach(option => {
+                        option.disabled = option.value === participant2Value && option.value !== '';
+                    });
+
+                    Array.from(participant2Select.options).forEach(option => {
+                        option.disabled = option.value === participant1Value && option.value !== '';
+                    });
+                };
+
+                participant1Select.addEventListener('change', updateOptions);
+                participant2Select.addEventListener('change', updateOptions);
+                updateOptions(); // Aplicar al cargar
+            },
+            preConfirm: () => {
+                const participant1 = document.getElementById('participant1').value;
+                const participant2 = document.getElementById('participant2').value;
+
+                // Validaciones
+                if (!participant1 || !participant2) {
+                    Swal.showValidationMessage('Por favor selecciona ambos participantes');
+                    return false;
+                }
+
+                if (participant1 === participant2) {
+                    Swal.showValidationMessage('No puedes seleccionar el mismo participante dos veces');
+                    return false;
+                }
+
+                return { participant1, participant2 };
+            }
+        });
+
+        // Si el usuario confirmó, procesar la asignación
+        if (selectedParticipants) {
+            const { participant1, participant2 } = selectedParticipants;
+
+            // Mostrar confirmación
+            await Swal.fire({
+                icon: 'success',
+                title: '¡Participantes asignados!',
+                html: `
+                    <div style="text-align: center;">
+                        <h4 style="color: #059669; margin: 15px 0;">Partido configurado:</h4>
+                        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px;">
+                                <span style="font-weight: bold; font-size: 18px;">${participant1}</span>
+                            </div>
+                            <div style="margin: 10px 0; color: #6b7280; font-size: 14px;">
+                                VS
+                            </div>
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                                <span style="font-weight: bold; font-size: 18px;">${participant2}</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <small style="color: #6b7280;">
+                                Ahora puedes ingresar los puntajes cuando el partido termine.
+                            </small>
+                        </div>
+                    </div>
+                `,
+                timer: 3000,
+                showConfirmButton: false
+            });
+
+            // Notificar al componente padre para actualizar los datos
+            onParticipantsUpdated?.();
+        }
+
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'No se pudieron cargar los participantes. Intenta de nuevo.'
+        });
     }
 };
 

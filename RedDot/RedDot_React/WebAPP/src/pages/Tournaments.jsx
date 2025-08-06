@@ -34,10 +34,22 @@ const Tournaments = () => {
             });
             return;
         }
+        
 
         await showScoreInputModal(matchData, selectedTournament.id, async () => {
-            await refreshTournament();
+            await refreshTournament(),handlePutPlayers(matchData);
         });
+    };
+
+    const handlePutPlayers = (matchData) => {
+        matchData.match.participantes.map((player, index) => {
+            if(player.idJugador==null){
+                return false;
+            }
+
+        
+        })
+        return true;
     };
 
     const handleAdvanceRound = async (round) => {

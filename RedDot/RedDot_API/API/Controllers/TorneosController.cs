@@ -72,7 +72,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -196,7 +196,7 @@ namespace API.Controllers
         {
             try
             {
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -245,7 +245,7 @@ namespace API.Controllers
         {
             try
             {
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -285,7 +285,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; 
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");

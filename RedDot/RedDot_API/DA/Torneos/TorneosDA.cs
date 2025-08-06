@@ -42,7 +42,7 @@ namespace DA.Torneos
                     CuposMaximos = solicitud.cupos,
                     FechaInicio = solicitud.fecha_inicio,
                     Reglas = solicitud.reglas,
-                    Rondas = new Rondas(),
+                    Rondas = InicializarRondas(),
                     Participantes = []
                 };
 
@@ -186,7 +186,7 @@ namespace DA.Torneos
                     .Find(t => t.Id == idTorneo)
                     .FirstOrDefaultAsync();
 
-                return torneo != null ? MapearARespuesta(torneo, string.Empty) : null;
+                return torneo != null ? MapearARespuesta(torneo, torneo.CreadoPor) : null;
             }
             catch (Exception)
             {
@@ -302,7 +302,7 @@ namespace DA.Torneos
             return Guid.NewGuid().ToString("N")[..8].ToUpper();
         }
 
-        private static Rondas InicializarRondas(List<string> participantes)
+        private static Rondas InicializarRondas()
         {
             var rondas = new Rondas();
 
@@ -312,12 +312,33 @@ namespace DA.Torneos
                 {
                     Participantes = new List<Participante>
                     {
-                        new() { IdJugador = participantes[i * 2], Puntaje = 0 },
-                        new() { IdJugador = participantes[i * 2 + 1], Puntaje = 0 }
+                        new Participante(),
+                        new Participante()
                     }
                 };
                 rondas.Cuartos.Add(partido);
             }
+
+            for (int i = 0; i < 2; i++)
+            {
+                var partido = new Partido
+                {
+                    Participantes = new List<Participante>
+                    {
+                        new Participante(),
+                        new Participante()
+                    }
+                };
+                rondas.Semis.Add(partido);
+            }
+            rondas.Final.Add(new Partido
+            {
+                Participantes = new List<Participante>
+                {
+                    new Participante(),
+                    new Participante()
+                }
+            });
 
             return rondas;
         }
