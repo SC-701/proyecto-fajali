@@ -167,14 +167,6 @@ namespace Abstracciones.Modelos
         public EstadoTorneo NuevoEstado { get; set; }
     }
 
-    [BsonKnownTypes(typeof(ParticipanteIndividual), typeof(Equipo))]
-    public abstract class ParticipantesBase {
-        
-        public string Id { get; set; }
-        public bool selected { get; set; }
-
-    }
-
     public class Equipo
     {
         [BsonId]

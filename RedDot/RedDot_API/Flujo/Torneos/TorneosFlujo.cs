@@ -180,7 +180,7 @@ namespace Flujo.Torneos
             }
 
 
-            if (torneo.Estado == EstadoTorneo.PorIniciar && estado == EstadoTorneo.EnProgreso &&
+            if (torneo.Estado == (int)EstadoTorneo.PorIniciar && estado == (int)EstadoTorneo.EnProgreso &&
                 torneo.Participantes.Count != 8)
             {
                 throw new ArgumentException("No se puede iniciar un torneo con menos de 8 participantes");
@@ -279,7 +279,7 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("Solo el creador del torneo puede agregar participantes");
             }
 
-            if (torneo.Estado != EstadoTorneo.PorIniciar)
+            if (torneo.Estado != (int)EstadoTorneo.PorIniciar)
             {
                 throw new ArgumentException("Solo se pueden agregar participantes a torneos que no han iniciado");
             }
@@ -315,7 +315,7 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("Solo el creador del torneo puede agregar participantes");
             }
 
-            if (torneo.Estado != EstadoTorneo.PorIniciar)
+            if (torneo.Estado != (int)EstadoTorneo.PorIniciar)
             {
                 throw new ArgumentException("Solo se pueden agregar participantes a torneos que no han iniciado");
             }

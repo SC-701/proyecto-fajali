@@ -43,7 +43,7 @@ namespace DA.Torneos
                     FechaInicio = solicitud.fecha_inicio,
                     Reglas = solicitud.reglas,
                     Rondas = new Rondas(),
-                    Participantes = new List<ParticipantesBase>(),
+                    Participantes = []
                 };
 
                 await _coleccionTorneos.InsertOneAsync(nuevoTorneo);
