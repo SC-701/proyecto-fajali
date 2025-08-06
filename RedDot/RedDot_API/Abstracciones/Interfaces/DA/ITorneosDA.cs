@@ -16,7 +16,7 @@ namespace Abstracciones.Interfaces.DA
         Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, int estado = 0);
         Task<RespuestaTorneo?> ObtenerTorneoPorAccessKey(string accessKey);
         Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo);
-        Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null);
+        Task<RespuestaListaTorneos> ObtenerTorneos(string id,int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null);
         Task<bool> ActualizarEstadoTorneo(string idTorneo, int estado);
         Task<bool> EliminarTorneo(string idTorneo);
         Task<bool> ExisteTorneo(string idTorneo);

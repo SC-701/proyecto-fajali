@@ -2,8 +2,8 @@
 import {
     getMyTournaments,
     getAllTournaments,
-    TournamentStates,
-    getCategoryName,
+    
+    getSportName,
     getStateName,
     accessTournamentWithKey
 } from '../../API/Tournament.js';
@@ -26,11 +26,13 @@ const TournamentManager = ({ onTournamentSelect }) => {
         state: null,
         sportType: ''
     });
+    const [sportName, setSportName] = useState([]);
 
     const { user } = useAuth();
 
     useEffect(() => {
         loadTournaments();
+        loadSportName();
     }, [activeTab, currentPage, filter]);
 
     const loadTournaments = async () => {
@@ -59,6 +61,19 @@ const TournamentManager = ({ onTournamentSelect }) => {
         }
     };
 
+    const loadSportName = async () => {
+        try {
+            const result = await getSportName();
+            if (result.success) {
+                setSportName(result.data);
+            } else {
+                throw new Error(result.error || 'Error al obtener el nombre del deporte');
+            }
+        } catch (error) {
+            console.error("Error loading sport name:", error);
+            throw error;
+        }
+    };
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilter(prev => ({
@@ -125,23 +140,28 @@ const TournamentManager = ({ onTournamentSelect }) => {
                         onChange={handleFilterChange}
                     >
                         <option value="">Todos</option>
-                        <option value={TournamentStates.POR_INICIAR}>Por Iniciar</option>
-                        <option value={TournamentStates.EN_PROGRESO}>En Progreso</option>
-                        <option value={TournamentStates.TERMINADO}>Terminado</option>
-                        <option value={TournamentStates.CANCELADO}>Cancelado</option>
+                        <option value={0}>Por Iniciar</option>
+                        <option value={1}>En Progreso</option>
+                        <option value={2}>Terminado</option>
+                        <option value={3}>Cancelado</option>
                     </select>
                 </div>
 
                 {activeTab === 'all' && (
                     <div className="filter">
                         <label>Deporte:</label>
-                        <input
-                            type="text"
+                        <select
                             name="sportType"
                             value={filter.sportType}
                             onChange={handleFilterChange}
-                            placeholder="Tipo de deporte"
-                        />
+                        >
+                            <option value="">Todos</option>
+                            {sportName.map((sport, index) => (
+                                <option key={index} value={sport.nombre}>
+                                    {sport.nombre}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 )}
             </div>

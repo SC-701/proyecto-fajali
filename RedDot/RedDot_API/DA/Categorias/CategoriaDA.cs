@@ -38,5 +38,14 @@ namespace DA.Categorias
 
         }
 
+        public async Task<List<ModeloDeportes>> ObtenerDeportes()
+        {
+            var categorias = await _coleccionCategorias.Find(_ => true).ToListAsync();
+            var deportes = categorias.SelectMany(x => x.deportes)
+                                      .Select(d => new ModeloDeportes { nombre = d.nombre })
+                                      .ToList();
+
+            return deportes;
+        }
     }
 }

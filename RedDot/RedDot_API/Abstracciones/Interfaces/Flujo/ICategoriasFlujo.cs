@@ -11,5 +11,7 @@ namespace Abstracciones.Interfaces.Flujo
     {
 
         Task<List<ModeloCategorias>> ObtenerCategorias();
+        Task<List<ModeloDeportes>> ObtenerDeportes();
+
     }
 }
