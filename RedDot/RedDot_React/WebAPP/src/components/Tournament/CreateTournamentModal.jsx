@@ -307,7 +307,7 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                     </div>
 
                 <div className="info-alert">
-                    Los participantes se agregarán después de crear el torneo. Necesitarás exactamente 8 participantes para poder iniciar el torneo.
+                    Los participantes se agregarán después de crear el torneo.
                 </div>
 
                 <div className="modal-actions">

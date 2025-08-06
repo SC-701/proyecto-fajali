@@ -11,7 +11,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   // [Authorize]
+    // [Authorize]
     public class TorneosController : ControllerBase, ITorneosController
     {
         private readonly ITorneosFlujo _torneosFlujo;
@@ -231,7 +231,7 @@ namespace API.Controllers
             try
             {
                 var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var torneos = await _torneosFlujo.ObtenerTorneos(id,numeroPagina, tamanoPagina, estado, tipoDeporte);
+                var torneos = await _torneosFlujo.ObtenerTorneos(id, numeroPagina, tamanoPagina, estado, tipoDeporte);
                 return Ok(torneos);
             }
             catch (Exception ex)
@@ -351,35 +351,17 @@ namespace API.Controllers
         [HttpGet("deportes")]
         public async Task<ActionResult> ObtenerDeportes()
         {
-            
+
             var deportes = await _categoriasFlujo.ObtenerDeportes();
             return Ok(deportes);
-        [HttpPatch("AgregarParticipantesIndividuales/{idTorneo}/{nombreUsuario}")]
-        public async Task<ActionResult> AgregarParticipantesIndividuales(string idTorneo, List<string> participantesIds, string nombreUsuario)
-        {
-            try
-            {
-                var resultado = await _torneosFlujo.AgregarParticipantesIndividuales(idTorneo, participantesIds, nombreUsuario);
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
         }
-        [HttpPatch("AgregarParticipantesEquipos/{idTorneo}/{nombreUsuario}")]
-
-        public async Task<ActionResult> AgregarParticipantesEquipos(string idTorneo, List<Equipo> Equipos, string nombreUsuario)
+        [HttpPost("agregar-participantes/{idTorneo}/{numeroPartido}")]
+        public async Task<ActionResult> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase)
         {
-            try
-            {
-                var resultado = await _torneosFlujo.AgregarParticipantesEquipos(idTorneo, Equipos, nombreUsuario);
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
+            var resultado =await _torneosFlujo.AgregarJugadorATorneo(idTorneo, numeroPartido, equipo,fase);
+            return Ok(resultado);
         }
     }
 }
+
+
