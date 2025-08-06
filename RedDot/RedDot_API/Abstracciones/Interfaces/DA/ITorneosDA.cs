@@ -22,5 +22,7 @@ namespace Abstracciones.Interfaces.DA
         Task<bool> ExisteTorneo(string idTorneo);
         Task<bool> UsuarioTieneAccesoTorneo(string idTorneo, string nombreUsuario);
         Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
+        Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds);
+
     }
 }

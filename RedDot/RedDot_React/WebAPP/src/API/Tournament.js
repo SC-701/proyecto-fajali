@@ -1,6 +1,7 @@
 import ApiService from '../services/apiService.js';
 
 // UNIFICADO - Todos los torneos son de eliminaci�n directa
+
 export async function getAllTournaments(page = 1, pageSize = 10, state = null, sportType = null) {
     let url = `Torneos/listar?numeroPagina=${page}&tamanoPagina=${pageSize}`;
     if (state !== null) url += `&estado=${state}`;

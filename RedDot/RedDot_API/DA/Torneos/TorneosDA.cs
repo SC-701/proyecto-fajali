@@ -303,7 +303,22 @@ namespace DA.Torneos
             };
         }
 
-        // MÉTODOS AUXILIARES PRIVADOS
+        public async Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds)
+        {
+            try
+            {
+                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
+                var actualizacion = Builders<Torneo>.Update.PushEach(t => t.ParticipantesEliminacion, participantesIds);
+                
+                var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
+                return resultado.ModifiedCount > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         private static string GenerarAccessKey()
         {
             return Guid.NewGuid().ToString("N")[..8].ToUpper();

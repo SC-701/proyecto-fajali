@@ -141,7 +141,7 @@ const Tournaments = () => {
     return (
         <div className="tournaments-page">
             <div className="tournaments-header">
-                <h1>🏆 Torneos de Eliminación</h1>
+                <h1>🏆 Torneos 🏆</h1>
                 <div className="header-actions">
                     <p className="welcome-text">
                         Bienvenido, <strong>{user?.username}</strong>

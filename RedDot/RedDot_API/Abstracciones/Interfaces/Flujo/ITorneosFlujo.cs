@@ -20,5 +20,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<bool> EliminarTorneo(string idTorneo, string nombreUsuario);
         Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
         Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo);
+        Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds, string nombreUsuario);
     }
 }

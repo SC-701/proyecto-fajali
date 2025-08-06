@@ -180,6 +180,12 @@ namespace Flujo.Torneos
             }
 
 
+            if (torneo.Estado == EstadoTorneo.PorIniciar && estado == EstadoTorneo.EnProgreso &&
+                torneo.Participantes.Count != 8)
+            {
+                throw new ArgumentException("No se puede iniciar un torneo con menos de 8 participantes");
+            }
+
             return await _torneosDA.ActualizarEstadoTorneo(idTorneo, estado);
         }
 
@@ -204,6 +210,42 @@ namespace Flujo.Torneos
             return await _torneosDA.EliminarTorneo(idTorneo);
         }
 
+        public async Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds, string nombreUsuario)
+        {
+            var torneo = await _torneosDA.ObtenerTorneoPorId(idTorneo);
+            if (torneo == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+
+            if (torneo.CreadoPor != nombreUsuario)
+            {
+                throw new UnauthorizedAccessException("Solo el creador del torneo puede agregar participantes");
+            }
+
+            if (torneo.Estado != EstadoTorneo.PorIniciar)
+            {
+                throw new ArgumentException("Solo se pueden agregar participantes a torneos que no han iniciado");
+            }
+
+            var totalParticipantes = torneo.Participantes.Count + participantesIds.Count;
+            if (totalParticipantes > 8)
+            {
+                throw new ArgumentException($"El total de participantes no puede exceder 8. Actualmente hay {torneo.Participantes.Count} y se intentan agregar {participantesIds.Count}");
+            }
+
+            var participantesUnicos = new HashSet<string>(torneo.Participantes);
+            foreach (var participante in participantesIds)
+            {
+                if (!participantesUnicos.Add(participante))
+                {
+                    throw new ArgumentException($"El participante {participante} ya está en el torneo");
+                }
+            }
+
+            return await _torneosDA.AgregarParticipantesTorneo(idTorneo, participantesIds);
+        }
+
         public async Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo)
         {
             var torneoExistente = await _torneosDA.ObtenerTorneoPorId(idTorneo);
@@ -214,13 +256,11 @@ namespace Flujo.Torneos
             return await _torneosDA.LeaderBoardPorTorneo(idTorneo);
         }
 
-        // MÉTODO SOBRECARGADO PARA COMPATIBILIDAD
         public async Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo)
         {
             return await _torneosDA.ObtenerTorneoPorId(idTorneo);
         }
 
-        // MÉTODOS AUXILIARES PRIVADOS
         private static bool EsRondaValida(string ronda, int indicePartido)
         {
             return ronda switch

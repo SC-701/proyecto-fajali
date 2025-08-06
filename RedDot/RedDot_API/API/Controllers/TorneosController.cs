@@ -1,10 +1,11 @@
-﻿using System.Security.Claims;
-using Abstracciones.Interfaces.API;
+﻿using Abstracciones.Interfaces.API;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using DA.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -51,6 +52,14 @@ namespace API.Controllers
             {
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
+        }
+        public class SolicitudAgregarParticipantes
+        {
+            [Required(ErrorMessage = "El ID del torneo es requerido")]
+            public string IdTorneo { get; set; }
+
+            [Required(ErrorMessage = "La lista de participantes es requerida")]
+            public List<string> ParticipantesIds { get; set; } = new();
         }
 
         [HttpPut("puntaje")]
