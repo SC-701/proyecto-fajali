@@ -1,8 +1,10 @@
-﻿using Abstracciones.Interfaces.DA;
+﻿using System.Linq;
+using Abstracciones.Interfaces.DA;
 using Abstracciones.Modelos;
 using DA.Entidades;
 using DA.Repositorio;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace DA.Torneos
@@ -20,20 +22,25 @@ namespace DA.Torneos
             try
             {
                 var accessKey = GenerarAccessKey();
-              
+
 
                 var nuevoTorneo = new Torneo
                 {
                     Nombre = solicitud.Nombre,
                     Descripcion = solicitud.Descripcion,
+                    Reglas = solicitud.reglas,
+                    FechaInicio = solicitud.fecha_inicio,
                     Categoria = solicitud.Categoria,
                     TipoDeporte = solicitud.TipoDeporte,
+                    CuposMaximos = solicitud.cupos,
                     Ubicacion = solicitud.Ubicacion,
+                    Premio = solicitud.DescripcionPremio,
                     DescripcionPremio = solicitud.DescripcionPremio,
                     AccessKey = accessKey,
                     CreadoPor = creadoPor,
                     Estado = EstadoTorneo.PorIniciar,
                     FechaCreacion = DateTime.UtcNow,
+                    Participantes = []
                 };
 
                 await _coleccionTorneos.InsertOneAsync(nuevoTorneo);
@@ -285,34 +292,6 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo)
-        {
-            var torneo = await ObtenerTorneoPorId(idTorneo);
-            if (torneo == null) return null;
-
-            return new LeaderBoardPorTorneo
-            {
-                NombreTorneo = torneo.Nombre,
-                Participantes = new List<ParticipantesBase>()
-            };
-        }
-
-        public async Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds)
-        {
-            try
-            {
-                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
-                var actualizacion = Builders<Torneo>.Update.PushEach(t => t.ParticipantesEliminacion, participantesIds);
-                
-                var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
-                return resultado.ModifiedCount > 0;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         private static string GenerarAccessKey()
         {
             return Guid.NewGuid().ToString("N")[..8].ToUpper();
@@ -380,6 +359,7 @@ namespace DA.Torneos
                 Ubicacion = torneo.Ubicacion,
                 DescripcionPremio = torneo.DescripcionPremio,
                 AccessKey = torneo.AccessKey,
+                Equipos = torneo.Equipos,
                 Estado = torneo.Estado,
                 CreadoPor = torneo.CreadoPor,
                 FechaCreacion = torneo.FechaCreacion,
@@ -387,6 +367,51 @@ namespace DA.Torneos
                 EsCreador = torneo.CreadoPor == nombreUsuario,
                 TieneAcceso = false
             };
+        }
+
+        public async Task<bool> AgregarParticipantesIndividuales(string idTorneo, List<string> participantesIds)
+        {
+            try
+            {
+                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
+
+                var actualizacion = Builders<Torneo>.Update.PushEach(t => t.Participantes, participantesIds);
+
+                var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
+                return resultado.ModifiedCount > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> AgregarParticipantesEquipos(string idTorneo, List<Equipo> Equipos)
+        {
+            try
+            {
+                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
+                var actualizacionEquipos = Builders<Torneo>.Update.PushEach(t => t.Equipos, Equipos);
+                var resultadoEquipos = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacionEquipos);
+                if (resultadoEquipos.ModifiedCount < 0)
+                    return false;
+                var torneo = await ObtenerTorneoPorId(idTorneo);
+                var equipos = new List<string>();
+                foreach (var equipo in torneo.Equipos)
+                {
+                    equipos.Add(equipo.IdEquipo);
+                }
+                var actualizacionParticipantes = Builders<Torneo>.Update.PushEach(t => t.Participantes, equipos);
+                var resultadoParticipantes = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacionParticipantes);
+
+                if (resultadoParticipantes.ModifiedCount < 0)
+                    return false;
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

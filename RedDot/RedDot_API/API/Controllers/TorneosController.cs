@@ -11,7 +11,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+   // [Authorize]
     public class TorneosController : ControllerBase, ITorneosController
     {
         private readonly ITorneosFlujo _torneosFlujo;
@@ -279,16 +279,6 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("LeaderBoard/{idTorneo}")]
-        public Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo)
-        {
-            var resultado = _torneosFlujo.LeaderBoardPorTorneo(idTorneo);
-            if (resultado == null)
-            {
-                throw new ArgumentException("El torneo no existe");
-            }
-            return resultado;
-        }
 
         [HttpPatch("cambiar-estado")]
         public async Task<ActionResult> CambiarEstadoTorneo([FromBody] SolicitudCambiarEstado solicitud)
@@ -356,6 +346,33 @@ namespace API.Controllers
             {
                 var categorias = await _categoriasFlujo.ObtenerCategorias();
                 return Ok(categorias);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+        [HttpPatch("AgregarParticipantesIndividuales/{idTorneo}/{nombreUsuario}")]
+        public async Task<ActionResult> AgregarParticipantesIndividuales(string idTorneo, List<string> participantesIds, string nombreUsuario)
+        {
+            try
+            {
+                var resultado = await _torneosFlujo.AgregarParticipantesIndividuales(idTorneo, participantesIds, nombreUsuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+        [HttpPatch("AgregarParticipantesEquipos/{idTorneo}/{nombreUsuario}")]
+
+        public async Task<ActionResult> AgregarParticipantesEquipos(string idTorneo, List<Equipo> Equipos, string nombreUsuario)
+        {
+            try
+            {
+                var resultado = await _torneosFlujo.AgregarParticipantesEquipos(idTorneo, Equipos, nombreUsuario);
+                return Ok(resultado);
             }
             catch (Exception ex)
             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Abstracciones.Modelos;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Abstracciones.Interfaces.Flujo
 {
@@ -18,8 +19,8 @@ namespace Abstracciones.Interfaces.Flujo
         Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null);
         Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario);
         Task<bool> EliminarTorneo(string idTorneo, string nombreUsuario);
-        Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
         Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo);
-        Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds, string nombreUsuario);
+        Task<bool> AgregarParticipantesIndividuales(string idTorneo, List<string> participantesIds, string nombreUsuario);
+        Task<bool> AgregarParticipantesEquipos(string idTorneo, List<Equipo> Equipos, string nombreUsuario);
     }
 }

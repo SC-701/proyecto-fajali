@@ -19,14 +19,12 @@ namespace DA.Entidades
         [BsonElement("reglas")]
         public string? Reglas { get; set; }
 
-
         [BsonElement("fecha_inicio")]
         public DateTime? FechaInicio { get; set; }
 
+        [BsonElement("premio")]
+        public string? Premio { get; set; }
 
-
-        [BsonElement("fecha_limite_inscripcion")]
-        public DateTime? FechaLimiteInscripcion { get; set; }
 
         [BsonElement("cupos_maximos")]
         public int? CuposMaximos { get; set; }
@@ -50,7 +48,7 @@ namespace DA.Entidades
         public string? DescripcionPremio { get; set; }
 
         [BsonElement("participantes")]
-        public List<ParticipantesBase>? Participantes { get; set; }
+        public List<string>? Participantes { get; set; }
 
         [BsonElement("categoria")]
         public int Categoria { get; set; }
@@ -61,7 +59,7 @@ namespace DA.Entidades
         [BsonElement("rondas")]
         public Rondas? Rondas { get; set; }
 
-
-       
+        [BsonElement("Equipos")]
+        public List<Equipo> Equipos { get; set; }
     }
 }
