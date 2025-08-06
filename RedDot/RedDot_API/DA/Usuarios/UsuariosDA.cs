@@ -117,6 +117,7 @@ namespace DA.Usuarios
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier,user.Id)
             };
 
             return Task.FromResult(claims);

@@ -22,5 +22,10 @@ namespace Flujo.Categorias
         {
             return await _categoriaDA.ObtenerCategorias();
         }
+
+        public async Task<List<ModeloDeportes>> ObtenerDeportes()
+        {
+            return await _categoriaDA.ObtenerDeportes();
+        }
     }
 }

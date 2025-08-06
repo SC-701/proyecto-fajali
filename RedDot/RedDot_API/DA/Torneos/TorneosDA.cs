@@ -194,10 +194,11 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null)
+        public async Task<RespuestaListaTorneos> ObtenerTorneos(string id,int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null)
         {
             try
             {
+                
                 var constructorFiltro = Builders<Torneo>.Filter;
                 var filtro = constructorFiltro.Empty;
 
@@ -210,6 +211,8 @@ namespace DA.Torneos
                 {
                     filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.TipoDeporte, tipoDeporte));
                 }
+
+                filtro = constructorFiltro.And(filtro, constructorFiltro.Ne(t => t.CreadoPor , id));
 
                 var totalRegistros = await _coleccionTorneos.CountDocumentsAsync(filtro);
                 var torneos = await _coleccionTorneos
@@ -293,7 +296,22 @@ namespace DA.Torneos
                 return false;
             }
         }
+        public async Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo)
+        {
+            var torneo = await ObtenerTorneoPorId(idTorneo);
+            if (torneo == null) return null;
 
+            return new LeaderBoardPorTorneo
+            {
+                NombreTorneo = torneo.Nombre,
+                Participantes = new List<ParticipantesBase>()
+            };
+        }
+
+        public async Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds)
+        {
+           throw new NotImplementedException("Este método no está implementado en la versión actual.");
+        }
         private static string GenerarAccessKey()
         {
             return Guid.NewGuid().ToString("N")[..8].ToUpper();

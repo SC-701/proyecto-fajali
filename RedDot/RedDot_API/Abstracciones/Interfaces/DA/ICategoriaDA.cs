@@ -10,5 +10,7 @@ namespace Abstracciones.Interfaces.DA
     public interface ICategoriaDA
     {
         Task<List<ModeloCategorias>> ObtenerCategorias();
+
+        Task<List<ModeloDeportes>> ObtenerDeportes();
     }
 }

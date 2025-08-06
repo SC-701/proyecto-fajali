@@ -16,7 +16,9 @@ namespace Abstracciones.Interfaces.API
         Task<ActionResult> CambiarEstadoTorneo(SolicitudCambiarEstado solicitud);
         Task<ActionResult> ObtenerTorneoPorId(string idTorneo);
         Task<ActionResult> ObtenerCategorias();
+        Task<ActionResult> ObtenerDeportes();
         Task<ActionResult> AgregarParticipantesIndividuales(string idTorneo, List<string> participantesIds, string nombreUsuario);
         Task<ActionResult> AgregarParticipantesEquipos(string idTorneo, List<Equipo> Equipos, string nombreUsuario);
+
     }
 }
