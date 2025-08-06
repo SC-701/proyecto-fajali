@@ -16,11 +16,13 @@ namespace API.Controllers
     {
         private readonly ITorneosFlujo _torneosFlujo;
         private readonly IUsuariosFlujo _usuariosFlujo;
+        private readonly ICategoriasFlujo _categoriasFlujo;
 
-        public TorneosController(ITorneosFlujo torneosFlujo, IUsuariosFlujo usuariosFlujo)
+        public TorneosController(ITorneosFlujo torneosFlujo, IUsuariosFlujo usuariosFlujo, ICategoriasFlujo categoriasFlujo)
         {
             _torneosFlujo = torneosFlujo;
             _usuariosFlujo = usuariosFlujo;
+            _categoriasFlujo = categoriasFlujo;
         }
 
         [HttpPost("crear")]
@@ -33,13 +35,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
-                if (string.IsNullOrEmpty(nombreUsuario))
-                {
-                    return Unauthorized("No se pudo identificar al usuario");
-                }
-
-                var resultado = await _torneosFlujo.CrearTorneo(solicitud, nombreUsuario);
+                var resultado = await _torneosFlujo.CrearTorneo(solicitud);
 
                 return Ok(new
                 {
@@ -115,13 +111,13 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
-                if (string.IsNullOrEmpty(nombreUsuario))
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
                 }
 
-                var resultado = await _torneosFlujo.AvanzarRonda(solicitud, nombreUsuario);
+                var resultado = await _torneosFlujo.AvanzarRonda(solicitud, id);
 
                 if (!resultado)
                 {
@@ -145,17 +141,17 @@ namespace API.Controllers
         }
 
         [HttpGet("mis-torneos")]
-        public async Task<ActionResult> ObtenerMisTorneos([FromQuery] EstadoTorneo? estado = null)
+        public async Task<ActionResult> ObtenerMisTorneos([FromQuery] int estado = 0)
         {
             try
             {
-                var nombreUsuario = User.Identity?.Name;
-                if (string.IsNullOrEmpty(nombreUsuario))
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
                 }
 
-                var torneos = await _torneosFlujo.ObtenerMisTorneos(nombreUsuario, estado);
+                var torneos = await _torneosFlujo.ObtenerMisTorneos(id, estado);
                 return Ok(torneos);
             }
             catch (Exception ex)
@@ -229,12 +225,13 @@ namespace API.Controllers
         public async Task<ActionResult> ObtenerTorneos(
             [FromQuery] int numeroPagina = 1,
             [FromQuery] int tamanoPagina = 10,
-            [FromQuery] EstadoTorneo? estado = null,
+            [FromQuery] int estado = 0,
             [FromQuery] string? tipoDeporte = null)
         {
             try
             {
-                var torneos = await _torneosFlujo.ObtenerTorneos(numeroPagina, tamanoPagina, estado, tipoDeporte);
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var torneos = await _torneosFlujo.ObtenerTorneos(id,numeroPagina, tamanoPagina, estado, tipoDeporte);
                 return Ok(torneos);
             }
             catch (Exception ex)
@@ -345,6 +342,28 @@ namespace API.Controllers
             {
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
+        }
+        [HttpGet("categorias")]
+
+        public async Task<ActionResult> ObtenerCategorias()
+        {
+            try
+            {
+                var categorias = await _categoriasFlujo.ObtenerCategorias();
+                return Ok(categorias);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        [HttpGet("deportes")]
+        public async Task<ActionResult> ObtenerDeportes()
+        {
+            
+            var deportes = await _categoriasFlujo.ObtenerDeportes();
+            return Ok(deportes);
         }
     }
 }

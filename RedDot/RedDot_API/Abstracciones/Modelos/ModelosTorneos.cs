@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -78,7 +79,7 @@ namespace Abstracciones.Modelos
         public string Descripcion { get; set; }
 
         [Required(ErrorMessage = "La categoría es requerida")]
-        public CategoriaTorneo Categoria { get; set; }
+        public int Categoria { get; set; }
 
         [Required(ErrorMessage = "El tipo de deporte es requerido")]
         [StringLength(50, ErrorMessage = "El tipo de deporte no puede exceder 50 caracteres")]
@@ -90,7 +91,19 @@ namespace Abstracciones.Modelos
         [StringLength(300, ErrorMessage = "La descripción del premio no puede exceder 300 caracteres")]
         public string? DescripcionPremio { get; set; }
 
-        public List<string> ParticipantesIds { get; set; } = new();
+
+        [StringLength(500, ErrorMessage = "Las reglas no pueden exceder mas de 500 caracteres")]
+        public string reglas { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La fecha de inicio es requerida")]
+        public DateTime fecha_inicio { get; set; }
+
+        [Required(ErrorMessage = "El numero de cupos es requerido")]
+        public int cupos { get; set; }
+        [Required(ErrorMessage = "El ID del creador es requerido")]
+
+        public string CreadorId { get; set; } 
+
     }
 
     public class SolicitudActualizarPuntaje
@@ -128,12 +141,12 @@ namespace Abstracciones.Modelos
         public string Id { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
-        public CategoriaTorneo Categoria { get; set; }
+        public int Categoria { get; set; }
         public string TipoDeporte { get; set; }
         public string? Ubicacion { get; set; }
         public string? DescripcionPremio { get; set; }
         public string? AccessKey { get; set; } // Solo se muestra al creador
-        public EstadoTorneo Estado { get; set; }
+        public int Estado { get; set; }
         public string CreadoPor { get; set; }
         public DateTime FechaCreacion { get; set; }
         public List<string> Participantes { get; set; } = new();
@@ -161,7 +174,12 @@ namespace Abstracciones.Modelos
     }
 
     [BsonKnownTypes(typeof(ParticipanteIndividual), typeof(Equipo))]
-    public abstract class ParticipantesBase { }
+    public abstract class ParticipantesBase {
+        
+        public string Id { get; set; }
+        public bool selected { get; set; }
+
+    }
 
     public class ParticipanteIndividual : ParticipantesBase
     {

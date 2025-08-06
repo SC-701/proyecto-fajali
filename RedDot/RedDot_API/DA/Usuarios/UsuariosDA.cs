@@ -117,6 +117,7 @@ namespace DA.Usuarios
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier,user.Id)
             };
 
             return Task.FromResult(claims);
@@ -200,7 +201,6 @@ namespace DA.Usuarios
                 CreadoPor = t.CreadoPor ?? string.Empty,
                 FechaCreacion = t.FechaCreacion,
                 Participantes = t.Participantes?.Select(p => p.ToString()).ToList() ?? new List<string>(),
-                Categoria = t.Categoria ?? default,
                 AccessKey = t.AccessKey,
                 Rondas = t.Rondas ?? new Rondas(),
                 EsCreador = false,

@@ -19,19 +19,12 @@ namespace Flujo.Torneos
             _torneosDA = torneosDA;
         }
 
-        public async Task<RespuestaTorneo> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor)
+        // MÉTODO PRINCIPAL - Crear Torneo (siempre de eliminación)
+        public async Task<RespuestaTorneo> CrearTorneo(SolicitudCrearTorneo solicitud)
         {
-            if (solicitud.ParticipantesIds.Count > 0 && solicitud.ParticipantesIds.Count != 8)
-            {
-                throw new ArgumentException("Los torneos requieren 0 o exactamente 8 participantes");
-            }
+           
 
-            if (solicitud.ParticipantesIds.Count > 0 && solicitud.ParticipantesIds.Distinct().Count() != solicitud.ParticipantesIds.Count)
-            {
-                throw new ArgumentException("No se permiten participantes duplicados");
-            }
-
-            var idTorneo = await _torneosDA.CrearTorneo(solicitud, creadoPor);
+            var idTorneo = await _torneosDA.CrearTorneo(solicitud);
 
             if (string.IsNullOrEmpty(idTorneo))
             {
@@ -55,7 +48,7 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("Solo el creador del torneo puede actualizar puntajes");
             }
 
-            if (torneo.Estado != EstadoTorneo.EnProgreso && torneo.Estado != EstadoTorneo.PorIniciar)
+            if (torneo.Estado != 2 && torneo.Estado != 0)
             {
                 throw new ArgumentException("No se pueden actualizar puntajes en un torneo terminado o cancelado");
             }
@@ -70,9 +63,9 @@ namespace Flujo.Torneos
                 throw new ArgumentException("Los participantes no corresponden al partido especificado");
             }
 
-            if (torneo.Estado == EstadoTorneo.PorIniciar)
+            if (torneo.Estado == 0)
             {
-                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, EstadoTorneo.EnProgreso);
+                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, 1);
             }
 
             return await _torneosDA.ActualizarPuntajePartido(
@@ -95,7 +88,7 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("Solo el creador del torneo puede avanzar rondas");
             }
 
-            if (torneo.Estado != EstadoTorneo.EnProgreso)
+            if (torneo.Estado != 1)
             {
                 throw new ArgumentException("El torneo debe estar en progreso para avanzar rondas");
             }
@@ -107,13 +100,13 @@ namespace Flujo.Torneos
 
             if (solicitud.RondaActual == "final")
             {
-                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, EstadoTorneo.Terminado);
+                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, 3);
             }
 
             return await _torneosDA.AvanzarRondaTorneo(solicitud.IdTorneo, solicitud.RondaActual);
         }
 
-        public async Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, EstadoTorneo? estado = null)
+        public async Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, int estado = 0)
         {
             return await _torneosDA.ObtenerTorneosPorUsuario(nombreUsuario, estado);
         }
@@ -165,15 +158,15 @@ namespace Flujo.Torneos
             return torneo;
         }
 
-        public async Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null)
+        public async Task<RespuestaListaTorneos> ObtenerTorneos(string id, int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null)
         {
             if (numeroPagina < 1) numeroPagina = 1;
             if (tamanoPagina < 1 || tamanoPagina > 100) tamanoPagina = 10;
 
-            return await _torneosDA.ObtenerTorneos(numeroPagina, tamanoPagina, estado, tipoDeporte);
+            return await _torneosDA.ObtenerTorneos(id, numeroPagina, tamanoPagina, estado, tipoDeporte);
         }
 
-        public async Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario)
+        public async Task<bool> CambiarEstadoTorneo(string idTorneo, int estado, string nombreUsuario)
         {
             var torneo = await _torneosDA.ObtenerTorneoPorId(idTorneo);
             if (torneo == null)
@@ -186,12 +179,8 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("No tienes permisos para cambiar el estado de este torneo");
             }
 
-            if (!ValidarCambioEstado(torneo.Estado, estado))
-            {
-                throw new ArgumentException("Cambio de estado no válido");
-            }
 
-            if (torneo.Estado == EstadoTorneo.PorIniciar && estado == EstadoTorneo.EnProgreso &&
+            if (torneo.Estado == 0 && estado == 1 &&
                 torneo.Participantes.Count != 8)
             {
                 throw new ArgumentException("No se puede iniciar un torneo con menos de 8 participantes");
@@ -213,7 +202,7 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("No tienes permisos para eliminar este torneo");
             }
 
-            if (torneo.Estado == EstadoTorneo.EnProgreso || torneo.Estado == EstadoTorneo.Terminado)
+            if (torneo.Estado == 1 || torneo.Estado == 3)
             {
                 throw new ArgumentException("No se puede eliminar un torneo que ya inició o finalizó");
             }
@@ -234,7 +223,7 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("Solo el creador del torneo puede agregar participantes");
             }
 
-            if (torneo.Estado != EstadoTorneo.PorIniciar)
+            if (torneo.Estado != 0)
             {
                 throw new ArgumentException("Solo se pueden agregar participantes a torneos que no han iniciado");
             }
@@ -317,16 +306,9 @@ namespace Flujo.Torneos
             return partidos?.All(p => p.Completado) ?? false;
         }
 
-        private static bool ValidarCambioEstado(EstadoTorneo estadoActual, EstadoTorneo nuevoEstado)
+        public Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario)
         {
-            return estadoActual switch
-            {
-                EstadoTorneo.PorIniciar => nuevoEstado == EstadoTorneo.EnProgreso || nuevoEstado == EstadoTorneo.Cancelado,
-                EstadoTorneo.EnProgreso => nuevoEstado == EstadoTorneo.Terminado || nuevoEstado == EstadoTorneo.Cancelado,
-                EstadoTorneo.Terminado => false,
-                EstadoTorneo.Cancelado => false,
-                _ => false
-            };
+            throw new NotImplementedException();
         }
     }
 }

@@ -15,12 +15,14 @@ namespace DA.Torneos
         {
             _coleccionTorneos = context.GetCollection<Torneo>("torneos");
         }
-        public async Task<string> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor)
+
+        // MÉTODO UNIFICADO - Crear Torneo (siempre de eliminación con 8 participantes)
+        public async Task<string> CrearTorneo(SolicitudCrearTorneo solicitud)
         {
             try
             {
                 var accessKey = GenerarAccessKey();
-                var rondas = InicializarRondas(solicitud.ParticipantesIds);
+              
 
                 var nuevoTorneo = new Torneo
                 {
@@ -31,12 +33,14 @@ namespace DA.Torneos
                     Ubicacion = solicitud.Ubicacion,
                     DescripcionPremio = solicitud.DescripcionPremio,
                     AccessKey = accessKey,
-                    CreadoPor = creadoPor,
-                    Estado = EstadoTorneo.PorIniciar,
+                    CreadoPor = solicitud.CreadorId,
+                    Estado = 0,
                     FechaCreacion = DateTime.UtcNow,
-                    ParticipantesEliminacion = solicitud.ParticipantesIds,
-                    Rondas = rondas,
-                    EsEliminacionDirecta = true
+                    CuposMaximos = solicitud.cupos,
+                    FechaInicio = solicitud.fecha_inicio,
+                    Reglas = solicitud.reglas,
+                    Rondas = new Rondas(),
+                    Participantes = new List<ParticipantesBase>(),
                 };
 
                 await _coleccionTorneos.InsertOneAsync(nuevoTorneo);
@@ -128,19 +132,18 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, EstadoTorneo? estado = null)
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, int estado = 0)
         {
             try
             {
                 var constructorFiltro = Builders<Torneo>.Filter;
                 var filtro = constructorFiltro.Or(
-                    constructorFiltro.Eq(t => t.CreadoPor, nombreUsuario),
-                    constructorFiltro.AnyEq(t => t.ParticipantesEliminacion, nombreUsuario)
+                    constructorFiltro.Eq(t => t.CreadoPor, nombreUsuario)
                 );
 
-                if (estado.HasValue)
+                if (estado>0)
                 {
-                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado.Value));
+                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado));
                 }
 
                 var torneos = await _coleccionTorneos
@@ -188,23 +191,25 @@ namespace DA.Torneos
             }
         }
 
-
-        public async Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null)
+        public async Task<RespuestaListaTorneos> ObtenerTorneos(string id,int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null)
         {
             try
             {
+                
                 var constructorFiltro = Builders<Torneo>.Filter;
                 var filtro = constructorFiltro.Empty;
 
-                if (estado.HasValue)
+                if (estado>0)
                 {
-                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado.Value));
+                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado));
                 }
 
                 if (!string.IsNullOrEmpty(tipoDeporte))
                 {
                     filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.TipoDeporte, tipoDeporte));
                 }
+
+                filtro = constructorFiltro.And(filtro, constructorFiltro.Ne(t => t.CreadoPor , id));
 
                 var totalRegistros = await _coleccionTorneos.CountDocumentsAsync(filtro);
                 var torneos = await _coleccionTorneos
@@ -229,7 +234,7 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<bool> ActualizarEstadoTorneo(string idTorneo, EstadoTorneo estado)
+        public async Task<bool> ActualizarEstadoTorneo(string idTorneo, int estado)
         {
             try
             {
@@ -281,8 +286,7 @@ namespace DA.Torneos
 
                 if (torneo == null) return false;
 
-                return torneo.CreadoPor == nombreUsuario ||
-                       (torneo.ParticipantesEliminacion?.Contains(nombreUsuario) ?? false);
+                return torneo.CreadoPor == nombreUsuario;
             }
             catch (Exception)
             {
@@ -304,18 +308,7 @@ namespace DA.Torneos
 
         public async Task<bool> AgregarParticipantesTorneo(string idTorneo, List<string> participantesIds)
         {
-            try
-            {
-                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
-                var actualizacion = Builders<Torneo>.Update.PushEach(t => t.ParticipantesEliminacion, participantesIds);
-                
-                var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
-                return resultado.ModifiedCount > 0;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+           throw new NotImplementedException("Este método no está implementado en la versión actual.");
         }
 
         private static string GenerarAccessKey()
@@ -381,7 +374,6 @@ namespace DA.Torneos
                 Id = torneo.Id ?? string.Empty,
                 Nombre = torneo.Nombre,
                 Descripcion = torneo.Descripcion,
-                Categoria = torneo.Categoria ?? CategoriaTorneo.Otros,
                 TipoDeporte = torneo.TipoDeporte,
                 Ubicacion = torneo.Ubicacion,
                 DescripcionPremio = torneo.DescripcionPremio,
@@ -389,11 +381,17 @@ namespace DA.Torneos
                 Estado = torneo.Estado,
                 CreadoPor = torneo.CreadoPor,
                 FechaCreacion = torneo.FechaCreacion,
-                Participantes = torneo.ParticipantesEliminacion ?? new List<string>(),
                 Rondas = torneo.Rondas ?? new Rondas(),
                 EsCreador = torneo.CreadoPor == nombreUsuario,
                 TieneAcceso = false
             };
         }
+
+       
+         
+
+            
+
+        
     }
 }

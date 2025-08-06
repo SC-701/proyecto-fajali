@@ -1,0 +1,16 @@
+﻿using Abstracciones.Modelos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Abstracciones.Interfaces.DA
+{
+    public interface ICategoriaDA
+    {
+        Task<List<ModeloCategorias>> ObtenerCategorias();
+
+        Task<List<ModeloDeportes>> ObtenerDeportes();
+    }
+}

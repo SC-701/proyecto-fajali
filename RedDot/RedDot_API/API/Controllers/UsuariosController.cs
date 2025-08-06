@@ -12,10 +12,12 @@ namespace API.Controllers
     {
         private readonly IUsuariosFlujo _usuariosFlujo;
         private readonly ITorneosFlujo _torneosFlujo;
-        public UsuariosController(IUsuariosFlujo usuariosFlujo, ITorneosFlujo torneosFlujo = null)
+        private readonly ICategoriasFlujo _categoriasFlujo;
+        public UsuariosController(IUsuariosFlujo usuariosFlujo, ICategoriasFlujo categoriasFlujo, ITorneosFlujo torneosFlujo = null)
         {
             _usuariosFlujo = usuariosFlujo;
             _torneosFlujo = torneosFlujo;
+            _categoriasFlujo = categoriasFlujo;
         }
         [HttpPut("EditarUsuario")]
         public async Task<ActionResult> EditarUsuario([FromBody]UserUI usuario)
@@ -68,5 +70,7 @@ namespace API.Controllers
 
             return Ok("Usuario registrado correctamente");
         }
+
+        
     }
 }

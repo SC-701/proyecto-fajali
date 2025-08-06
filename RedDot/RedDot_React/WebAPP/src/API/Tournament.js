@@ -1,5 +1,7 @@
 import ApiService from '../services/apiService.js';
 
+// UNIFICADO - Todos los torneos son de eliminaci�n directa
+
 export async function getAllTournaments(page = 1, pageSize = 10, state = null, sportType = null) {
     let url = `Torneos/listar?numeroPagina=${page}&tamanoPagina=${pageSize}`;
     if (state !== null) url += `&estado=${state}`;
@@ -9,6 +11,9 @@ export async function getAllTournaments(page = 1, pageSize = 10, state = null, s
 
 export async function createTournament(tournamentData) {
     return await ApiService.post('Torneos/crear', tournamentData);
+}
+export async function getCategorias() {
+    return await ApiService.get('Torneos/categorias');
 }
 
 export async function getMyTournaments(state = null) {
@@ -41,20 +46,7 @@ export async function getLeaderboard(tournamentId) {
     return await ApiService.get(`Torneos/LeaderBoard/${tournamentId}`);
 }
 
-export async function addTournamentParticipants(tournamentId, participantsIds) {
-    return await ApiService.post('Torneos/agregar-participantes', {
-        idTorneo: tournamentId,
-        participantesIds: participantsIds
-    });
-}
-
-export async function changeTournamentStatus(tournamentId, newStatus) {
-    return await ApiService.post('Torneos/cambiar-estado', {
-        idTorneo: tournamentId,
-        nuevoEstado: newStatus
-    });
-}
-
+// Estados y categor�as
 export const TournamentStates = {
     POR_INICIAR: 0,
     EN_PROGRESO: 1,
@@ -69,12 +61,25 @@ export const TournamentCategories = {
     OTROS: 3
 };
 
-export const getCategoryName = (category) => {
-    const names = ['Contacto', 'Equipo', 'Raqueta', 'Otros'];
-    return names[category] || 'Desconocido';
-};
+export async function getSportName() {
+    
+    return await ApiService.getWithParams('Torneos/deportes');
+} 
 
 export const getStateName = (state) => {
     const names = ['Por Iniciar', 'En Progreso', 'Terminado', 'Cancelado'];
     return names[state] || 'Desconocido';
 };
+export async function addTournamentParticipants(tournamentId, participantsIds) {
+    return await ApiService.post('Torneos/agregar-participantes', {
+        idTorneo: tournamentId,
+        participantesIds: participantsIds
+    });
+}
+
+export async function changeTournamentStatus(tournamentId, newStatus) {
+    return await ApiService.post('Torneos/cambiar-estado', {
+        idTorneo: tournamentId,
+        nuevoEstado: newStatus
+    });
+}

@@ -4,7 +4,8 @@
     margin: 0 auto;
     background-color: #111827;
     min-height: 100vh;
-    color: #f9fafb;
+    color: hsl(210, 20%, 98%);
+    width: 100%;
 }
 
 .tournaments-header {
