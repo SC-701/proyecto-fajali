@@ -34,13 +34,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
-                if (string.IsNullOrEmpty(nombreUsuario))
-                {
-                    return Unauthorized("No se pudo identificar al usuario");
-                }
-
-                var resultado = await _torneosFlujo.CrearTorneo(solicitud, nombreUsuario);
+                var resultado = await _torneosFlujo.CrearTorneo(solicitud);
 
                 return Ok(new
                 {
@@ -138,7 +132,7 @@ namespace API.Controllers
         }
 
         [HttpGet("mis-torneos")]
-        public async Task<ActionResult> ObtenerMisTorneos([FromQuery] EstadoTorneo? estado = null)
+        public async Task<ActionResult> ObtenerMisTorneos([FromQuery] int estado = 0)
         {
             try
             {
@@ -222,7 +216,7 @@ namespace API.Controllers
         public async Task<ActionResult> ObtenerTorneos(
             [FromQuery] int numeroPagina = 1,
             [FromQuery] int tamanoPagina = 10,
-            [FromQuery] EstadoTorneo? estado = null,
+            [FromQuery] int estado = 0,
             [FromQuery] string? tipoDeporte = null)
         {
             try

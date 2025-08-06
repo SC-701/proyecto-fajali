@@ -17,7 +17,7 @@ namespace DA.Torneos
         }
 
         // MÉTODO UNIFICADO - Crear Torneo (siempre de eliminación con 8 participantes)
-        public async Task<string> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor)
+        public async Task<string> CrearTorneo(SolicitudCrearTorneo solicitud)
         {
             try
             {
@@ -33,9 +33,14 @@ namespace DA.Torneos
                     Ubicacion = solicitud.Ubicacion,
                     DescripcionPremio = solicitud.DescripcionPremio,
                     AccessKey = accessKey,
-                    CreadoPor = creadoPor,
-                    Estado = EstadoTorneo.PorIniciar,
+                    CreadoPor = solicitud.CreadorId,
+                    Estado = 0,
                     FechaCreacion = DateTime.UtcNow,
+                    CuposMaximos = solicitud.cupos,
+                    FechaInicio = solicitud.fecha_inicio,
+                    Reglas = solicitud.reglas,
+                    Rondas = new Rondas(),
+                    Participantes = new List<ParticipantesBase>(),
                 };
 
                 await _coleccionTorneos.InsertOneAsync(nuevoTorneo);
@@ -127,7 +132,7 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, EstadoTorneo? estado = null)
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, int estado = 0)
         {
             try
             {
@@ -136,9 +141,9 @@ namespace DA.Torneos
                     constructorFiltro.Eq(t => t.CreadoPor, nombreUsuario)
                 );
 
-                if (estado.HasValue)
+                if (estado>0)
                 {
-                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado.Value));
+                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado));
                 }
 
                 var torneos = await _coleccionTorneos
@@ -186,16 +191,16 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null)
+        public async Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null)
         {
             try
             {
                 var constructorFiltro = Builders<Torneo>.Filter;
                 var filtro = constructorFiltro.Empty;
 
-                if (estado.HasValue)
+                if (estado>0)
                 {
-                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado.Value));
+                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado));
                 }
 
                 if (!string.IsNullOrEmpty(tipoDeporte))
@@ -226,7 +231,7 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<bool> ActualizarEstadoTorneo(string idTorneo, EstadoTorneo estado)
+        public async Task<bool> ActualizarEstadoTorneo(string idTorneo, int estado)
         {
             try
             {
@@ -374,5 +379,12 @@ namespace DA.Torneos
                 TieneAcceso = false
             };
         }
+
+       
+         
+
+            
+
+        
     }
 }

@@ -23,16 +23,11 @@ namespace DA.Entidades
         [BsonElement("fecha_inicio")]
         public DateTime? FechaInicio { get; set; }
 
-
-
-        [BsonElement("fecha_limite_inscripcion")]
-        public DateTime? FechaLimiteInscripcion { get; set; }
-
         [BsonElement("cupos_maximos")]
         public int? CuposMaximos { get; set; }
 
         [BsonElement("estado")]
-        public EstadoTorneo Estado { get; set; } = EstadoTorneo.PorIniciar;
+        public int Estado { get; set; } 
 
         [BsonElement("creado_por")]
         public string CreadoPor { get; set; }

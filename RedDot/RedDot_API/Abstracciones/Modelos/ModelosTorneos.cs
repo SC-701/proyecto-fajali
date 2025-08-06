@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -142,7 +143,7 @@ namespace Abstracciones.Modelos
         public string? Ubicacion { get; set; }
         public string? DescripcionPremio { get; set; }
         public string? AccessKey { get; set; } // Solo se muestra al creador
-        public EstadoTorneo Estado { get; set; }
+        public int Estado { get; set; }
         public string CreadoPor { get; set; }
         public DateTime FechaCreacion { get; set; }
         public List<string> Participantes { get; set; } = new();
@@ -170,7 +171,12 @@ namespace Abstracciones.Modelos
     }
 
     [BsonKnownTypes(typeof(ParticipanteIndividual), typeof(Equipo))]
-    public abstract class ParticipantesBase { }
+    public abstract class ParticipantesBase {
+        
+        public string Id { get; set; }
+        public bool selected { get; set; }
+
+    }
 
     public class ParticipanteIndividual : ParticipantesBase
     {
