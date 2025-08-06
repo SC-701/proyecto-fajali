@@ -142,11 +142,10 @@ namespace Abstracciones.Modelos
         public int Estado { get; set; }
         public string CreadoPor { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public List<string> Participantes { get; set; } = new();
+        public List<Equipo> Participantes { get; set; } = new();
         public Rondas Rondas { get; set; } = new();
         public bool EsCreador { get; set; }
         public bool TieneAcceso { get; set; }
-        public List<Equipo> Equipos { get; set; }
     }
 
     public class RespuestaListaTorneos
@@ -170,13 +169,12 @@ namespace Abstracciones.Modelos
     public class Equipo
     {
         [BsonId]
-        public string IdEquipo { get; set; } = ObjectId.GenerateNewId().ToString();
+        public string IdJugador { get; set; }
 
         [Required(ErrorMessage = "El nombre del equipo es obligatorio")]
-        [BsonElement("nombre_quipo")]
-        public string NombreEquipo { get; set; }
-        [BsonElement("integrantes")]
-        public List<string> Integrantes { get; set; }
+        [BsonElement("puntaje")]
+        public int Puntaje { get; set; }
+       
     }
 
 }
