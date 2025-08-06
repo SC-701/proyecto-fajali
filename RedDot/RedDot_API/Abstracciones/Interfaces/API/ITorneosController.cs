@@ -14,12 +14,11 @@ namespace Abstracciones.Interfaces.API
         Task<ActionResult> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null);
         Task<ActionResult> EliminarTorneo(string idTorneo);
         Task<ActionResult> CambiarEstadoTorneo(SolicitudCambiarEstado solicitud);
-        Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);
         Task<ActionResult> ObtenerTorneoPorId(string idTorneo);
-
         Task<ActionResult> ObtenerCategorias();
         Task<ActionResult> ObtenerDeportes();
-
+        Task<ActionResult> AgregarParticipantesIndividuales(string idTorneo, List<string> participantesIds, string nombreUsuario);
+        Task<ActionResult> AgregarParticipantesEquipos(string idTorneo, List<Equipo> Equipos, string nombreUsuario);
 
     }
 }

@@ -310,5 +310,78 @@ namespace Flujo.Torneos
         {
             throw new NotImplementedException();
         }
+
+        public async Task<bool> AgregarParticipantesIndividuales(string idTorneo, List<string> participantesIds, string nombreUsuario)
+        {
+
+            var torneo = await _torneosDA.ObtenerTorneoPorId(idTorneo);
+            if (torneo == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+
+            if (torneo.CreadoPor != nombreUsuario)
+            {
+                throw new UnauthorizedAccessException("Solo el creador del torneo puede agregar participantes");
+            }
+
+            if (torneo.Estado != EstadoTorneo.PorIniciar)
+            {
+                throw new ArgumentException("Solo se pueden agregar participantes a torneos que no han iniciado");
+            }
+
+            var totalParticipantes = torneo.Participantes.Count + participantesIds.Count;
+            if (totalParticipantes > 8)
+            {
+                throw new ArgumentException($"El total de participantes no puede exceder 8. Actualmente hay {torneo.Participantes.Count} y se intentan agregar {participantesIds.Count}");
+            }
+
+            var participantesUnicos = new HashSet<string>(torneo.Participantes);
+            foreach (var participante in participantesIds)
+            {
+                if (!participantesUnicos.Add(participante))
+                {
+                    throw new ArgumentException($"El participante {participante} ya está en el torneo");
+                }
+            }
+
+            return await _torneosDA.AgregarParticipantesIndividuales(idTorneo, participantesIds);
+        }
+
+        public async Task<bool> AgregarParticipantesEquipos(string idTorneo, List<Equipo> Equipos, string nombreUsuario)
+        {
+            var torneo = await _torneosDA.ObtenerTorneoPorId(idTorneo);
+            if (torneo == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+
+            if (torneo.CreadoPor != nombreUsuario)
+            {
+                throw new UnauthorizedAccessException("Solo el creador del torneo puede agregar participantes");
+            }
+
+            if (torneo.Estado != EstadoTorneo.PorIniciar)
+            {
+                throw new ArgumentException("Solo se pueden agregar participantes a torneos que no han iniciado");
+            }
+
+            var totalParticipantes = torneo.Participantes.Count + Equipos.Count;
+            if (totalParticipantes > 8)
+            {
+                throw new ArgumentException($"El total de participantes no puede exceder 8. Actualmente hay {torneo.Participantes.Count} y se intentan agregar {Equipos.Count}");
+            }
+
+            var participantesUnicos = new HashSet<string>(torneo.Participantes);
+            foreach (var participante in Equipos)
+            {
+                if (!participantesUnicos.Add(participante.NombreEquipo))
+                {
+                    throw new ArgumentException($"El equipo {participante} ya está en el torneo");
+                }
+            }
+
+            return await _torneosDA.AgregarParticipantesEquipos(idTorneo, Equipos);
+        }
     }
 }

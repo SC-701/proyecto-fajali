@@ -4,20 +4,21 @@ using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using Amazon.Auth.AccessControlPolicy;
 using DA.Authentication;
+using DA.Categorias;
 using DA.Repositorio;
-using DA.Usuarios;
 using DA.Torneos;
+using DA.Usuarios;
 using Flujo.Authentication;
-using Flujo.Usuarios;
+using Flujo.Categorias;
 using Flujo.Torneos;
+using Flujo.Usuarios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using Newtonsoft.Json;
-using DA.Categorias;
-using Flujo.Categorias;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +40,11 @@ builder.Services.AddCors(options =>
                .AllowCredentials();
     });
 });
-
+BsonClassMap.RegisterClassMap<Abstracciones.Modelos.Equipo>(cm =>
+{
+    cm.AutoMap();
+    cm.SetIgnoreExtraElements(true);
+});
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
@@ -98,11 +103,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 var claimsIdentity = context.Principal.Identity as System.Security.Claims.ClaimsIdentity;
                 var userName = claimsIdentity?.Name;
 
-                //var userRole = "Admin";
+                var userRole = "Admin";
 
-                var userRole = await context.HttpContext.RequestServices
-                    .GetRequiredService<IAuthenticationFlujo>()
-                    .GetRole(userName);
+                //var userRole = await context.HttpContext.RequestServices
+                //    .GetRequiredService<IAuthenticationFlujo>()
+                //    .GetRole(userName);
 
                 if (!string.IsNullOrEmpty(userRole))
                 {

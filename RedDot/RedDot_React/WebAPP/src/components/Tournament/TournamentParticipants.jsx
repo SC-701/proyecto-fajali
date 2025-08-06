@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     getTournament,
-    addTournamentParticipants,
-    changeTournamentStatus,
     TournamentStates
 } from '../../API/Tournament.js';
 import { searchUsers } from '../../API/User.js';

@@ -37,14 +37,7 @@ namespace Abstracciones.Modelos
         [BsonElement("isWinner")]
         public bool IsWinner { get; set; } = false;
     }
-    public class SolicitudAgregarParticipantes
-    {
-        [Required(ErrorMessage = "El ID del torneo es requerido")]
-        public string IdTorneo { get; set; }
 
-        [Required(ErrorMessage = "La lista de participantes es requerida")]
-        public List<string> ParticipantesIds { get; set; } = new();
-    }
     public class Partido
     {
         [BsonElement("participantes")]
@@ -102,7 +95,7 @@ namespace Abstracciones.Modelos
         public int cupos { get; set; }
         [Required(ErrorMessage = "El ID del creador es requerido")]
 
-        public string CreadorId { get; set; } 
+        public string CreadorId { get; set; }
 
     }
 
@@ -112,7 +105,7 @@ namespace Abstracciones.Modelos
         public string IdTorneo { get; set; }
 
         [Required]
-        public string Ronda { get; set; } 
+        public string Ronda { get; set; }
 
         [Required]
         public int IndicePartido { get; set; }
@@ -153,6 +146,7 @@ namespace Abstracciones.Modelos
         public Rondas Rondas { get; set; } = new();
         public bool EsCreador { get; set; }
         public bool TieneAcceso { get; set; }
+        public List<Equipo> Equipos { get; set; }
     }
 
     public class RespuestaListaTorneos
@@ -181,38 +175,16 @@ namespace Abstracciones.Modelos
 
     }
 
-    public class ParticipanteIndividual : ParticipantesBase
+    public class Equipo
     {
-        [BsonRepresentation(BsonType.ObjectId)]
-        public String UsuarioId { get; set; }
-        public String Username { get; set; }
-        public Double Calificacion { get; set; }
-    }
+        [BsonId]
+        public string IdEquipo { get; set; } = ObjectId.GenerateNewId().ToString();
 
-    public class IntegranteEquipo
-    {
-        [BsonRepresentation(BsonType.ObjectId)]
-        public String UsuarioId { get; set; }
-        public String Username { get; set; }
-    }
-
-    public class Equipo : ParticipantesBase
-    {
         [Required(ErrorMessage = "El nombre del equipo es obligatorio")]
+        [BsonElement("nombre_quipo")]
         public string NombreEquipo { get; set; }
-        public int Puntuacion { get; set; }
-
-        public List<IntegranteEquipo> Integrantes { get; set; } = new();
+        [BsonElement("integrantes")]
+        public List<string> Integrantes { get; set; }
     }
 
-    public class AgregarParticipantes
-    {
-        public List<ParticipantesBase> Participantes { get; set; }
-    }
-
-    public class LeaderBoardPorTorneo
-    {
-        public string NombreTorneo { get; set; }
-        public List<ParticipantesBase> Participantes { get; set; } = new();
-    }
 }
