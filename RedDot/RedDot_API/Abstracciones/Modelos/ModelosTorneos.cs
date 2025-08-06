@@ -141,7 +141,7 @@ namespace Abstracciones.Modelos
         public string Id { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
-        public CategoriaTorneo Categoria { get; set; }
+        public int Categoria { get; set; }
         public string TipoDeporte { get; set; }
         public string? Ubicacion { get; set; }
         public string? DescripcionPremio { get; set; }

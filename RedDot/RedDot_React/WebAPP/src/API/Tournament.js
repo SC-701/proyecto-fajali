@@ -61,12 +61,25 @@ export const TournamentCategories = {
     OTROS: 3
 };
 
-export const getCategoryName = (category) => {
-    const names = ['Contacto', 'Equipo', 'Raqueta', 'Otros'];
-    return names[category] || 'Desconocido';
-};
+export async function getSportName() {
+    
+    return await ApiService.getWithParams('Torneos/deportes');
+} 
 
 export const getStateName = (state) => {
     const names = ['Por Iniciar', 'En Progreso', 'Terminado', 'Cancelado'];
     return names[state] || 'Desconocido';
 };
+export async function addTournamentParticipants(tournamentId, participantsIds) {
+    return await ApiService.post('Torneos/agregar-participantes', {
+        idTorneo: tournamentId,
+        participantesIds: participantsIds
+    });
+}
+
+export async function changeTournamentStatus(tournamentId, newStatus) {
+    return await ApiService.post('Torneos/cambiar-estado', {
+        idTorneo: tournamentId,
+        nuevoEstado: newStatus
+    });
+}

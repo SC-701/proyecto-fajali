@@ -15,7 +15,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, int estado = 0);
         Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario);
         Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo, string nombreUsuario, string? accessKey = null);
-        Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null);
+        Task<RespuestaListaTorneos> ObtenerTorneos(string id, int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null);
         Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario);
         Task<bool> EliminarTorneo(string idTorneo, string nombreUsuario);
         Task<LeaderBoardPorTorneo> LeaderBoardPorTorneo(string idTorneo);

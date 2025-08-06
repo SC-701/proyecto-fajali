@@ -18,5 +18,8 @@ namespace Abstracciones.Interfaces.API
         Task<ActionResult> ObtenerTorneoPorId(string idTorneo);
 
         Task<ActionResult> ObtenerCategorias();
+        Task<ActionResult> ObtenerDeportes();
+
+
     }
 }

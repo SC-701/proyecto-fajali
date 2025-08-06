@@ -84,8 +84,8 @@ const TournamentParticipants = () => {
         if ((tournament?.participantes?.length || 0) + selectedUsers.length >= 8) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Límite alcanzado',
-                text: 'Ya se alcanzó el máximo de 8 participantes'
+                title: 'Lï¿½mite alcanzado',
+                text: 'Ya se alcanzï¿½ el mï¿½ximo de 8 participantes'
             });
             return;
         }
@@ -123,7 +123,7 @@ const TournamentParticipants = () => {
             if (result.success) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Éxito',
+                    title: 'ï¿½xito',
                     text: 'Participantes agregados correctamente'
                 });
 
@@ -197,7 +197,7 @@ const TournamentParticipants = () => {
     return (
         <div className="tournament-participants-container">
             <div className="tournament-header">
-                <h2>Gestión de Participantes: {tournament.nombre}</h2>
+                <h2>Gestiï¿½n de Participantes: {tournament.nombre}</h2>
                 <div className="tournament-status">
                     Estado actual: <span className={`status-badge status-${tournament.estado}`}>
                         {tournament.estado === TournamentStates.POR_INICIAR ? 'Por Iniciar' : 'En Progreso'}
@@ -271,7 +271,7 @@ const TournamentParticipants = () => {
 
                                 {searchResults.length > 0 && (
                                     <div className="search-results">
-                                        <h6>Resultados de búsqueda:</h6>
+                                        <h6>Resultados de bï¿½squeda:</h6>
                                         <ul className="results-list">
                                             {searchResults.map(user => (
                                                 <li key={user.id} className="result-item">

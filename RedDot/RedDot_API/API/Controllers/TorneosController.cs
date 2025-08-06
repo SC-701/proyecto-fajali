@@ -111,13 +111,13 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
-                if (string.IsNullOrEmpty(nombreUsuario))
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
                 }
 
-                var resultado = await _torneosFlujo.AvanzarRonda(solicitud, nombreUsuario);
+                var resultado = await _torneosFlujo.AvanzarRonda(solicitud, id);
 
                 if (!resultado)
                 {
@@ -145,13 +145,13 @@ namespace API.Controllers
         {
             try
             {
-                var nombreUsuario = User.Identity?.Name;
-                if (string.IsNullOrEmpty(nombreUsuario))
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
                 }
 
-                var torneos = await _torneosFlujo.ObtenerMisTorneos(nombreUsuario, estado);
+                var torneos = await _torneosFlujo.ObtenerMisTorneos(id, estado);
                 return Ok(torneos);
             }
             catch (Exception ex)
@@ -230,7 +230,8 @@ namespace API.Controllers
         {
             try
             {
-                var torneos = await _torneosFlujo.ObtenerTorneos(numeroPagina, tamanoPagina, estado, tipoDeporte);
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var torneos = await _torneosFlujo.ObtenerTorneos(id,numeroPagina, tamanoPagina, estado, tipoDeporte);
                 return Ok(torneos);
             }
             catch (Exception ex)
@@ -355,6 +356,14 @@ namespace API.Controllers
             {
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
+        }
+
+        [HttpGet("deportes")]
+        public async Task<ActionResult> ObtenerDeportes()
+        {
+            
+            var deportes = await _categoriasFlujo.ObtenerDeportes();
+            return Ok(deportes);
         }
     }
 }

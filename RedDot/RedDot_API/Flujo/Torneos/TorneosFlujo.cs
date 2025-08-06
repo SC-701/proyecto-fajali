@@ -158,12 +158,12 @@ namespace Flujo.Torneos
             return torneo;
         }
 
-        public async Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null)
+        public async Task<RespuestaListaTorneos> ObtenerTorneos(string id, int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null)
         {
             if (numeroPagina < 1) numeroPagina = 1;
             if (tamanoPagina < 1 || tamanoPagina > 100) tamanoPagina = 10;
 
-            return await _torneosDA.ObtenerTorneos(numeroPagina, tamanoPagina, estado, tipoDeporte);
+            return await _torneosDA.ObtenerTorneos(id, numeroPagina, tamanoPagina, estado, tipoDeporte);
         }
 
         public async Task<bool> CambiarEstadoTorneo(string idTorneo, int estado, string nombreUsuario)
@@ -180,7 +180,7 @@ namespace Flujo.Torneos
             }
 
 
-            if (torneo.Estado == EstadoTorneo.PorIniciar && estado == EstadoTorneo.EnProgreso &&
+            if (torneo.Estado == 0 && estado == 1 &&
                 torneo.Participantes.Count != 8)
             {
                 throw new ArgumentException("No se puede iniciar un torneo con menos de 8 participantes");
@@ -223,7 +223,7 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("Solo el creador del torneo puede agregar participantes");
             }
 
-            if (torneo.Estado != EstadoTorneo.PorIniciar)
+            if (torneo.Estado != 0)
             {
                 throw new ArgumentException("Solo se pueden agregar participantes a torneos que no han iniciado");
             }
