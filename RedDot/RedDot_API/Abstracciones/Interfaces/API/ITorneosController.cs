@@ -17,8 +17,8 @@ namespace Abstracciones.Interfaces.API
         Task<ActionResult> ObtenerTorneoPorId(string idTorneo);
         Task<ActionResult> ObtenerCategorias();
         Task<ActionResult> ObtenerDeportes();
-        Task<ActionResult> AgregarParticipantesIndividuales(string idTorneo, List<string> participantesIds, string nombreUsuario);
-        Task<ActionResult> AgregarParticipantesEquipos(string idTorneo, List<Equipo> Equipos, string nombreUsuario);
+        Task<ActionResult> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase);
+
 
     }
 }

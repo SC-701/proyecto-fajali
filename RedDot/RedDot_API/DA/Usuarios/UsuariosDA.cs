@@ -200,7 +200,6 @@ namespace DA.Usuarios
                 Estado = t.Estado,
                 CreadoPor = t.CreadoPor ?? string.Empty,
                 FechaCreacion = t.FechaCreacion,
-                Participantes = t.Participantes?.Select(p => p.ToString()).ToList() ?? new List<string>(),
                 AccessKey = t.AccessKey,
                 Rondas = t.Rondas ?? new Rondas(),
                 EsCreador = false,
