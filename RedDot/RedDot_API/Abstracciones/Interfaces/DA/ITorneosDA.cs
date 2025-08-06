@@ -10,14 +10,14 @@ namespace Abstracciones.Interfaces.DA
 {
     public interface ITorneosDA
     {
-        Task<string> CrearTorneo(SolicitudCrearTorneo solicitud, string creadoPor);
+        Task<string> CrearTorneo(SolicitudCrearTorneo solicitud);
         Task<bool> ActualizarPuntajePartido(string idTorneo, string ronda, int indicePartido, List<Participante> participantes);
         Task<bool> AvanzarRondaTorneo(string idTorneo, string rondaActual);
-        Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, EstadoTorneo? estado = null);
+        Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, int estado = 0);
         Task<RespuestaTorneo?> ObtenerTorneoPorAccessKey(string accessKey);
         Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo);
-        Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, EstadoTorneo? estado = null, string? tipoDeporte = null);
-        Task<bool> ActualizarEstadoTorneo(string idTorneo, EstadoTorneo estado);
+        Task<RespuestaListaTorneos> ObtenerTorneos(int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null);
+        Task<bool> ActualizarEstadoTorneo(string idTorneo, int estado);
         Task<bool> EliminarTorneo(string idTorneo);
         Task<bool> ExisteTorneo(string idTorneo);
         Task<bool> UsuarioTieneAccesoTorneo(string idTorneo, string nombreUsuario);
