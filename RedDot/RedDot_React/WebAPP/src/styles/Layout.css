@@ -1,0 +1,9 @@
+.layout {
+    min-height: 100vh;
+    background-color: #111827;
+}
+
+.main-content {
+    padding-top: 70px; /* Altura del navbar fijo */
+    min-height: calc(100vh - 70px);
+}
