@@ -404,7 +404,7 @@ namespace DA.Torneos
                         AgregarJugadorSemis(numeroPartido, torneo, nuevoParticipante);
                         break;
                     case "final":
-                        AgregarJugadorFinal( torneo, nuevoParticipante);
+                        AgregarJugadorFinal(torneo, nuevoParticipante);
                         break;
                 }
 
@@ -469,7 +469,7 @@ namespace DA.Torneos
 
             torneo.Rondas.Semis[numeroPartido].Participantes.Add(nuevoParticipante);
         }
-        private static void AgregarJugadorFinal( RespuestaTorneo torneo, Participante nuevoParticipante)
+        private static void AgregarJugadorFinal(RespuestaTorneo torneo, Participante nuevoParticipante)
         {
             if (0 >= torneo.Rondas.Final.Count)
             {
@@ -495,49 +495,57 @@ namespace DA.Torneos
             torneo.Rondas.Final[0].Participantes.Add(nuevoParticipante);
         }
 
-        //public async Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion)
-        //{
-        //    try
-        //    {
-        //        // Validaciones
-        //        if (string.IsNullOrEmpty(idTorneo) || string.IsNullOrEmpty(ronda) ||
-        //            string.IsNullOrEmpty(idJugador) || numeroPartido < 0)
-        //            return false;
+        public async Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion)
+        {
+            try
+            {
 
-        //        var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
-        //        var torneo = await _coleccionTorneos.Find(filtro).FirstOrDefaultAsync();
+                if (string.IsNullOrEmpty(idTorneo) || string.IsNullOrEmpty(ronda) ||
+                    string.IsNullOrEmpty(idJugador) || numeroPartido < 0)
+                    return false;
 
-        //        if (torneo?.Rondas == null)
-        //            return false;
+                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
+                var torneo = await _coleccionTorneos.Find(filtro).FirstOrDefaultAsync();
 
-        //        var partidos = switch (ronda.ToLower())
-        //        {
-        //            "cuartos" => torneo.Rondas.Cuartos,
-        //            "semis" => torneo.Rondas.Semis,
-        //            "final" => torneo.Rondas.Final,
-        //            _ => null
-        //        };
+                if (torneo?.Rondas == null)
+                    return false;
 
-        //        if (partidos == null || numeroPartido >= partidos.Count || partidos[numeroPartido] == null)
-        //            return false;
+                var partidos = new List<Partido>();
+                switch (ronda.ToLower())
+                {
+                    case "cuartos":
+                        partidos = torneo.Rondas.Cuartos;
+                        break;
+                    case "semis":
+                        partidos = torneo.Rondas.Semis;
+                        break;
+                    case "final":
+                        partidos = torneo.Rondas.Final;
+                        break;
+                }
+                ;
 
-        //        var participante = partidos[numeroPartido].Participantes
-        //            .FirstOrDefault(p => p.IdJugador == idJugador);
 
-        //        if (participante == null)
-        //            return false;
+                if (partidos == null || numeroPartido >= partidos.Count || partidos[numeroPartido] == null)
+                    return false;
 
-        //        participante.Puntaje = nuevaPuntuacion;
+                var participante = partidos[numeroPartido].Participantes
+                    .FirstOrDefault(p => p.IdJugador == idJugador);
 
-        //        var actualizacion = Builders<Torneo>.Update.Set(t => t.Rondas, torneo.Rondas);
-        //        var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
+                if (participante == null)
+                    return false;
 
-        //        return resultado.ModifiedCount > 0;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return false;
-        //    }
-        //}
+                participante.Puntaje = nuevaPuntuacion;
+
+                var actualizacion = Builders<Torneo>.Update.Set(t => t.Rondas, torneo.Rondas);
+                var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
+
+                return resultado.ModifiedCount > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

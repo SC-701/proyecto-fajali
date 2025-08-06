@@ -22,6 +22,7 @@ namespace Abstracciones.Interfaces.DA
         Task<bool> ExisteTorneo(string idTorneo);
         Task<bool> UsuarioTieneAccesoTorneo(string idTorneo, string nombreUsuario);
         Task<bool> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase);
+        Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion);
 
     }
 }
