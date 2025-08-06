@@ -30,7 +30,7 @@ namespace DA.Entidades
         public int? CuposMaximos { get; set; }
 
         [BsonElement("estado")]
-        public EstadoTorneo Estado { get; set; } = EstadoTorneo.PorIniciar;
+        public int Estado { get; set; } 
 
         [BsonElement("creado_por")]
         public string CreadoPor { get; set; }
