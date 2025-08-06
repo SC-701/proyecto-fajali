@@ -17,7 +17,7 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
         );
     }
 
-    const { rondas } = tournament;
+    const  rondas = tournament.rondas;
     const isAdmin = tournament.esCreador;
 
     const isRoundComplete = (matches) => {
