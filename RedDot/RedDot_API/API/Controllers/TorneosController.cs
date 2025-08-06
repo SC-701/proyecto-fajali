@@ -355,11 +355,25 @@ namespace API.Controllers
             var deportes = await _categoriasFlujo.ObtenerDeportes();
             return Ok(deportes);
         }
-        [HttpPost("agregar-participantes/{idTorneo}/{numeroPartido}")]
+        [HttpPatch("agregar-participantes/{idTorneo}/{numeroPartido}")]
         public async Task<ActionResult> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase)
         {
-            var resultado =await _torneosFlujo.AgregarJugadorATorneo(idTorneo, numeroPartido, equipo,fase);
-            return Ok(resultado);
+            var resultado = await _torneosFlujo.AgregarJugadorATorneo(idTorneo, numeroPartido, equipo, fase);
+            return Ok($"Jugador {equipo.IdJugador} agregado");
+        }
+        [HttpPatch("calificar-jugador/{idTorneo}/{idJugador}")]
+        public async Task<ActionResult> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion)
+        {
+            var resultado = await _torneosFlujo.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
+            if (resultado)
+            {
+                return Ok($"Calificacion de jugador {idJugador} modificada");
+            }
+            else
+            {
+                throw new Exception("No se pudo modificar la puntuación del participante");
+            }
+
         }
     }
 }

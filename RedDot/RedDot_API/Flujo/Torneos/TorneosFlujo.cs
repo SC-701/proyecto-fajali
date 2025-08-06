@@ -270,5 +270,10 @@ namespace Flujo.Torneos
         {
             return _torneosDA.AgregarJugadorATorneo(idTorneo, numeroPartido, equipo,fase);
         }
+
+        public Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion)
+        {
+           return _torneosDA.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
+        }
     }
 }
