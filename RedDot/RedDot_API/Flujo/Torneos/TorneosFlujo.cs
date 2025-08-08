@@ -113,7 +113,7 @@ namespace Flujo.Torneos
 
         public async Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario)
         {
-            var torneo = await _torneosDA.ObtenerTorneoPorAccessKey(accessKey);
+            var torneo = await _torneosDA.ObtenerTorneoPorAccessKey(accessKey, nombreUsuario);
             if (torneo == null)
             {
                 return null;

@@ -31,6 +31,9 @@ namespace Abstracciones.Modelos
         [BsonElement("idJugador")]
         public string IdJugador { get; set; }
 
+        [BsonElement("nombre")]
+        public string nombre { get; set; }
+
         [BsonElement("puntaje")]
         public int Puntaje { get; set; }
 
@@ -142,7 +145,7 @@ namespace Abstracciones.Modelos
         public int Estado { get; set; }
         public string CreadoPor { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public List<Equipo> Participantes { get; set; } = new();
+        public List<ParticipanteTorneo> Participantes { get; set; } = new();
         public Rondas Rondas { get; set; } = new();
         public bool EsCreador { get; set; }
         public bool TieneAcceso { get; set; }
@@ -176,5 +179,13 @@ namespace Abstracciones.Modelos
         public int Puntaje { get; set; }
        
     }
+
+    public class ParticipanteTorneo
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public bool isSet { get; set; }
+    }
+    
 
 }

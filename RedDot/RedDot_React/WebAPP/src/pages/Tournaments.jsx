@@ -14,10 +14,12 @@ const Tournaments = () => {
     const [activeView, setActiveView] = useState('tournaments');
     const [selectedTournament, setSelectedTournament] = useState(null);
 
-    const { tournament, loading, error, refreshTournament } = useTournament(
+    const { loading, error, refreshTournament } = useTournament(
         selectedTournament?.id,
         selectedTournament?.accessKey
     );
+
+    
 
     const handleTournamentSelect = (tournament) => {
         console.log('🎯 Torneo seleccionado:', tournament);
@@ -26,7 +28,7 @@ const Tournaments = () => {
     };
 
     const handleMatchClick = async (matchData) => {
-        if (!selectedTournament || !tournament?.esCreador) {
+        if (!selectedTournament || !selectedTournament?.esCreador) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Sin permisos',
@@ -34,26 +36,20 @@ const Tournaments = () => {
             });
             return;
         }
-        
+        var handlePutPlayer = handlePutPlayers(matchData);
 
-        await showScoreInputModal(matchData, selectedTournament.id, async () => {
-            await refreshTournament(),handlePutPlayers(matchData);
+        await showScoreInputModal(matchData, selectedTournament.id,handlePutPlayer,async () => {
+            await refreshTournament();
         });
     };
 
     const handlePutPlayers = (matchData) => {
-        matchData.match.participantes.map((player, index) => {
-            if(player.idJugador==null){
-                return false;
-            }
-
-        
-        })
-        return true;
+         const hasNullPlayer = matchData.match.participantes.some(player => player.idJugador == null);
+         return !hasNullPlayer;
     };
 
     const handleAdvanceRound = async (round) => {
-        if (!selectedTournament || !tournament?.esCreador) {
+        if (!selectedTournament || !selectedTournament?.esCreador) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Sin permisos',
@@ -113,7 +109,7 @@ const Tournaments = () => {
                     >
                         ← Volver a Torneos
                     </button>
-                    <h1>🏆 {tournament?.nombre || 'Bracket del Torneo'}</h1>
+                    <h1>🏆 {selectedTournament?.nombre || 'Bracket del Torneo'}</h1>
                 </div>
 
                 {loading ? (
@@ -129,9 +125,9 @@ const Tournaments = () => {
                             Volver a Torneos
                         </button>
                     </div>
-                ) : tournament ? (
+                ) : selectedTournament ? (
                     <TournamentBracket
-                        tournament={tournament}
+                        tournament={selectedTournament}
                         onMatchClick={handleMatchClick}
                         onAdvanceRound={handleAdvanceRound}
                     />

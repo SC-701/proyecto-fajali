@@ -2,7 +2,7 @@
 import Swal from 'sweetalert2';
 import { updateMatchScore, getTournament } from '../../API/Tournament.js';
 
-export const showScoreInputModal = async (matchData, tournamentId, onScoreUpdated, isPlayersSet) => {
+export const showScoreInputModal = async (matchData, tournamentId, isPlayersSet,onScoreUpdated) => {
     const { match, round, matchIndex, roundName } = matchData;
 
     // Si no hay jugadores asignados, mostrar modal de selección de participantes

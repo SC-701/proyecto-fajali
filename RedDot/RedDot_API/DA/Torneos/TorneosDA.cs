@@ -3,6 +3,7 @@ using Abstracciones.Interfaces.DA;
 using Abstracciones.Modelos;
 using DA.Entidades;
 using DA.Repositorio;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -12,10 +13,12 @@ namespace DA.Torneos
     public class TorneosDA : ITorneosDA
     {
         private readonly IMongoCollection<Torneo> _coleccionTorneos;
+        private readonly IMongoCollection<User> _users;
 
         public TorneosDA(IMongoDbContext context)
         {
             _coleccionTorneos = context.GetCollection<Torneo>("torneos");
+            _users = context.GetCollection<User>("users");
         }
 
         // MÉTODO UNIFICADO - Crear Torneo (siempre de eliminación con 8 participantes)
@@ -162,7 +165,7 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<RespuestaTorneo?> ObtenerTorneoPorAccessKey(string accessKey)
+        public async Task<RespuestaTorneo?> ObtenerTorneoPorAccessKey(string accessKey, string id)
         {
             try
             {
@@ -170,7 +173,45 @@ namespace DA.Torneos
                     .Find(t => t.AccessKey == accessKey)
                     .FirstOrDefaultAsync();
 
-                return torneo != null ? MapearARespuesta(torneo, string.Empty) : null;
+                if (torneo != null)
+                {
+                    var usuario = await _users.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+                   
+                    usuario.Torneos.Add(torneo.Id);
+                    var filtro = Builders<User>.Filter.Eq(x => x.Id, usuario.Id);
+                    var Agregar = Builders<User>.Update.Set(x=> x.Torneos ,usuario.Torneos);
+                    var resultado = await _users.UpdateOneAsync(filtro, Agregar);
+                    if (resultado.ModifiedCount > 0)
+                    {
+
+                        torneo.Participantes.Add(new ParticipanteTorneo
+                        {
+
+                            id = usuario.Id,
+                            name = usuario.UserName,
+                            isSet = false,
+
+                        });
+
+                         var filtroTorneo = Builders<Torneo>.Filter.Eq(x => x.Id, torneo.Id);
+                        var agregarTorneo = Builders<Torneo>.Update.Set(x => x.Participantes, torneo.Participantes);
+                        var resultadoTorneo = await _coleccionTorneos.UpdateOneAsync(filtroTorneo, agregarTorneo);
+
+                        if (resultadoTorneo.ModifiedCount > 0)
+                        {
+                            return MapearARespuesta(torneo, string.Empty);
+                        }
+
+                        return null;
+                        
+                    }
+                    return null;
+
+                }
+                return null;
+
+               
             }
             catch (Exception)
             {
@@ -390,7 +431,8 @@ namespace DA.Torneos
                 FechaCreacion = torneo.FechaCreacion,
                 Rondas = torneo.Rondas ?? new Rondas(),
                 EsCreador = torneo.CreadoPor == nombreUsuario,
-                TieneAcceso = false
+                TieneAcceso = false,
+                Participantes = torneo.Participantes
             };
         }
 
@@ -568,5 +610,7 @@ namespace DA.Torneos
                 return false;
             }
         }
+
+        
     }
 }
