@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentManager from '../components/Tournament/TournamentManager.jsx';
 import TournamentBracket from '../components/Tournament/TournamentBracket.jsx';
-import { showScoreInputModal, showAdvanceRoundModal } from '../components/Tournament/ScoreInputModal.jsx';
+import {showScoreInputModal}  from '../components/Tournament/ScoreInputModal.jsx';
 import { useTournament } from '../hooks/useTournament.js';
 import Swal from 'sweetalert2';
 import '../styles/Tournaments.css';
@@ -13,21 +13,32 @@ const Tournaments = () => {
     const { user } = useAuth();
     const [activeView, setActiveView] = useState('tournaments');
     const [selectedTournament, setSelectedTournament] = useState(null);
+    
+    // Estados para el modal - INICIALIZADOS CORRECTAMENTE
+    const [activeModal, setActiveModal] = useState(false);
+    const [modal,setModal]= useState(null);
 
     const { loading, error, refreshTournament } = useTournament(
         selectedTournament?.id,
         selectedTournament?.accessKey
     );
 
-    
-
     const handleTournamentSelect = (tournament) => {
         console.log('🎯 Torneo seleccionado:', tournament);
         setSelectedTournament(tournament);
         setActiveView('bracket');
+        // Limpiar modal al cambiar de torneo
+       
+        
     };
 
-    const handleMatchClick = async (matchData) => {
+    const handleMatchClick = (matchData) => {
+        // Validación básica de datos
+        if (!matchData) {
+            console.error('handleMatchClick: matchData is null or undefined');
+            return;
+        }
+
         if (!selectedTournament || !selectedTournament?.esCreador) {
             Swal.fire({
                 icon: 'warning',
@@ -36,16 +47,55 @@ const Tournaments = () => {
             });
             return;
         }
-        var handlePutPlayer = handlePutPlayers(matchData);
 
-        await showScoreInputModal(matchData, selectedTournament.id,handlePutPlayer,async () => {
+        // Verificar si los jugadores están establecidos
+        const hasPlayers = handlePutPlayers(matchData);
+
+        // Función para cerrar el modal
+        const closeModal = () => {
+            setActiveModal(false);
+           
+        };
+
+        // Función callback para cuando se actualiza el score
+        const handleScoreUpdate = async () => {
+            closeModal();
             await refreshTournament();
-        });
+        };
+
+      
+        
+        
+        
+        
+        setModal({
+            matchData,
+            tournamentId: selectedTournament.id,
+            isPlayersSet: hasPlayers,
+            onScoreUpdated: handleScoreUpdate,
+            onClose: closeModal}
+        );
+
+        
+        setActiveModal(true);
+        
+
+       
+
+           
     };
 
     const handlePutPlayers = (matchData) => {
-         const hasNullPlayer = matchData.match.participantes.some(player => player.idJugador == null);
-         return !hasNullPlayer;
+        // Validar que matchData y sus propiedades existan
+        if (!matchData || !matchData.match || !matchData.match.participantes) {
+            console.error('handlePutPlayers: Datos de match inválidos', matchData);
+            return false; // Asumir que no hay jugadores si hay datos inválidos
+        }
+
+        const hasNullPlayer = matchData.match.participantes.some(player => 
+            !player || player.idJugador == null || player.idJugador === undefined
+        );
+        return !hasNullPlayer;
     };
 
     const handleAdvanceRound = async (round) => {
@@ -57,43 +107,8 @@ const Tournaments = () => {
             });
             return;
         }
-
-        await showAdvanceRoundModal(round, async (confirmedRound) => {
-            try {
-                Swal.fire({
-                    title: 'Avanzando ronda...',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading()
-                });
-
-                const result = await advanceRound({
-                    idTorneo: selectedTournament.id,
-                    rondaActual: confirmedRound
-                });
-
-                if (result.success) {
-                    await refreshTournament();
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Ronda avanzada!',
-                        text: confirmedRound === 'final' ?
-                            '🏆 ¡Torneo finalizado!' :
-                            `Avanzando a la siguiente ronda`,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                } else {
-                    throw new Error(result.error || 'Error al avanzar ronda');
-                }
-            } catch (error) {
-                console.error('Error al avanzar ronda:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message || 'No se pudo avanzar la ronda'
-                });
-            }
-        });
+        
+        // Aquí puedes agregar la lógica para avanzar de ronda
     };
 
     if (activeView === 'bracket' && selectedTournament) {
@@ -105,6 +120,9 @@ const Tournaments = () => {
                         onClick={() => {
                             setActiveView('tournaments');
                             setSelectedTournament(null);
+                            // Limpiar modal si está activo
+                            setActiveModal(null);
+                            setModalProps(null);
                         }}
                     >
                         ← Volver a Torneos
@@ -126,11 +144,26 @@ const Tournaments = () => {
                         </button>
                     </div>
                 ) : selectedTournament ? (
-                    <TournamentBracket
-                        tournament={selectedTournament}
-                        onMatchClick={handleMatchClick}
-                        onAdvanceRound={handleAdvanceRound}
-                    />
+                    <>
+                        <TournamentBracket
+                            tournament={selectedTournament}
+                            onMatchClick={handleMatchClick}
+                            onAdvanceRound={handleAdvanceRound}
+                        />
+                        
+                        {/* Renderizar el modal activo con validación mejorada */}
+                        {activeModal==true && modal && (
+                            showScoreInputModal({
+                                matchData: modal.matchData,
+                                tournamentId: modal.tournamentId,
+                                isPlayersSet: modal.isPlayersSet,
+                                onScoreUpdated: modal.onScoreUpdated,
+                                onClose: modal.onClose
+                            })
+                        )}
+                        
+                        
+                    </>
                 ) : (
                     <div className="error-container">
                         <h3>🔍 Torneo no encontrado</h3>
