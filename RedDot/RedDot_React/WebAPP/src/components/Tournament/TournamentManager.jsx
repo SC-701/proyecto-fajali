@@ -180,6 +180,7 @@ const TournamentManager = ({ onTournamentSelect }) => {
                                 key={tournament.id}
                                 tournament={tournament}
                                 onSelect={onTournamentSelect}
+                                onJoin={handleAccessWithKey}
                             />
                         ))}
                     </div>
