@@ -23,5 +23,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<bool> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase);
 
         Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion);
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0);
     }
 }

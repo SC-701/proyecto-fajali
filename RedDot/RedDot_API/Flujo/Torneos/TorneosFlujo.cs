@@ -260,6 +260,10 @@ namespace Flujo.Torneos
 
             return partidos?.All(p => p.Completado) ?? false;
         }
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0)
+        {
+            return await _torneosDA.ObtenerTorneosParticipando(idUsuario, estado);
+        }
 
         public Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario)
         {
@@ -276,4 +280,5 @@ namespace Flujo.Torneos
            return _torneosDA.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
         }
     }
+
 }

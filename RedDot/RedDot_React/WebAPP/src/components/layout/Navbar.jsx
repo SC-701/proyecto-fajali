@@ -82,10 +82,10 @@ const Navbar = () => {
                         Torneos
                     </Link>
                     <Link
-                        to="/leaderboard"
-                        className={`nav-link ${isActive('/leaderboard') ? 'active' : ''}`}
+                        to="/Participando"
+                        className={`nav-link ${isActive('/Participando') ? 'active' : ''}`}
                     >
-                        Leaderboard
+                        Partcipando
                     </Link>
                     {user?.role === 'admin' && (
                         <Link
