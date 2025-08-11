@@ -11,7 +11,7 @@ const Navbar = () => {
     const location = useLocation();
     const [username, setUsername] = useState("");
 
-    useEffect( () => {
+    useEffect(() => {
         loadUsername();
     })
 
@@ -82,19 +82,11 @@ const Navbar = () => {
                         Torneos
                     </Link>
                     <Link
-                        to="/Participando"
-                        className={`nav-link ${isActive('/Participando') ? 'active' : ''}`}
+                        to="/participando"
+                        className={`nav-link ${isActive('/participando') ? 'active' : ''}`}
                     >
-                        Partcipando
+                        Participando
                     </Link>
-                    {user?.role === 'admin' && (
-                        <Link
-                            to="/admin"
-                            className="nav-link admin-link"
-                        >
-                            Admin Panel
-                        </Link>
-                    )}
                 </div>
 
                 <div className="navbar-user">
@@ -102,7 +94,7 @@ const Navbar = () => {
                         <span className="user-name">
                             {username}
                         </span>
-                        
+
                     </div>
                     <div className="user-menu">
                         <Link to="/profile" className="profile-link">
