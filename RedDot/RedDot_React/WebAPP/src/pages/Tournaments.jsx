@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentManager from '../components/Tournament/TournamentManager.jsx';
 import TournamentBracket from '../components/Tournament/TournamentBracket.jsx';
-import {showScoreInputModal}  from '../components/Tournament/ScoreInputModal.jsx';
+import { showScoreInputModal } from '../components/Tournament/ScoreInputModal.jsx';
 import { useTournament } from '../hooks/useTournament.js';
 import Swal from 'sweetalert2';
 import '../styles/Tournaments.css';
@@ -13,10 +13,10 @@ const Tournaments = () => {
     const { user } = useAuth();
     const [activeView, setActiveView] = useState('tournaments');
     const [selectedTournament, setSelectedTournament] = useState(null);
-    
-    // Estados para el modal - INICIALIZADOS CORRECTAMENTE
-    const [activeModal, setActiveModal] = useState(false);
-    const [modal,setModal]= useState(null);
+    const [modalState, setModalState] = useState({
+        isActive: false,
+        data: null
+    });
 
     const { loading, error, refreshTournament } = useTournament(
         selectedTournament?.id,
@@ -198,7 +198,7 @@ const Tournaments = () => {
         );
     }
 
-    return (
+   return (
         <div className="tournaments-page">
             <div className="tournaments-header">
                 <h1>🏆 Torneos 🏆</h1>

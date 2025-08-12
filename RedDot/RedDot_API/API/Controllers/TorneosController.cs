@@ -348,6 +348,25 @@ namespace API.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
+        [HttpGet("participando")]
+        public async Task<ActionResult> ObtenerTorneosParticipando([FromQuery] int estado = 0)
+        {
+            try
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Unauthorized("No se pudo identificar al usuario");
+                }
+
+                var torneos = await _torneosFlujo.ObtenerTorneosParticipando(id, estado);
+                return Ok(torneos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
 
         [HttpGet("deportes")]
         public async Task<ActionResult> ObtenerDeportes()

@@ -25,5 +25,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion);
         Task<bool> ActualizarMatch(MatchChangeRequest matchStatus);
 
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0);
     }
 }

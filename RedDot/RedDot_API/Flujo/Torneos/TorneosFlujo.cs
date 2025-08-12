@@ -260,6 +260,10 @@ namespace Flujo.Torneos
 
             return partidos?.All(p => p.Completado) ?? false;
         }
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0)
+        {
+            return await _torneosDA.ObtenerTorneosParticipando(idUsuario, estado);
+        }
 
       
 
@@ -278,4 +282,5 @@ namespace Flujo.Torneos
             return await _torneosDA.ActualizarMatch( matchStatus);
         }
     }
+
 }

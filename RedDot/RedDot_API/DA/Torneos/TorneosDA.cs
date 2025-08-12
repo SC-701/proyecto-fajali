@@ -177,10 +177,10 @@ namespace DA.Torneos
                 {
                     var usuario = await _users.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-                   
+
                     usuario.Torneos.Add(torneo.Id);
                     var filtro = Builders<User>.Filter.Eq(x => x.Id, usuario.Id);
-                    var Agregar = Builders<User>.Update.Set(x=> x.Torneos ,usuario.Torneos);
+                    var Agregar = Builders<User>.Update.Set(x => x.Torneos, usuario.Torneos);
                     var resultado = await _users.UpdateOneAsync(filtro, Agregar);
                     if (resultado.ModifiedCount > 0)
                     {
@@ -194,7 +194,7 @@ namespace DA.Torneos
 
                         });
 
-                         var filtroTorneo = Builders<Torneo>.Filter.Eq(x => x.Id, torneo.Id);
+                        var filtroTorneo = Builders<Torneo>.Filter.Eq(x => x.Id, torneo.Id);
                         var agregarTorneo = Builders<Torneo>.Update.Set(x => x.Participantes, torneo.Participantes);
                         var resultadoTorneo = await _coleccionTorneos.UpdateOneAsync(filtroTorneo, agregarTorneo);
 
@@ -204,14 +204,14 @@ namespace DA.Torneos
                         }
 
                         return null;
-                        
+
                     }
                     return null;
 
                 }
                 return null;
 
-               
+
             }
             catch (Exception)
             {
@@ -611,6 +611,41 @@ namespace DA.Torneos
                 return false;
             }
         }
+
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0)
+        {
+            try
+            {
+                var usuario = await _users.Find(u => u.Id == idUsuario).FirstOrDefaultAsync();
+                if (usuario?.Torneos == null || usuario.Torneos.Count == 0)
+                {
+                    return new List<RespuestaTorneo>();
+                }
+
+                var constructorFiltro = Builders<Torneo>.Filter;
+                var filtro = constructorFiltro.And(
+                    constructorFiltro.In(t => t.Id, usuario.Torneos),
+                    constructorFiltro.Ne(t => t.CreadoPor, idUsuario)
+                );
+
+                if (estado > 0)
+                {
+                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado));
+                }
+
+                var torneos = await _coleccionTorneos
+                    .Find(filtro)
+                    .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
+                    .ToListAsync();
+
+                return torneos.Select(t => MapearARespuesta(t, string.Empty)).ToList();
+            }
+            catch (Exception)
+            {
+                return new List<RespuestaTorneo>();
+            }
+        }
+
 
         public async Task<bool> ActualizarMatch(MatchChangeRequest matchStatus)
         {

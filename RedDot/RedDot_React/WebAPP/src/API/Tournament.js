@@ -1,6 +1,6 @@
 import ApiService from '../services/apiService.js';
 
-// UNIFICADO - Todos los torneos son de eliminaci�n directa
+// UNIFICADO - Todos los torneos son de eliminación directa
 
 export async function getAllTournaments(page = 1, pageSize = 10, state = null, sportType = null) {
     let url = `Torneos/listar?numeroPagina=${page}&tamanoPagina=${pageSize}`;
@@ -19,6 +19,11 @@ export async function getCategorias() {
 export async function getMyTournaments(state = null) {
     const params = state !== null ? `?estado=${state}` : '';
     return await ApiService.get(`Torneos/mis-torneos${params}`);
+}
+
+export async function getParticipatingTournaments(state = null) {
+    const params = state !== null ? `?estado=${state}` : '';
+    return await ApiService.get(`Torneos/participando${params}`);
 }
 
 export async function getTournament(id, accessKey = null) {
@@ -46,7 +51,7 @@ export async function getLeaderboard(tournamentId) {
     return await ApiService.get(`Torneos/LeaderBoard/${tournamentId}`);
 }
 
-// Estados y categor�as
+// Estados y categorías
 export const TournamentStates = {
     POR_INICIAR: 0,
     EN_PROGRESO: 1,
@@ -62,9 +67,9 @@ export const TournamentCategories = {
 };
 
 export async function getSportName() {
-    
+
     return await ApiService.getWithParams('Torneos/deportes');
-} 
+}
 
 export const getStateName = (state) => {
     const names = ['Por Iniciar', 'En Progreso', 'Terminado', 'Cancelado'];
