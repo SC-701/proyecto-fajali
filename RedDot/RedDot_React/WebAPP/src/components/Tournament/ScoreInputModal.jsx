@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { updateMatchScore, getTournament } from '../../API/Tournament.js';
+import { changeMatchStatus, getTournament } from '../../API/Tournament.js';
 import Modal from '../UI/Modal.jsx';
 
 // Componente para el modal de agregar participantes
@@ -15,12 +15,12 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
             }, 100);
             return () => clearTimeout(timer);
         }, [onClose]);
-        
+
         return (
             <Modal
                 title="Error"
                 isOpen={true}
-                onClose={onClose || (() => {})}
+                onClose={onClose || (() => { })}
                 children={<div>Error: Datos del partido no disponibles</div>}
             />
         );
@@ -35,12 +35,12 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
             }, 100);
             return () => clearTimeout(timer);
         }, [onClose]);
-        
+
         return (
             <Modal
                 title="Error"
                 isOpen={true}
-                onClose={onClose || (() => {})}
+                onClose={onClose || (() => { })}
                 children={<div>Error: Estructura de datos del partido inválida</div>}
             />
         );
@@ -54,12 +54,12 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
             }, 100);
             return () => clearTimeout(timer);
         }, [onClose]);
-        
+
         return (
             <Modal
                 title="Error"
                 isOpen={true}
-                onClose={onClose || (() => {})}
+                onClose={onClose || (() => { })}
                 children={<div>Error: Información de ronda incompleta</div>}
             />
         );
@@ -69,6 +69,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
     const { match, roundName, matchIndex } = matchData;
     const [bracketMatch, setBracketMatch] = useState(match);
     const [participantesTotales, setParticipantesTotales] = useState([]);
+    const [partipantesTorneo, setPartipantesTorneo] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const handleActivePlayers = (participantesEnMatch) => {
@@ -87,7 +88,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                 }
 
                 const resultado = await getTournament(tournamentId);
-                
+
                 if (!resultado.success) {
                     Swal.fire({
                         icon: 'error',
@@ -102,7 +103,8 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                     throw new Error('Datos de participantes no disponibles');
                 }
 
-                setParticipantesTotales(handleActivePlayers(resultado.data.participantes));
+                setParticipantesTotales(handleActivePlayers(resultado.data.participantes || []));
+                setPartipantesTorneo(resultado.data.participantes || []);
             } catch (error) {
                 console.error('Error en loadTournament:', error);
                 Swal.fire({
@@ -149,14 +151,17 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                 return;
             }
 
-            const result = await updateMatchScore(tournamentId, match.id, bracketMatch);
+            const result = await changeMatchStatus({
+                participantes: partipantesTorneo
+                , match: bracketMatch, tournamentId: tournamentId, roundName: roundName, matchIndex: matchIndex
+            });
             if (result.success) {
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
                     text: 'Participantes agregados correctamente'
                 });
-                if (onScoreUpdated) onScoreUpdated();
+                    onScoreUpdated();
                 if (onClose) onClose();
             } else {
                 throw new Error(result.error || 'Error al actualizar los participantes');
@@ -176,7 +181,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
             <Modal
                 title="Cargando..."
                 isOpen={true}
-                onClose={onClose || (() => {})}
+                onClose={onClose || (() => { })}
                 children={<div>Cargando participantes...</div>}
             />
         );
@@ -186,7 +191,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
         <Modal
             title={`Agregar Participantes al Match ${roundName} - Partido ${matchIndex + 1}`}
             isOpen={true}
-            onClose={onClose || (() => {})}
+            onClose={onClose || (() => { })}
             onSubmit={handleSubmit}
             children={
                 <div className="score-input-modal">
@@ -199,7 +204,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                             value={bracketMatch.participantes && bracketMatch.participantes[0]?.idJugador ?
                                 JSON.stringify({
                                     id: bracketMatch.participantes[0].idJugador,
-                                    nombre: bracketMatch.participantes[0].nombre
+                                    name: bracketMatch.participantes[0].nombre
                                 }) : ''
                             }
                             onChange={(e) => {
@@ -229,7 +234,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                                     setBracketMatch(prev => ({
                                         ...prev,
                                         participantes: [
-                                            { ...(prev.participantes ? prev.participantes[0] : {}), idJugador: player1.id, nombre: player1.nombre },
+                                            { ...(prev.participantes ? prev.participantes[0] : {}), idJugador: player1.id, nombre: player1.name },
                                             (prev.participantes && prev.participantes[1]) || {}
                                         ]
                                     }));
@@ -240,15 +245,15 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                         >
                             <option value="">Selecciona un participante</option>
                             {participantesTotales.map(player => {
-                                const isDisabled = bracketMatch.participantes && bracketMatch.participantes[1]?.idJugador === player.idJugador;
+                                const isDisabled = bracketMatch.participantes && bracketMatch.participantes[1]?.idJugador === player.id;
                                 return (
                                     <option
-                                        key={player.idJugador}
-                                        value={JSON.stringify({ id: player.idJugador, nombre: player.nombre })}
+                                        key={player.id}
+                                        value={JSON.stringify({ id: player.id, name: player.name })}
                                         disabled={isDisabled}
                                         style={{ color: isDisabled ? '#ccc' : 'inherit' }}
                                     >
-                                        {player.nombre} {isDisabled ? '(Ya seleccionado)' : ''}
+                                        {player.name} {isDisabled ? '(Ya seleccionado)' : ''}
                                     </option>
                                 );
                             })}
@@ -261,7 +266,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                             value={bracketMatch.participantes && bracketMatch.participantes[1]?.idJugador ?
                                 JSON.stringify({
                                     id: bracketMatch.participantes[1].idJugador,
-                                    nombre: bracketMatch.participantes[1].nombre
+                                    name: bracketMatch.participantes[1].nombre
                                 }) : ''
                             }
                             onChange={(e) => {
@@ -292,7 +297,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                                         ...prev,
                                         participantes: [
                                             (prev.participantes && prev.participantes[0]) || {},
-                                            { ...(prev.participantes ? prev.participantes[1] : {}), idJugador: player2.id, nombre: player2.nombre }
+                                            { ...(prev.participantes ? prev.participantes[1] : {}), idJugador: player2.id, nombre: player2.name }
                                         ]
                                     }));
                                 } catch (error) {
@@ -302,22 +307,22 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                         >
                             <option value="">Selecciona un participante</option>
                             {participantesTotales.map(player => {
-                                const isDisabled = bracketMatch.participantes && bracketMatch.participantes[0]?.idJugador === player.idJugador;
+                                const isDisabled = bracketMatch.participantes && bracketMatch.participantes[0]?.idJugador === player.id;
                                 return (
                                     <option
-                                        key={player.idJugador}
-                                        value={JSON.stringify({ id: player.idJugador, nombre: player.nombre })}
+                                        key={player.id}
+                                        value={JSON.stringify({ id: player.id, name: player.name })}
                                         disabled={isDisabled}
                                         style={{ color: isDisabled ? '#ccc' : 'inherit' }}
                                     >
-                                        {player.nombre} {isDisabled ? '(Ya seleccionado)' : ''}
+                                        {player.name} {isDisabled ? '(Ya seleccionado)' : ''}
                                     </option>
                                 );
                             })}
                         </select>
                     </div>
 
-                    <button type="submit" className="btn btn-primary">Guardar Participantes</button>
+                    <button onClick={handleSubmit} className="btn btn-primary">Guardar Participantes</button>
                 </div>
             }
         />
@@ -325,13 +330,26 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
 };
 
 // Función para mostrar el modal (ahora sin hooks)
-export const showScoreInputModal = ({matchData, tournamentId, isPlayersSet,OnCloseFuntion, onScoreUpdated}) => {
+export const showScoreInputModal = ({ matchData, tournamentId, isPlayersSet, OnCloseFuntion, onScoreUpdated }) => {
     // Validación de parámetros
     if (!matchData || !tournamentId) {
         console.error('showScoreInputModal: Faltan parámetros requeridos', { matchData, tournamentId });
         return null;
     }
 
+    function changeBracket(matchData) {
+        matchData.match.participantes = matchData.match.participantes.map(participant => {
+            return {
+                ...participant,
+                isSet: false 
+            };
+        });
+        return matchData;
+    }
+
+
+
+   
     const { match } = matchData;
 
     if (!match) {
@@ -345,16 +363,16 @@ export const showScoreInputModal = ({matchData, tournamentId, isPlayersSet,OnClo
                 matchData={matchData}
                 tournamentId={tournamentId}
                 onScoreUpdated={onScoreUpdated}
-                onClose={OnCloseFuntion || (() => {})
+                onClose={OnCloseFuntion || (() => { })
                 }
-                />
+            />
         );
-       
-        
+
+
     };
 
     // Aquí puedes agregar la lógica para cuando ya hay jugadores establecidos
     // Por ahora retornamos null o podrías tener otro componente
-    console.log('showScoreInputModal: Los jugadores ya están establecidos');
+    
     return null;
 };

@@ -22,11 +22,11 @@ const BracketMatch = ({
     };
 
     const getParticipantName = (participant) => {
-        if (!participant || !participant.idJugador) {
+        if (!participant || !participant.nombre) {
             return 'TBD';
         }
 
-        return participant.idJugador;
+        return participant.nombre;
     };
 
     const isClickable = isAdmin && canEdit && match.participantes?.length >= 2;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { updateMatchScore, advanceRound } from '../API/Tournament.js';
+import { changeTournamentStatus} from '../API/Tournament.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentManager from '../components/Tournament/TournamentManager.jsx';
@@ -108,7 +108,26 @@ const Tournaments = () => {
             return;
         }
         
-        // Aquí puedes agregar la lógica para avanzar de ronda
+        try {
+            const result = await changeTournamentStatus(selectedTournament.id, selectedTournament.estado);
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Ronda avanzada',
+                    text: `Se ha avanzado a la ronda de ${round}`
+                });
+                await refreshTournament();
+            } else {
+                throw new Error(result.error || 'Error al avanzar la ronda');
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al avanzar ronda',
+                text: error.message
+            });
+        }
+        
     };
 
     if (activeView === 'bracket' && selectedTournament) {
@@ -158,7 +177,7 @@ const Tournaments = () => {
                                 tournamentId: modal.tournamentId,
                                 isPlayersSet: modal.isPlayersSet,
                                 onScoreUpdated: modal.onScoreUpdated,
-                                onClose: modal.onClose
+                                OnCloseFuntion: modal.onClose
                             })
                         )}
                         

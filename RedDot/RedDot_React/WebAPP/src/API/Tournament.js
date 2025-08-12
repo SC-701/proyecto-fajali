@@ -78,8 +78,12 @@ export async function addTournamentParticipants(tournamentId, participantsIds) {
 }
 
 export async function changeTournamentStatus(tournamentId, newStatus) {
-    return await ApiService.post('Torneos/cambiar-estado', {
+    return await ApiService.put('Torneos/cambiar-estado', {
         idTorneo: tournamentId,
         nuevoEstado: newStatus
     });
+}
+
+export async function changeMatchStatus (matchStatus) {
+    return await ApiService.put('Torneos/actualizar-match', matchStatus);
 }

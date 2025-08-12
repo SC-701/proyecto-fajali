@@ -32,6 +32,8 @@ const Modal = ({ title, onClose, children, size = 'medium', isOpen = true }) => 
         return null;
     }
 
+    
+
     return createPortal(
         <div className="modal-overlay" onClick={handleOverlayClick}>
             <div className={`modal-content modal-${size}`}>
