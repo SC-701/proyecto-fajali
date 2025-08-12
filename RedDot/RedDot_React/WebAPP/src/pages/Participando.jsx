@@ -3,14 +3,23 @@ import { getParticipatingTournaments, getSportName, getStateName } from '../API/
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentCard from '../components/Tournament/TournamentCard.jsx';
+import TournamentBracket from '../components/Tournament/TournamentBracket.jsx';
+import { useTournament } from '../hooks/useTournament.js';
 import '../styles/Tournaments.css';
 
 const Participando = () => {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('participando');
+    const [activeView, setActiveView] = useState('tournaments');
     const [tournaments, setTournaments] = useState([]);
+    const [selectedTournament, setSelectedTournament] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const { loading: tournamentLoading, error: tournamentError, refreshTournament } = useTournament(
+        selectedTournament?.id,
+        selectedTournament?.accessKey
+    );
 
     useEffect(() => {
         loadTournaments();
@@ -22,7 +31,6 @@ const Participando = () => {
         try {
             let result;
             if (activeTab === 'participando') {
-                // Torneos en curso: estados 0 (Por Iniciar) y 1 (En Progreso)
                 const porIniciarResult = await getParticipatingTournaments(0);
                 const enProgresoResult = await getParticipatingTournaments(1);
 
@@ -33,7 +41,6 @@ const Participando = () => {
                     new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
                 ));
             } else {
-                // Historial: estados 2 (Terminado) y 3 (Cancelado)
                 const terminadoResult = await getParticipatingTournaments(2);
                 const canceladoResult = await getParticipatingTournaments(3);
 
@@ -54,9 +61,14 @@ const Participando = () => {
     };
 
     const handleTournamentSelect = (tournament) => {
-        // Navegar al torneo seleccionado usando la lógica existente
-        // Esto puede requerir integración con el componente padre o navegación
-        console.log('Torneo seleccionado:', tournament);
+        console.log('🎯 Torneo seleccionado:', tournament);
+        setSelectedTournament(tournament);
+        setActiveView('bracket');
+    };
+
+    const handleBackToTournaments = () => {
+        setActiveView('tournaments');
+        setSelectedTournament(null);
     };
 
     const getEmptyMessage = () => {
@@ -65,15 +77,65 @@ const Participando = () => {
             : "No hay historial de torneos.";
     };
 
+    // Vista del bracket del torneo
+    if (activeView === 'bracket' && selectedTournament) {
+        return (
+            <div className="tournaments-page">
+                <div className="tournaments-header">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={handleBackToTournaments}
+                    >
+                        ← Volver a Mis Torneos
+                    </button>
+                    <h1>🏆 {selectedTournament?.nombre || 'Torneo'}</h1>
+                    <p className="page-subtitle">
+                        {activeTab === 'participando' ? 'Torneo en el que participas' : 'Historial de participación'}
+                    </p>
+                </div>
+
+                {tournamentLoading ? (
+                    <LoadingSpinner message="Cargando torneo..." />
+                ) : tournamentError ? (
+                    <div className="error-container">
+                        <h3>❌ Error al cargar el torneo</h3>
+                        <p>{tournamentError}</p>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleBackToTournaments}
+                        >
+                            Volver a Mis Torneos
+                        </button>
+                    </div>
+                ) : selectedTournament ? (
+                    <TournamentBracket
+                        tournament={selectedTournament}
+                        onMatchClick={() => { }}
+                        onAdvanceRound={() => { }} 
+                    />
+                ) : (
+                    <div className="error-container">
+                        <h3>🔍 Torneo no encontrado</h3>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleBackToTournaments}
+                        >
+                            Volver a Mis Torneos
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // Vista principal de la lista de torneos
     return (
         <div className="tournaments-page">
             <div className="tournaments-header">
-                <h1>🏆 Participando 🏆</h1>
-                <div className="header-actions">
-                    <p className="welcome-text">
-                        Bienvenido, <strong>{user?.username}</strong>
-                    </p>
-                </div>
+                <h1>Participando 🙋🏻</h1>
+                <p className="page-subtitle">
+                    <strong>{user?.username}</strong> Revisa los torneos en los que participas actualmente y consulta tu historial de competencias.
+                </p>
             </div>
 
             <div className="tournament-manager">
@@ -118,7 +180,7 @@ const Participando = () => {
                                 key={tournament.id}
                                 tournament={tournament}
                                 onSelect={handleTournamentSelect}
-                                showJoinButton={false} // No mostrar botón de unirse en participando
+                                user={user}
                             />
                         ))}
                     </div>
