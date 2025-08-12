@@ -86,126 +86,139 @@ const Dashboard = () => {
         return 'Buenas noches';
     };
 
+    const renderDashboardHeader = () => (
+        <div className="dashboard-header">
+            <h1>Dashboard ⭐</h1>
+            <p className="page-subtitle">
+                {getGreeting()}, {user?.username} Aquí tienes un resumen de la actividad en RedDot.
+            </p>
+        </div>
+    );
+
     if (loading) {
         return <LoadingSpinner message="Cargando dashboard..." />;
     }
 
     return (
-        <div className="dashboard">
-            <div className="dashboard-header">
-                <div className="welcome-section">
-                    <h1>{getGreeting()}, {user?.username || 'Usuario'}! 👋</h1>
-                    <p>Aquí tienes un resumen de la actividad en RedDot</p>
-                </div>
-                <div className="quick-actions">
-                    <Link to="/tournaments" className="btn btn-primary">
-                        🏆 Ver Torneos
-                    </Link>
-                    {user?.role === 'admin' && (
-                        <Link to="/create-tournament" className="btn btn-success">
-                            ➕ Crear Torneo
+        <div className="dashboard-page">
+            {renderDashboardHeader()}
+
+            <div className="dashboard-container">
+                <div className="dashboard-controls">
+                    <div className="dashboard-info">
+                        <h2>Panel de Control</h2>
+                        <p>Gestiona tu actividad y mantente al día con las últimas novedades</p>
+                    </div>
+                    <div className="quick-actions">
+                        <Link to="/tournaments" className="btn btn-primary">
+                             Ver Torneos
                         </Link>
-                    )}
-                </div>
-            </div>
-
-            <div className="stats-grid">
-                <div className="stat-card primary">
-                    <div className="stat-icon">🏆</div>
-                    <div className="stat-content">
-                        <h3>{stats.activeTournaments}</h3>
-                        <p>Torneos Activos</p>
+                        {user?.role === 'admin' && (
+                            <Link to="/create-tournament" className="btn btn-success">
+                                ➕ Crear Torneo
+                            </Link>
+                        )}
                     </div>
                 </div>
 
-                <div className="stat-card success">
-                    <div className="stat-icon">🎮</div>
-                    <div className="stat-content">
-                        <h3>{stats.userTournaments}</h3>
-                        <p>Mis Torneos</p>
-                    </div>
-                </div>
-
-                <div className="stat-card info">
-                    <div className="stat-icon">👥</div>
-                    <div className="stat-content">
-                        <h3>{stats.totalUsers || 0}</h3>
-                        <p>Usuarios Registrados</p>
-                    </div>
-                </div>
-
-                <div className="stat-card warning">
-                    <div className="stat-icon">📊</div>
-                    <div className="stat-content">
-                        <h3>{stats.recentActivity || 0}</h3>
-                        <p>Actividad Reciente</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="dashboard-content">
-                <div className="section">
-                    <div className="section-header">
-                        <h2> Torneos Recientes</h2>
-                        <Link to="/tournaments" className="view-all-link">
-                            Ver todos →
-                        </Link>
-                    </div>
-
-                    {recentTournaments.length > 0 ? (
-                        <div className="tournaments-list">
-                            {recentTournaments.map(tournament => (
-                                <div key={tournament.id} className="tournament-item">
-                                    <div className="tournament-info">
-                                        <h4>{tournament.nombre}</h4>
-                                        <p className="tournament-meta">
-                                            {formatDate(tournament.fechaInicio)} •
-                                            {tournament.cuposDisponibles}/{tournament.cuposMaximos} cupos
-                                        </p>
-                                    </div>
-                                    <div className="tournament-status">
-                                        <span className={`status-badge ${tournament.estado?.toLowerCase()}`}>
-                                            {tournament.estado}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
+                <div className="stats-grid">
+                    <div className="stat-card primary">
+                        <div className="stat-icon primary">🏆</div>
+                        <div className="stat-content">
+                            <h3>{stats.activeTournaments}</h3>
+                            <p>Torneos Activos</p>
                         </div>
-                    ) : (
-                        <div className="empty-state">
-                            <p>No hay torneos recientes</p>
-                        </div>
-                    )}
-                </div>
-
-                <div className="section">
-                    <div className="section-header">
-                        <h2> Actividad Reciente</h2>
                     </div>
 
-                    {userActivity.length > 0 ? (
-                        <div className="activity-list">
-                            {userActivity.slice(0, 5).map((activity, index) => (
-                                <div key={index} className="activity-item">
-                                    <div className="activity-icon">
-                                        {activity.type === 'join' ? '✅' :
-                                            activity.type === 'win' ? '🏆' :
-                                                activity.type === 'create' ? '➕' : '📝'}
-                                    </div>
-                                    <div className="activity-content">
-                                        <p>{activity.description}</p>
-                                        <span className="activity-time">
-                                            {formatDate(activity.fecha)}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
+                    <div className="stat-card success">
+                        <div className="stat-icon success">🎮</div>
+                        <div className="stat-content">
+                            <h3>{stats.userTournaments}</h3>
+                            <p>Mis Torneos</p>
                         </div>
-                    ) : (
-                        <div className="empty-state">
-                            <p>No hay actividad reciente</p>
+                    </div>
+
+                    <div className="stat-card info">
+                        <div className="stat-icon info">👥</div>
+                        <div className="stat-content">
+                            <h3>{stats.totalUsers || 0}</h3>
+                            <p>Usuarios Registrados</p>
                         </div>
-                    )}
+                    </div>
+
+                    <div className="stat-card warning">
+                        <div className="stat-icon warning">📊</div>
+                        <div className="stat-content">
+                            <h3>{stats.recentActivity || 0}</h3>
+                            <p>Actividad Reciente</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="dashboard-content">
+                    <div className="section">
+                        <div className="section-header">
+                            <h2><span className="emoji">🏆</span> Torneos Recientes</h2>
+                            <Link to="/tournaments" className="view-all-link">
+                                Ver todos →
+                            </Link>
+                        </div>
+
+                        {recentTournaments.length > 0 ? (
+                            <div className="tournaments-list">
+                                {recentTournaments.map(tournament => (
+                                    <div key={tournament.id} className="tournament-item">
+                                        <div className="tournament-info">
+                                            <h4>{tournament.nombre}</h4>
+                                            <p className="tournament-meta">
+                                                {formatDate(tournament.fechaInicio)} •
+                                                {tournament.cuposDisponibles}/{tournament.cuposMaximos} cupos
+                                            </p>
+                                        </div>
+                                        <div className="tournament-status">
+                                            <span className={`status-badge ${tournament.estado?.toLowerCase()}`}>
+                                                {tournament.estado}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <p>No hay torneos recientes</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="section">
+                        <div className="section-header">
+                            <h2><span className="emoji">📈</span> Actividad Reciente</h2>
+                        </div>
+
+                        {userActivity.length > 0 ? (
+                            <div className="activity-list">
+                                {userActivity.slice(0, 5).map((activity, index) => (
+                                    <div key={index} className="activity-item">
+                                        <div className="activity-icon">
+                                            {activity.type === 'join' ? '✅' :
+                                                activity.type === 'win' ? '🏆' :
+                                                    activity.type === 'create' ? '➕' : '📝'}
+                                        </div>
+                                        <div className="activity-content">
+                                            <p>{activity.description}</p>
+                                            <span className="activity-time">
+                                                {formatDate(activity.fecha)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <p>No hay actividad reciente</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

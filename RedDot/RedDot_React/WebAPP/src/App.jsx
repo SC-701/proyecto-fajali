@@ -1,6 +1,6 @@
 ﻿import './styles/app.css'
 import './components/UI/Modal.css'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/common/ProtectedRoute.jsx'
 import Layout from './components/layout/Layout.jsx'
@@ -8,6 +8,7 @@ import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Tournaments from './pages/Tournaments.jsx'
+import Participando from './pages/Participando.jsx'
 import Profile from './pages/Profile.jsx'
 import TournamentParticipants from './components/Tournament/TournamentParticipants.jsx'
 
@@ -25,6 +26,10 @@ function App() {
                     <Route path="/" element={<Login />} />
                     <Route path="/register" element={<Register />} />
 
+                    {/* Redirects for old routes */}
+                    <Route path="/actividad" element={<Navigate to="/participando" replace />} />
+                    <Route path="/leaderboard" element={<Navigate to="/participando" replace />} />
+
                     {/* Protected Routes */}
                     <Route path="/dashboard" element={
                         <ProtectedRoute>
@@ -38,6 +43,14 @@ function App() {
                         <ProtectedRoute>
                             <Layout>
                                 <Tournaments />
+                            </Layout>
+                        </ProtectedRoute>
+                    } />
+
+                    <Route path="/participando" element={
+                        <ProtectedRoute>
+                            <Layout>
+                                <Participando />
                             </Layout>
                         </ProtectedRoute>
                     } />

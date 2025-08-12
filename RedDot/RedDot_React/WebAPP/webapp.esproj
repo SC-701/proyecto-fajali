@@ -12,7 +12,6 @@
     <Folder Include="src\components\layout\" />
     <Folder Include="src\context\" />
     <Folder Include="src\hooks\" />
-    <Folder Include="src\pages\" />
     <Folder Include="src\services\" />
     <Folder Include="src\settings\" />
   </ItemGroup>

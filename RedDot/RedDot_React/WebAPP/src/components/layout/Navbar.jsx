@@ -11,9 +11,9 @@ const Navbar = () => {
     const location = useLocation();
     const [username, setUsername] = useState("");
 
-    useEffect( () => {
+    useEffect(() => {
         loadUsername();
-    })
+    }, [user]);
 
     const loadUsername = async () => {
         try {
@@ -25,10 +25,10 @@ const Navbar = () => {
             }
         } catch (error) {
             console.error('Error loading user profile:', error);
+            setUsername("Usuario");
         }
-
-
     }
+
     const handleLogout = () => {
         Swal.fire({
             title: '¿Cerrar Sesión?',
@@ -54,8 +54,6 @@ const Navbar = () => {
         });
     };
 
-
-
     const isActive = (path) => location.pathname === path;
 
     return (
@@ -63,7 +61,7 @@ const Navbar = () => {
             <div className="navbar-container">
                 <div className="navbar-brand">
                     <Link to="/dashboard" className="brand-link">
-                        <span className="brand-logo">🎯</span>
+                        <img src="/r_logo.png" alt="RedDot Logo" className="brand-logo" />
                         <span className="brand-text">RedDot</span>
                     </Link>
                 </div>
@@ -82,19 +80,11 @@ const Navbar = () => {
                         Torneos
                     </Link>
                     <Link
-                        to="/leaderboard"
-                        className={`nav-link ${isActive('/leaderboard') ? 'active' : ''}`}
+                        to="/participando"
+                        className={`nav-link ${isActive('/participando') ? 'active' : ''}`}
                     >
-                        Leaderboard
+                        Participando
                     </Link>
-                    {user?.role === 'admin' && (
-                        <Link
-                            to="/admin"
-                            className="nav-link admin-link"
-                        >
-                            Admin Panel
-                        </Link>
-                    )}
                 </div>
 
                 <div className="navbar-user">
@@ -102,13 +92,12 @@ const Navbar = () => {
                         <span className="user-name">
                             {username}
                         </span>
-                        
                     </div>
                     <div className="user-menu">
-                        <Link to="/profile" className="profile-link">
+                        <Link to="/profile" className="profile-link-btn">
                             Perfil
                         </Link>
-                        <button onClick={handleLogout} className="logout-btn">
+                        <button onClick={handleLogout} className="user-logout-btn">
                             Cerrar Sesión
                         </button>
                     </div>
