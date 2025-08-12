@@ -18,9 +18,7 @@ npm run dev
 **Backend (.NET 8)**
 
 ```bash
-cd RedDot_API/API
-dotnet restore
-dotnet run
+Ya en el build de la solucion esta prestablecido
 ```
 
 [https://localhost:7168](https://localhost:7168)
