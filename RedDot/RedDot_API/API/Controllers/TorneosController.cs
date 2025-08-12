@@ -1,7 +1,6 @@
 ﻿using Abstracciones.Interfaces.API;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
-using DA.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -277,7 +276,7 @@ namespace API.Controllers
         }
 
 
-        [HttpPatch("cambiar-estado")]
+        [HttpPut("cambiar-estado")]
         public async Task<ActionResult> CambiarEstadoTorneo([FromBody] SolicitudCambiarEstado solicitud)
         {
             try
@@ -287,7 +286,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; 
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -395,6 +394,19 @@ namespace API.Controllers
                 throw new Exception("No se pudo modificar la puntuación del participante");
             }
 
+        }
+        [HttpPut("actualizar-match")]
+        public async Task<ActionResult> ActualizarMatch(MatchChangeRequest matchStatus)
+        {
+            var resultado = await _torneosFlujo.ActualizarMatch(matchStatus);
+            if (resultado)
+            {
+                return Ok($"Match {matchStatus.matchIndex} actualizado exitosamente");
+            }
+            else
+            {
+                throw new Exception("No se pudo actualizar el match");
+            }
         }
     }
 }

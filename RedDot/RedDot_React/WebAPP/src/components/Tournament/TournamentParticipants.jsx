@@ -226,7 +226,7 @@ const TournamentParticipants = () => {
                         </div>
                     </div>
 
-                    {tournament.esCreador && tournament.estado === TournamentStates.POR_INICIAR && (
+                    {tournament.esCreador && tournament.estado === 0 && (
                         <div className="start-tournament">
                             <button
                                 className="btn btn-success"
@@ -244,7 +244,7 @@ const TournamentParticipants = () => {
                     )}
                 </div>
 
-                {tournament.esCreador && tournament.estado === TournamentStates.POR_INICIAR && (
+                {tournament.esCreador && tournament.estado === 0 && (
                     <div className="add-participants">
                         <div className="section-card">
                             <div className="card-header">Agregar Participantes</div>

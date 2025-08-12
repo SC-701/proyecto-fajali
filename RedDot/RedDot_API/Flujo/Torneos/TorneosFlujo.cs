@@ -139,11 +139,11 @@ namespace Flujo.Torneos
             }
 
             var esCreador = torneo.CreadoPor == nombreUsuario;
-            var tieneAccesoConClave = !string.IsNullOrEmpty(accessKey) && torneo.AccessKey == accessKey;
+           
 
-            if (!esCreador  && !tieneAccesoConClave)
+            if (!esCreador  )
             {
-                throw new UnauthorizedAccessException("No tienes permisos para acceder a este torneo");
+                return torneo;
             }
 
             torneo.EsCreador = esCreador;
@@ -179,7 +179,7 @@ namespace Flujo.Torneos
             }
 
 
-            if (torneo.Estado == (int)EstadoTorneo.PorIniciar && estado == (int)EstadoTorneo.EnProgreso &&
+            if (
                 torneo.Participantes.Count != 8)
             {
                 throw new ArgumentException("No se puede iniciar un torneo con menos de 8 participantes");
@@ -265,10 +265,7 @@ namespace Flujo.Torneos
             return await _torneosDA.ObtenerTorneosParticipando(idUsuario, estado);
         }
 
-        public Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario)
-        {
-            throw new NotImplementedException();
-        }
+      
 
         public Task<bool> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase)
         {
@@ -278,6 +275,11 @@ namespace Flujo.Torneos
         public Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion)
         {
            return _torneosDA.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
+        }
+
+        public async Task<bool> ActualizarMatch(MatchChangeRequest matchStatus)
+        {
+            return await _torneosDA.ActualizarMatch( matchStatus);
         }
     }
 

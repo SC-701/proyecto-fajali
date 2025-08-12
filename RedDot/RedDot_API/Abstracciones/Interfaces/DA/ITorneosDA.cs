@@ -25,5 +25,6 @@ namespace Abstracciones.Interfaces.DA
         Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion);
         Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0);
 
+        Task<bool> ActualizarMatch(MatchChangeRequest matchStatus);
     }
 }

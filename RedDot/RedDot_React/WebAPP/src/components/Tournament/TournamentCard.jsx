@@ -4,7 +4,7 @@ import AccessKeyModal from './AccessKeyModal.jsx';
 import { useState } from 'react';
 import { accessTournamentWithKey } from '../../API/Tournament.js'; // Add this import
 
-const TournamentCard = ({ tournament, onSelect, onLeave, user }) => {
+const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
     const [showAccessModal, setShowAccessModal] = useState(false);
 
     const getStatusColor = (estado) => {
@@ -135,7 +135,7 @@ const TournamentCard = ({ tournament, onSelect, onLeave, user }) => {
             {showAccessModal && (
                 <AccessKeyModal
                     onClose={() => setShowAccessModal(false)}
-                    onSuccess={handleAccessWithKey}
+                    onSuccess={OnJoin}
                 />
             )}
         </div>

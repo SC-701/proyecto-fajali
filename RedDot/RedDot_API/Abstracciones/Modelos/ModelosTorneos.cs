@@ -166,7 +166,7 @@ namespace Abstracciones.Modelos
         public string IdTorneo { get; set; }
 
         [Required(ErrorMessage = "El nuevo estado es requerido")]
-        public EstadoTorneo NuevoEstado { get; set; }
+        public int NuevoEstado { get; set; }
     }
 
     public class Equipo
@@ -186,6 +186,16 @@ namespace Abstracciones.Modelos
         public string name { get; set; }
         public bool isSet { get; set; }
     }
-    
+
+    public class  MatchChangeRequest
+    {
+        public List<ParticipanteTorneo> participantes { get; set; } 
+        public string matchIndex { get; set; }
+        public Partido match { get; set; }
+        public string tournamentId { get; set; }
+        public string roundName { get; set; }
+
+    }
+
 
 }

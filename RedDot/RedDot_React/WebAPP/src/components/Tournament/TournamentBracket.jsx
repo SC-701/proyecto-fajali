@@ -30,18 +30,47 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
     };
 
     return (
-        <div className="bracket-container-compact">
-            {/* Mostrar ganador si el torneo está terminado */}
-            {tournament.estado === 2 && rondas.ganador && (
-                <div className="champion-section">
-                    <div className="champion-trophy">
-                        <h3>🏆 CAMPEÓN</h3>
-                        <div className="champion-name">
-                            {getWinnerName(rondas.ganador)}
-                        </div>
+        <div className="bracket-container">
+            <div className="bracket-header">
+                <div className="tournament-info">
+                    <h2>{tournament.nombre}</h2>
+                    <div className="tournament-meta">
+                        <span className="tournament-sport">{tournament.tipoDeporte}</span>
+                        <span className={`tournament-status status-${tournament.estado}`}>
+                            {tournament.estado === 0 && 'Por Iniciar'}
+                            {tournament.estado === 1 && 'En Progreso'}
+                            {tournament.estado === 2 && 'Terminado'}
+                            {tournament.estado === 3 && 'Cancelado'}
+                        </span>
                     </div>
                 </div>
-            )}
+                {isAdmin && tournament.estado === 0 &&(
+                    <div className="bracket-actions">
+
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => onAdvanceRound?.('cuartos')}
+                        >
+                            Avanzar a Cuartos de Final
+                        </button>
+
+                    </div>
+                )}
+
+                {/* Mostrar ganador si el torneo está terminado */}
+                {
+                    tournament.estado === 2 && rondas.ganador && (
+                        <div className="champion-section">
+                            <div className="champion-trophy">
+                                <h3>🏆 CAMPEÓN</h3>
+                                <div className="champion-name">
+                                    {getWinnerName(rondas.ganador)}
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
+            </div>
 
             <div className="bracket-grid">
                 {/* Cuartos de Final */}

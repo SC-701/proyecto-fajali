@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { updateMatchScore, advanceRound } from '../API/Tournament.js';
+import React, { useState } from 'react';
+import { changeTournamentStatus} from '../API/Tournament.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentManager from '../components/Tournament/TournamentManager.jsx';
@@ -23,169 +23,193 @@ const Tournaments = () => {
         selectedTournament?.accessKey
     );
 
-    const validateCreatorPermission = useCallback(() => {
-        if (!selectedTournament?.esCreador) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Sin permisos',
-                text: 'Solo el creador del torneo puede realizar esta acción'
-            });
-            return false;
-        }
-        return true;
-    }, [selectedTournament?.esCreador]);
-
-    const validateMatchPlayers = useCallback((matchData) => {
-        if (!matchData?.match?.participantes) {
-            console.error('validateMatchPlayers: Datos de match inválidos', matchData);
-            return false;
-        }
-
-        return !matchData.match.participantes.some(player =>
-            !player || player.idJugador == null || player.idJugador === undefined
-        );
-    }, []);
-
-    const openScoreModal = useCallback((matchData) => {
-        if (!matchData) {
-            console.error('openScoreModal: matchData is required');
-            return;
-        }
-
-        const hasValidPlayers = validateMatchPlayers(matchData);
-
-        setModalState({
-            isActive: true,
-            data: {
-                matchData,
-                tournamentId: selectedTournament.id,
-                isPlayersSet: hasValidPlayers,
-                onScoreUpdated: async () => {
-                    setModalState({ isActive: false, data: null });
-                    await refreshTournament();
-                },
-                onClose: () => setModalState({ isActive: false, data: null })
-            }
-        });
-    }, [selectedTournament?.id, validateMatchPlayers, refreshTournament]);
-
-    const handleTournamentSelect = useCallback((tournament) => {
+    const handleTournamentSelect = (tournament) => {
         console.log('🎯 Torneo seleccionado:', tournament);
         setSelectedTournament(tournament);
         setActiveView('bracket');
-        setModalState({ isActive: false, data: null });
-    }, []);
-
-    const handleMatchClick = useCallback((matchData) => {
-        if (!validateCreatorPermission()) return;
-        openScoreModal(matchData);
-    }, [validateCreatorPermission, openScoreModal]);
-
-    const handleAdvanceRound = useCallback(async (round) => {
-        if (!validateCreatorPermission()) return;
-        console.log('Advancing round:', round);
-    }, [validateCreatorPermission]);
-
-    const handleBackToTournaments = useCallback(() => {
-        setActiveView('tournaments');
-        setSelectedTournament(null);
-        setModalState({ isActive: false, data: null });
-    }, []);
-
-    const renderTournamentHeader = () => (
-        <div className="tournament-compact-header">
-            <div className="tournament-header-row">
-                <button
-                    className="back-btn-compact"
-                    onClick={handleBackToTournaments}
-                >
-                    ← Volver a Torneos
-                </button>
-                <div className="tournament-title-section">
-                    <h1 className="tournament-main-title">
-                        {selectedTournament?.nombre || 'Torneo'}
-                    </h1>
-                </div>
-            </div>
-            <div className="tournament-meta-compact">
-                <span className="tournament-sport-compact">{selectedTournament?.tipoDeporte}</span>
-                <span className={`tournament-status-compact status-${selectedTournament?.estado}`}>
-                    {selectedTournament?.estado === 0 && 'POR INICIAR'}
-                    {selectedTournament?.estado === 1 && 'EN PROGRESO'}
-                    {selectedTournament?.estado === 2 && 'TERMINADO'}
-                    {selectedTournament?.estado === 3 && 'CANCELADO'}
-                </span>
-            </div>
-        </div>
-    );
-
-    const renderError = (message, showBackButton = true) => (
-        <div className="error-container">
-            <h3>❌ {message}</h3>
-            {error && <p>{error}</p>}
-            {showBackButton && (
-                <button
-                    className="btn btn-primary"
-                    onClick={handleBackToTournaments}
-                >
-                    Volver a Torneos
-                </button>
-            )}
-        </div>
-    );
-
-    const renderTournamentBracket = () => {
-        if (loading) {
-            return <LoadingSpinner message="Cargando torneo..." />;
-        }
-
-        if (error) {
-            return renderError('Error al cargar el torneo');
-        }
-
-        if (!selectedTournament) {
-            return renderError('Torneo no encontrado');
-        }
-
-        return (
-            <>
-                <TournamentBracket
-                    tournament={selectedTournament}
-                    onMatchClick={handleMatchClick}
-                    onAdvanceRound={handleAdvanceRound}
-                />
-
-                {modalState.isActive && modalState.data && (
-                    showScoreInputModal(modalState.data)
-                )}
-            </>
-        );
+        // Limpiar modal al cambiar de torneo
+       
+        
     };
 
-    const renderTournamentsList = () => (
-        <div className="tournaments-header">
-            <h1>Torneos 🏆</h1>
-            <p className="page-subtitle">
-                Explora, crea y únete a torneos. Gestiona tus competencias y descubre nuevos desafíos.
-            </p>
-        </div>
-    );
+    const handleMatchClick = (matchData) => {
+        // Validación básica de datos
+        if (!matchData) {
+            console.error('handleMatchClick: matchData is null or undefined');
+            return;
+        }
 
-    const isBracketView = activeView === 'bracket' && selectedTournament;
+        if (!selectedTournament || !selectedTournament?.esCreador) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin permisos',
+                text: 'Solo el creador del torneo puede editar resultados'
+            });
+            return;
+        }
 
-    return (
+        // Verificar si los jugadores están establecidos
+        const hasPlayers = handlePutPlayers(matchData);
+
+        // Función para cerrar el modal
+        const closeModal = () => {
+            setActiveModal(false);
+           
+        };
+
+        // Función callback para cuando se actualiza el score
+        const handleScoreUpdate = async () => {
+            closeModal();
+            await refreshTournament();
+        };
+
+      
+        
+        
+        
+        
+        setModal({
+            matchData,
+            tournamentId: selectedTournament.id,
+            isPlayersSet: hasPlayers,
+            onScoreUpdated: handleScoreUpdate,
+            onClose: closeModal}
+        );
+
+        
+        setActiveModal(true);
+        
+
+       
+
+           
+    };
+
+    const handlePutPlayers = (matchData) => {
+        // Validar que matchData y sus propiedades existan
+        if (!matchData || !matchData.match || !matchData.match.participantes) {
+            console.error('handlePutPlayers: Datos de match inválidos', matchData);
+            return false; // Asumir que no hay jugadores si hay datos inválidos
+        }
+
+        const hasNullPlayer = matchData.match.participantes.some(player => 
+            !player || player.idJugador == null || player.idJugador === undefined
+        );
+        return !hasNullPlayer;
+    };
+
+    const handleAdvanceRound = async (round) => {
+        if (!selectedTournament || !selectedTournament?.esCreador) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin permisos',
+                text: 'Solo el creador del torneo puede avanzar rondas'
+            });
+            return;
+        }
+        
+        try {
+            const result = await changeTournamentStatus(selectedTournament.id, selectedTournament.estado);
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Ronda avanzada',
+                    text: `Se ha avanzado a la ronda de ${round}`
+                });
+                await refreshTournament();
+            } else {
+                throw new Error(result.error || 'Error al avanzar la ronda');
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al avanzar ronda',
+                text: error.message
+            });
+        }
+        
+    };
+
+    if (activeView === 'bracket' && selectedTournament) {
+        return (
+            <div className="tournaments-page">
+                <div className="tournaments-header">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => {
+                            setActiveView('tournaments');
+                            setSelectedTournament(null);
+                            // Limpiar modal si está activo
+                            setActiveModal(null);
+                            setModalProps(null);
+                        }}
+                    >
+                        ← Volver a Torneos
+                    </button>
+                    <h1>🏆 {selectedTournament?.nombre || 'Bracket del Torneo'}</h1>
+                </div>
+
+                {loading ? (
+                    <LoadingSpinner message="Cargando torneo..." />
+                ) : error ? (
+                    <div className="error-container">
+                        <h3>❌ Error al cargar el torneo</h3>
+                        <p>{error}</p>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => setActiveView('tournaments')}
+                        >
+                            Volver a Torneos
+                        </button>
+                    </div>
+                ) : selectedTournament ? (
+                    <>
+                        <TournamentBracket
+                            tournament={selectedTournament}
+                            onMatchClick={handleMatchClick}
+                            onAdvanceRound={handleAdvanceRound}
+                        />
+                        
+                        {/* Renderizar el modal activo con validación mejorada */}
+                        {activeModal==true && modal && (
+                            showScoreInputModal({
+                                matchData: modal.matchData,
+                                tournamentId: modal.tournamentId,
+                                isPlayersSet: modal.isPlayersSet,
+                                onScoreUpdated: modal.onScoreUpdated,
+                                OnCloseFuntion: modal.onClose
+                            })
+                        )}
+                        
+                        
+                    </>
+                ) : (
+                    <div className="error-container">
+                        <h3>🔍 Torneo no encontrado</h3>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => setActiveView('tournaments')}
+                        >
+                            Volver a Torneos
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+   return (
         <div className="tournaments-page">
-            {isBracketView ? (
-                <>
-                    {renderTournamentHeader()}
-                    {renderTournamentBracket()}
-                </>
-            ) : (
-                <>
-                    {renderTournamentsList()}
-                    <TournamentManager onTournamentSelect={handleTournamentSelect} />
-                </>
-            )}
+            <div className="tournaments-header">
+                <h1>🏆 Torneos 🏆</h1>
+                <div className="header-actions">
+                    <p className="welcome-text">
+                        Bienvenido, <strong>{user?.username}</strong>
+                    </p>
+                </div>
+            </div>
+
+            <TournamentManager onTournamentSelect={handleTournamentSelect} />
         </div>
     );
 };
