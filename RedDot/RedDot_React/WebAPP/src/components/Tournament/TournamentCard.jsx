@@ -1,8 +1,7 @@
-﻿import React from 'react';
-import '../../styles/TournamentCard.css';
+﻿import '../../styles/TournamentCard.css';
 import AccessKeyModal from './AccessKeyModal.jsx';
 import { useState } from 'react';
-import { accessTournamentWithKey } from '../../API/Tournament.js'; // Add this import
+import { accessTournamentWithKey } from '../../API/Tournament.js'; 
 
 const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
     const [showAccessModal, setShowAccessModal] = useState(false);

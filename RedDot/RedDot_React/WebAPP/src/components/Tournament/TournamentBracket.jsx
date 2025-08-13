@@ -1,7 +1,7 @@
-﻿import React, { useState } from 'react';
+﻿import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import BracketMatch from './BracketMatch.jsx';
-import './TournamentBracket.css';
+import '../../styles/TournamentBracket.css';
 
 const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActivePlayers }) => {
     const { user } = useAuth();
@@ -50,11 +50,11 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActiveP
         <div className="bracket-container">
             <div className="bracket-header">
                 <div className="tournament-info">
-                    <hr/>
+                    <hr />
                     <div className="tournament-meta">
-                        
+
                         <div className='card-header-bracket'>
-                            <h4 
+                            <h4
                                 onClick={() => setShowModal(true)}
                                 style={{ cursor: 'pointer', color: '#007bff' }}
                                 title="Click para ver detalles del torneo"
@@ -110,7 +110,6 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActiveP
                     </button>
                 )}
 
-                {/* Mostrar ganador si el torneo está terminado */}
                 {
                     tournament.estado === 4 && rondas.ganador && (
                         <div className="champion-section">
@@ -125,14 +124,13 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActiveP
                 }
             </div>
 
-            {/* Modal de Detalles del Torneo */}
             {showModal && (
                 <div className="modal-overlay" onClick={handleModalClose}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Detalles del Torneo</h2>
-                            <button 
-                                className="modal-close" 
+                            <button
+                                className="modal-close"
                                 onClick={handleModalClose}
                                 aria-label="Cerrar modal"
                             >
@@ -144,29 +142,28 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActiveP
                                 <h3>📋 Descripción</h3>
                                 <p>{tournament.descripcion || 'Sin descripción disponible'}</p>
                             </div>
-                            
+
                             <div className="detail-section">
                                 <h3>📜 Reglas</h3>
                                 <p>{tournament.reglas || 'Sin reglas específicas'}</p>
                             </div>
-                            
+
                             <div className="detail-section">
                                 <h3>📅 Fecha de Inicio</h3>
                                 <p>{formatDate(tournament.fechaCreacion)}</p>
                             </div>
-                            
+
                             <div className="detail-section">
                                 <h3>🏆 Premio</h3>
                                 <p>{tournament.descripcionPremio || 'Sin premio especificado'}</p>
                             </div>
                         </div>
-                       
+
                     </div>
                 </div>
             )}
 
             <div className="bracket-grid">
-                {/* Cuartos de Final */}
                 <div className="bracket-round">
                     <div className="round-header">
                         <h3>Cuartos de Final</h3>
@@ -193,7 +190,6 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActiveP
                     </div>
                 </div>
 
-                {/* Semifinales */}
                 <div className="bracket-round">
                     <div className="round-header">
                         <h3>Semifinales</h3>
@@ -227,7 +223,6 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActiveP
                     </div>
                 </div>
 
-                {/* Final */}
                 <div className="bracket-round">
                     <div className="round-header">
                         <h3>Final</h3>
@@ -255,7 +250,6 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActiveP
                 </div>
             </div>
 
-            {/* Información adicional */}
             <div className="bracket-footer">
                 <div className="bracket-legend">
                     <div className="legend-item">

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { changeTournamentStatus,getTournament} from '../API/Tournament.js';
+import { useState } from 'react';
+import { changeTournamentStatus, getTournament } from '../API/Tournament.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentManager from '../components/Tournament/TournamentManager.jsx';
@@ -14,9 +14,9 @@ const Tournaments = () => {
     const [activeView, setActiveView] = useState('tournaments');
     const [selectedTournament, setSelectedTournament] = useState(null);
     const [activeModal, setActiveModal] = useState(false);
-    const [modal,setModal]= useState(null);
+    const [modal, setModal] = useState(null);
 
-    const { loading, error,tournament, refreshTournament } = useTournament(
+    const { loading, error } = useTournament(
         selectedTournament?.id,
         selectedTournament?.accessKey
     );
@@ -25,63 +25,59 @@ const Tournaments = () => {
         console.log('🎯 Torneo seleccionado:', tournament);
         setSelectedTournament(tournament);
         setActiveView('bracket');
-        // Limpiar modal al cambiar de torneo
-       
-        
+
+
     };
 
     const handleAllActivePartipantes = (tournament) => {
-            var allActiveParticipants = 0;
-            tournament.participantes.forEach(participant => {
-                if (participant.isSet) {
-                    allActiveParticipants++;
-                }
+        var allActiveParticipants = 0;
+        tournament.participantes.forEach(participant => {
+            if (participant.isSet) {
+                allActiveParticipants++;
+            }
+        });
+        return allActiveParticipants == 8;
+    };
+
+    const handleScoreUpdate = async () => {
+        closeModal();
+
+        var result = await getTournament(selectedTournament.id, selectedTournament.accessKey);
+        if (!result.success) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al actualizar torneo',
+                text: result.error || 'No se pudo obtener el torneo actualizado'
             });
-            return allActiveParticipants == 8 ;
-        };
+            return;
+        }
 
-        const handleScoreUpdate = async () => {
-            closeModal();
-            
-            var result = await getTournament(selectedTournament.id, selectedTournament.accessKey);
-            if (!result.success) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error al actualizar torneo',
-                    text: result.error || 'No se pudo obtener el torneo actualizado'
-                });
-                return;
-            }
+        handleTournamentSelect(result.data);
 
-            handleTournamentSelect(result.data);
-            
+    };
 
-        };
+    const handleUpdate = async () => {
 
-         const handleUpdate = async () => {
-          
-            var result = await getTournament(selectedTournament.id, selectedTournament.accessKey);
-            if (!result.success) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error al actualizar torneo',
-                    text: result.error || 'No se pudo obtener el torneo actualizado'
-                });
-                return;
-            }
+        var result = await getTournament(selectedTournament.id, selectedTournament.accessKey);
+        if (!result.success) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al actualizar torneo',
+                text: result.error || 'No se pudo obtener el torneo actualizado'
+            });
+            return;
+        }
 
-            handleTournamentSelect(result.data);
-            
+        handleTournamentSelect(result.data);
 
-        };
+    };
 
-         const closeModal = () => {
-            setActiveModal(false);
-           
-        };
+    const closeModal = () => {
+        setActiveModal(false);
+
+    };
 
     const handleMatchClick = (matchData) => {
-        // Validación básica de datos
         if (!matchData) {
             console.error('handleMatchClick: matchData is null or undefined');
             return;
@@ -96,48 +92,31 @@ const Tournaments = () => {
             return;
         }
 
-        // Verificar si los jugadores están establecidos
         const hasPlayers = handlePutPlayers(matchData);
 
-        // Función para cerrar el modal
-       
+        const ActivePlayers = handleAllActivePartipantes(selectedTournament);
 
-        // Función callback para cuando se actualiza el score
-        
-
-        
-            const ActivePlayers = handleAllActivePartipantes(selectedTournament);
-        
-        
-        
-        
         setModal({
             matchData,
             tournamentId: selectedTournament.id,
             isPlayersSet: hasPlayers,
             onScoreUpdated: handleScoreUpdate,
             onClose: closeModal,
-            activePlayers : ActivePlayers
+            activePlayers: ActivePlayers
         }
         );
 
-        
         setActiveModal(true);
-        
 
-       
-
-           
     };
 
     const handlePutPlayers = (matchData) => {
-        // Validar que matchData y sus propiedades existan
         if (!matchData || !matchData.match || !matchData.match.participantes) {
             console.error('handlePutPlayers: Datos de match inválidos', matchData);
-            return false; // Asumir que no hay jugadores si hay datos inválidos
+            return false;
         }
 
-        const hasNullPlayer = matchData.match.participantes.some(player => 
+        const hasNullPlayer = matchData.match.participantes.some(player =>
             !player || player.idJugador == null || player.idJugador === undefined
         );
         return !hasNullPlayer;
@@ -152,7 +131,7 @@ const Tournaments = () => {
             });
             return;
         }
-        
+
         try {
             const result = await changeTournamentStatus(selectedTournament.id, selectedTournament.estado);
             if (result.success) {
@@ -172,7 +151,7 @@ const Tournaments = () => {
                 text: error.message
             });
         }
-        
+
     };
 
     if (activeView === 'bracket' && selectedTournament) {
@@ -215,9 +194,8 @@ const Tournaments = () => {
                             onAdvanceRound={handleAdvanceRound}
                             onActivePlayers={handleAllActivePartipantes}
                         />
-                        
-                        {/* Renderizar el modal activo con validación mejorada */}
-                        {activeModal==true && modal && (
+
+                        {activeModal == true && modal && (
                             showScoreInputModal({
                                 matchData: modal.matchData,
                                 tournamentId: modal.tournamentId,
@@ -227,8 +205,8 @@ const Tournaments = () => {
                                 activePlayers: modal.activePlayers
                             })
                         )}
-                        
-                        
+
+
                     </>
                 ) : (
                     <div className="error-container">
@@ -245,7 +223,7 @@ const Tournaments = () => {
         );
     }
 
-   return (
+    return (
         <div className="tournaments-page">
             <div className="tournaments-header">
                 <h1>🏆 Torneos 🏆</h1>

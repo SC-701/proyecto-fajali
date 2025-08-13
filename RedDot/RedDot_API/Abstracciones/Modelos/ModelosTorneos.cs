@@ -10,21 +10,6 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Abstracciones.Modelos
 {
-    public enum CategoriaTorneo
-    {
-        Contacto,
-        Equipo,
-        Raqueta,
-        Otros
-    }
-
-    public enum EstadoTorneo
-    {
-        PorIniciar,
-        EnProgreso,
-        Terminado,
-        Cancelado
-    }
 
     public class Participante
     {
@@ -40,7 +25,6 @@ namespace Abstracciones.Modelos
         [BsonElement("isWinner")]
         public bool IsWinner { get; set; } = false;
     }
-
     public class Partido
     {
         [BsonElement("participantes")]
@@ -49,7 +33,6 @@ namespace Abstracciones.Modelos
         [BsonElement("completado")]
         public bool Completado { get; set; } = false;
     }
-
     public class Rondas
     {
         [BsonElement("cuartos")]
@@ -101,7 +84,6 @@ namespace Abstracciones.Modelos
         public string CreadorId { get; set; }
 
     }
-
     public class SolicitudActualizarPuntaje
     {
         [Required]
@@ -119,34 +101,11 @@ namespace Abstracciones.Modelos
         [Required]
         public Partido match { get; set; }
     }
-
-    public class SolicitudAvanzarRonda
-    {
-        [Required]
-        public string IdTorneo { get; set; }
-
-        [Required]
-        public string RondaActual { get; set; }
-    }
-
-    public class SolicitudAvanzarRondaManual
-    {
-        [Required]
-        public string IdTorneo { get; set; }
-
-        [Required]
-        public string RondaActual { get; set; }
-
-        [Required]
-        public List<string> GanadoresSeleccionados { get; set; } = new();
-    }
-
     public class SolicitudAccesoConClave
     {
         [Required]
         public string AccessKey { get; set; }
     }
-
     public class RespuestaTorneo
     {
         public string Id { get; set; }
@@ -168,7 +127,6 @@ namespace Abstracciones.Modelos
         public bool TieneAcceso { get; set; }
         public string Reglas {get; set; }
     }
-
     public class RespuestaListaTorneos
     {
         public List<RespuestaTorneo> Torneos { get; set; } = new List<RespuestaTorneo>();
@@ -177,7 +135,6 @@ namespace Abstracciones.Modelos
         public int TamanoPagina { get; set; }
         public int TotalPaginas { get; set; }
     }
-
     public class SolicitudCambiarEstado
     {
         [Required(ErrorMessage = "El ID del torneo es requerido")]
@@ -186,25 +143,12 @@ namespace Abstracciones.Modelos
         [Required(ErrorMessage = "El nuevo estado es requerido")]
         public int NuevoEstado { get; set; }
     }
-
-    public class Equipo
-    {
-        [BsonId]
-        public string IdJugador { get; set; }
-
-        [Required(ErrorMessage = "El nombre del equipo es obligatorio")]
-        [BsonElement("puntaje")]
-        public int Puntaje { get; set; }
-       
-    }
-
     public class ParticipanteTorneo
     {
         public string id { get; set; }
         public string name { get; set; }
         public bool isSet { get; set; }
     }
-
     public class  MatchChangeRequest
     {
         public List<ParticipanteTorneo> participantes { get; set; } 

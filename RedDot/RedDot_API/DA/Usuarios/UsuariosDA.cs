@@ -56,6 +56,22 @@ namespace DA.Usuarios
             return respuestaToken;
         }
 
+        public async Task<List<UserResponse>> ListarUsuarios()
+        {
+            var datos = Builders<User>.Projection
+                .Include(x => x.Id)
+                .Include(x => x.UserName)
+                .Include(x => x.Email);
+
+
+            var usuarios = await _conexion
+                .Find(new BsonDocument())
+                .Project<UserResponse>(datos)
+                .ToListAsync();
+
+            return usuarios;
+        }
+
         public async Task<bool> Register(UserRegister usuario)
         {
             try
@@ -123,49 +139,6 @@ namespace DA.Usuarios
             return Task.FromResult(claims);
         }
 
-        public async Task<bool> InscribirUsuarioTorneo(RespuestaTorneo torneoBD, string IdUsuario)
-        {
-            var filtro = Builders<User>.Filter.Eq(u => u.Id, IdUsuario);
-            var usuarioDB = await _conexion.Find(x => x.Id == IdUsuario).FirstOrDefaultAsync();
-
-            if (usuarioDB == null)
-                return false;
-
-            var torneos = usuarioDB.Torneos ?? new List<string>();
-
-            if (torneos.Contains(torneoBD.Id))
-                return false;
-
-            torneos.Add(torneoBD.Id);
-            var actualizacion = Builders<User>.Update.Set(t => t.Torneos, torneos);
-            var resultado = await _conexion.UpdateOneAsync(filtro, actualizacion);
-
-            return resultado.ModifiedCount > 0;
-        }
-
-        public async Task<bool> EliminarUsuarioEnTorneo(RespuestaTorneo torneoBD, string idUsuario)
-        {
-            var filtro = Builders<User>.Filter.Eq(u => u.Id, idUsuario);
-            var usuarioDB = await _conexion.Find(x => x.Id == idUsuario).FirstOrDefaultAsync();
-
-            if (usuarioDB == null)
-                return false;
-
-            var torneos = usuarioDB.Torneos ?? new List<string>();
-
-            if (!torneos.Contains(torneoBD.Id))
-                return false;
-
-            var eliminacion = torneos.Remove(torneoBD.Id);
-            if (!eliminacion)
-                return false;
-
-            var actualizacion = Builders<User>.Update.Set(t => t.Torneos, torneos);
-            var resultado = await _conexion.UpdateOneAsync(filtro, actualizacion);
-
-            return resultado.ModifiedCount > 0;
-        }
-
         public async Task<bool> EditarUsuario(UserUI usuario)
         {
             var user = await _conexion.UpdateOneAsync(
@@ -218,34 +191,6 @@ namespace DA.Usuarios
             };
 
             return userResponse;
-        }
-
-        private static string ObtenerTextoEstado(EstadoTorneo estado)
-        {
-            return estado switch
-            {
-                EstadoTorneo.PorIniciar => "Por iniciar",
-                EstadoTorneo.EnProgreso => "En progreso",
-                EstadoTorneo.Terminado => "Terminado",
-                EstadoTorneo.Cancelado => "Cancelado",
-                _ => "Desconocido"
-            };
-        }
-
-        public async Task<List<UserResponse>> ListarUsuarios()
-        {
-            var datos = Builders<User>.Projection
-                .Include(x => x.Id)
-                .Include(x => x.UserName)
-                .Include(x => x.Email);
-
-
-            var usuarios = await _conexion
-                .Find(new BsonDocument())
-                .Project<UserResponse>(datos)
-                .ToListAsync();
-
-            return usuarios;
         }
 
     }

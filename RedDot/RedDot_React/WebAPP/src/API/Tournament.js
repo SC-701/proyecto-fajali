@@ -1,6 +1,5 @@
 import ApiService from '../services/apiService.js';
 
-// UNIFICADO - Todos los torneos son de eliminación directa
 
 export async function getAllTournaments(page = 1, pageSize = 10, state = null, sportType = null) {
     let url = `Torneos/listar?numeroPagina=${page}&tamanoPagina=${pageSize}`;
@@ -12,6 +11,7 @@ export async function getAllTournaments(page = 1, pageSize = 10, state = null, s
 export async function createTournament(tournamentData) {
     return await ApiService.post('Torneos/crear', tournamentData);
 }
+
 export async function getCategorias() {
     return await ApiService.get('Torneos/categorias');
 }
@@ -31,43 +31,16 @@ export async function getParticipatingTournaments(state = null) {
 
 export async function getTournament(id, accessKey = null) {
     const params = accessKey ? `?accessKey=${accessKey}` : '';
-    return await ApiService.get(`Torneos/${id}${params}`);
+    return await ApiService.get(` /${id}${params}`);
 }
 
 export async function updateMatchScore(scoreData) {
     return await ApiService.put('Torneos/puntaje', scoreData);
 }
 
-export async function advanceRound(roundData) {
-    return await ApiService.post('Torneos/avanzar', roundData);
-}
-
 export async function accessTournamentWithKey(accessKey) {
     return await ApiService.post('Torneos/acceder', { accessKey });
 }
-
-export async function deleteTournament(id) {
-    return await ApiService.delete(`Torneos/${id}`);
-}
-
-export async function getLeaderboard(tournamentId) {
-    return await ApiService.get(`Torneos/LeaderBoard/${tournamentId}`);
-}
-
-// Estados y categorías
-export const TournamentStates = {
-    POR_INICIAR: 0,
-    EN_PROGRESO: 1,
-    TERMINADO: 2,
-    CANCELADO: 3
-};
-
-export const TournamentCategories = {
-    CONTACTO: 0,
-    EQUIPO: 1,
-    RAQUETA: 2,
-    OTROS: 3
-};
 
 export async function getSportName() {
 
@@ -78,12 +51,6 @@ export const getStateName = (state) => {
     const names = ['Por Iniciar', 'En Progreso', 'Terminado', 'Cancelado'];
     return names[state] || 'Desconocido';
 };
-export async function addTournamentParticipants(tournamentId, participantsIds) {
-    return await ApiService.post('Torneos/agregar-participantes', {
-        idTorneo: tournamentId,
-        participantesIds: participantsIds
-    });
-}
 
 export async function changeTournamentStatus(tournamentId, newStatus) {
     return await ApiService.put('Torneos/cambiar-estado', {

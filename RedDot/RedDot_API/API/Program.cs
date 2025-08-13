@@ -40,11 +40,6 @@ builder.Services.AddCors(options =>
                .AllowCredentials();
     });
 });
-BsonClassMap.RegisterClassMap<Abstracciones.Modelos.Equipo>(cm =>
-{
-    cm.AutoMap();
-    cm.SetIgnoreExtraElements(true);
-});
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
@@ -98,21 +93,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.Events = new JwtBearerEvents
         {
-            OnTokenValidated = async context =>
+            OnMessageReceived = context =>
             {
-                var claimsIdentity = context.Principal.Identity as System.Security.Claims.ClaimsIdentity;
-                var userName = claimsIdentity?.Name;
-
-                var userRole = "Admin";
-
-                //var userRole = await context.HttpContext.RequestServices
-                //    .GetRequiredService<IAuthenticationFlujo>()
-                //    .GetRole(userName);
-
-                if (!string.IsNullOrEmpty(userRole))
-                {
-                    claimsIdentity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, userRole));
-                }
+                context.Request.Headers.TryGetValue("Authorization", out var BearerToken);
+                if (BearerToken.Count == 0)
+                    BearerToken = "no Bearer token sent\n";
+                return Task.CompletedTask;
             }
         };
     });

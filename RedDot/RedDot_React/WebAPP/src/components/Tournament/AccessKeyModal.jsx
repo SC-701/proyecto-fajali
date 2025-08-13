@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Modal from '../UI/Modal.jsx'; 
 import Swal from 'sweetalert2';
-import './AccessKeyModal.css';
+import '../../styles/AccessKeyModal.css';
 
 const AccessKeyModal = ({ onClose, onSuccess }) => {
     const [accessKey, setAccessKey] = useState('');

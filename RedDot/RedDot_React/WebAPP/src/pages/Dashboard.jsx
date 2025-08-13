@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { getAllTournaments } from '../API/Tournament.js';
 import { getUsers } from '../API/User.js'; 
@@ -57,7 +57,6 @@ const Dashboard = () => {
                     recentActivity: torneosParticipando.data.length
                 }));
 
-                // Mostrar torneos más recientes
                 const recent = tournaments
                     .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion))
                     .slice(0, 3);
