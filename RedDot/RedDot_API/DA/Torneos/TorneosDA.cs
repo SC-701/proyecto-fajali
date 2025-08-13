@@ -64,7 +64,7 @@ namespace DA.Torneos
                 var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
                 var torneo = await _coleccionTorneos.Find(filtro).FirstOrDefaultAsync();
 
-                
+
 
                 var partidos = ronda switch
                 {
@@ -74,9 +74,9 @@ namespace DA.Torneos
                     _ => null
                 };
 
-                
 
-               
+
+
                 partidos[indicePartido] = match;
                 partidos[indicePartido].Completado = true;
 
@@ -94,9 +94,10 @@ namespace DA.Torneos
         {
             try
             {
+
                 var constructorFiltro = Builders<Torneo>.Filter;
                 var filtro = constructorFiltro.Or(
-                    constructorFiltro.Eq(t => t.CreadoPor, nombreUsuario)
+                    constructorFiltro.Eq(t => t.CreadoPor, creador)
                 );
 
                 if (estado > 0)
@@ -109,7 +110,7 @@ namespace DA.Torneos
                     .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
                     .ToListAsync();
 
-                return torneos.Select(t => MapearARespuesta(t, nombreUsuario)).ToList();
+                return torneos.Select(t => MapearARespuesta(t, creador)).ToList();
             }
             catch (Exception)
             {
@@ -217,11 +218,11 @@ namespace DA.Torneos
         {
             try
             {
-                
-                   var estadoActualizado = estado + 1;
-                    var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
-                    var actualizacion = Builders<Torneo>.Update.Set(t => t.Estado, estadoActualizado);
-                    var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
+
+                var estadoActualizado = estado + 1;
+                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
+                var actualizacion = Builders<Torneo>.Update.Set(t => t.Estado, estadoActualizado);
+                var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
 
                 if (estado == 0)
                 {
@@ -230,7 +231,8 @@ namespace DA.Torneos
 
                 var torneo = await _coleccionTorneos.Find(x => x.Id == idTorneo).FirstOrDefaultAsync();
 
-                if (estado == 1) {
+                if (estado == 1)
+                {
 
 
                     var participantesSemis = torneo.Rondas.Cuartos.Select(
@@ -246,19 +248,19 @@ namespace DA.Torneos
                             {
                                 x.isSet = false;
                             }
-                            
+
                         });
                     var actualizaPartipantes = Builders<Torneo>.Update.Set(x => x.Participantes, torneo.Participantes);
 
                     var resultadoPartipantes = await _coleccionTorneos.UpdateOneAsync(filtro, actualizaPartipantes);
 
-                  
-                        return resultado.ModifiedCount > 0;
-                    
+
+                    return resultado.ModifiedCount > 0;
+
 
 
                 }
-                if(estado == 2)
+                if (estado == 2)
                 {
 
                     var participantesFinal = torneo.Rondas.Semis.Select(
@@ -298,7 +300,7 @@ namespace DA.Torneos
 
                     var resultadoPartipantes = await _coleccionTorneos.UpdateOneAsync(filtro, actualizaPartipantes);
 
-                   
+
 
                     jugador.TournamentsWon++;
 
@@ -440,6 +442,18 @@ namespace DA.Torneos
             {
                 return false;
             }
+        }
+
+
+        public async Task<RespuestaListaTorneos> TorneosActivos()
+        {
+            var filtro = Builders<Torneo>.Filter.Eq(x => x.Estado, 0);
+            var torneos = await _coleccionTorneos
+                    .Find(filtro)
+                    .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
+                    .ToListAsync();
+            return new RespuestaListaTorneos { Torneos = torneos.Select(t => MapearARespuesta(t, string.Empty)).ToList() };
+
         }
         public async Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo)
         {

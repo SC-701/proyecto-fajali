@@ -228,9 +228,9 @@
 
 /* Dashboard Content */
 .dashboard-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    padding: 20px;
 }
 
 .section {
@@ -239,6 +239,8 @@
     border-radius: 12px;
     padding: 20px;
     transition: box-shadow 0.2s;
+     width: 100%;
+    max-width: 800px; /* Limita el ancho */
 }
 
     .section:hover {

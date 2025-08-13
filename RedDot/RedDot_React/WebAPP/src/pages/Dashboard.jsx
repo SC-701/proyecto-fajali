@@ -1,6 +1,10 @@
 ﻿import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { getAllTournaments } from '../API/Tournament.js';
+import { getUsers } from '../API/User.js'; 
+import { getMyTournaments } from '../API/Tournament.js';
+import { getActiveTournaments } from '../API/Tournament.js';
+import { getParticipatingTournaments } from '../API/Tournament.js';
 import ApiService from '../services/apiService.js';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import { Link } from 'react-router-dom';
@@ -22,25 +26,35 @@ const Dashboard = () => {
         loadDashboardData();
     }, []);
 
+
     const loadDashboardData = async () => {
         setLoading(true);
         try {
-            const [tournamentsResult, statsResult] = await Promise.all([
-                getAllTournaments(),
-                ApiService.get('Dashboard/stats')
-            ]);
+            
+            // Cargar torneos primero
+            let tournamentsResult;
+            let misTorneos;
+            let torneosActivos;
+            let torneosParticipando;
+            try {
+                tournamentsResult = await getAllTournaments();
+                misTorneos = await getMyTournaments();
+                torneosActivos = await getActiveTournaments();
+                torneosParticipando = await getParticipatingTournaments();
+            } catch (error) {
+                tournamentsResult = { success: false };
+            }
 
-            if (tournamentsResult.success) {
-                const tournaments = tournamentsResult.data || [];
-                const activeTournaments = tournaments.filter(t => t.estado?.toLowerCase() === 'activo');
-                const userTournaments = tournaments.filter(t =>
-                    t.participantes?.includes(user?.id)
-                );
-
+            // Procesar torneos
+            if (tournamentsResult && tournamentsResult.success) {
+             
+                let tournaments = tournamentsResult.data.torneos;
+              
                 setStats(prev => ({
                     ...prev,
-                    activeTournaments: activeTournaments.length,
-                    userTournaments: userTournaments.length
+                    activeTournaments: torneosActivos.data.torneos.length,
+                    userTournaments: misTorneos.data.length,
+                    recentActivity: torneosParticipando.data.length
                 }));
 
                 const recent = tournaments
@@ -49,20 +63,41 @@ const Dashboard = () => {
                 setRecentTournaments(recent);
             }
 
-            if (statsResult.success) {
-                setStats(prev => ({
-                    ...prev,
-                    ...statsResult.data
-                }));
+            // Cargar usuarios de forma separada y con manejo de errores
+            let usersResult;
+            try {
+                usersResult = await getUsers();
+            } catch (error) {
+                console.error('Error calling getUsers:', error);
+                usersResult = { success: false, error: error.message };
             }
 
-            const activityResult = await ApiService.get('Users/activity');
-            if (activityResult.success) {
-                setUserActivity(activityResult.data || []);
+            // Procesar usuarios
+            if (usersResult && usersResult.success) {
+                const usersData = usersResult.data;
+                
+                let totalUsers = usersData;
+                
+                try {
+                    
+                    
+                    // Actualizar stats
+                    setStats(prevStats => {
+                        const newStats = {
+                            ...prevStats,
+                            totalUsers: totalUsers
+                        };
+                        return newStats;
+                    });
+                    
+                } catch (error) {
+                    console.error('Error processing users data:', error);
+                }
+            } else {
+                console.log('Users result failed:', usersResult);
             }
-
         } catch (error) {
-            console.error('Error loading dashboard:', error);
+            console.error('General error loading dashboard:', error);
         } finally {
             setLoading(false);
         }
@@ -82,6 +117,12 @@ const Dashboard = () => {
         if (hour < 18) return 'Buenas tardes';
         return 'Buenas noches';
     };
+    const estadoMap = {
+    0: 'Por Iniciar',
+    1: 'En Progreso',
+    2: 'Terminado',
+    3: 'Cancelado'
+};
 
     const renderDashboardHeader = () => (
         <div className="dashboard-header">
@@ -138,7 +179,7 @@ const Dashboard = () => {
                     <div className="stat-card info">
                         <div className="stat-icon info">👥</div>
                         <div className="stat-content">
-                            <h3>{stats.totalUsers || 0}</h3>
+                            <h3>{stats.totalUsers}</h3>
                             <p>Usuarios Registrados</p>
                         </div>
                     </div>
@@ -147,7 +188,7 @@ const Dashboard = () => {
                         <div className="stat-icon warning">📊</div>
                         <div className="stat-content">
                             <h3>{stats.recentActivity || 0}</h3>
-                            <p>Actividad Reciente</p>
+                            <p>Torneos Participando</p>
                         </div>
                     </div>
                 </div>
@@ -168,13 +209,13 @@ const Dashboard = () => {
                                         <div className="tournament-info">
                                             <h4>{tournament.nombre}</h4>
                                             <p className="tournament-meta">
-                                                {formatDate(tournament.fechaInicio)} •
-                                                {tournament.cuposDisponibles}/{tournament.cuposMaximos} cupos
+                                                {formatDate(tournament.fechaInicio)} • {tournament.participantes.length} / {tournament.cuposMaximos} cupos
+                                                
                                             </p>
                                         </div>
                                         <div className="tournament-status">
-                                            <span className={`status-badge ${tournament.estado?.toLowerCase()}`}>
-                                                {tournament.estado}
+                                            <span className={`status-badge ${estadoMap[tournament.estado]?.toLowerCase().replace(/\s/g, '-')}`}>
+                                                {estadoMap[tournament.estado]}
                                             </span>
                                         </div>
                                     </div>
@@ -187,35 +228,7 @@ const Dashboard = () => {
                         )}
                     </div>
 
-                    <div className="section">
-                        <div className="section-header">
-                            <h2><span className="emoji">📈</span> Actividad Reciente</h2>
-                        </div>
-
-                        {userActivity.length > 0 ? (
-                            <div className="activity-list">
-                                {userActivity.slice(0, 5).map((activity, index) => (
-                                    <div key={index} className="activity-item">
-                                        <div className="activity-icon">
-                                            {activity.type === 'join' ? '✅' :
-                                                activity.type === 'win' ? '🏆' :
-                                                    activity.type === 'create' ? '➕' : '📝'}
-                                        </div>
-                                        <div className="activity-content">
-                                            <p>{activity.description}</p>
-                                            <span className="activity-time">
-                                                {formatDate(activity.fecha)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-state">
-                                <p>No hay actividad reciente</p>
-                            </div>
-                        )}
-                    </div>
+                   
                 </div>
             </div>
         </div>

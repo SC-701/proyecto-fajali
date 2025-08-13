@@ -27,7 +27,7 @@ namespace DA.Entidades
 
 
         [BsonElement("cupos_maximos")]
-        public int? CuposMaximos { get; set; }
+        public int CuposMaximos { get; set; }
 
         [BsonElement("estado")]
         public int Estado { get; set; } 

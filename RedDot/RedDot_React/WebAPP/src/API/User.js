@@ -26,3 +26,7 @@ export async function searchUsers(searchTerm) {
 export async function getDashboardStats() {
     return await ApiService.get('Dashboard/stats');
 }
+
+export async function getUsers() {
+    return await ApiService.get('Usuarios/ListarUsuarios');
+}
