@@ -77,25 +77,9 @@ const Dashboard = () => {
             if (usersResult && usersResult.success) {
                 const usersData = usersResult.data;
                 
-                let totalUsers = 0;
+                let totalUsers = usersData;
                 
                 try {
-                    // Si es un array, contar elementos
-                    if (Array.isArray(usersData)) {
-                        totalUsers = usersData.length;
-                    }
-                    // Si es un número directo
-                    else if (typeof usersData === 'number') {
-                        totalUsers = usersData;
-                    }
-                    // Si es un string que contiene un número
-                    else if (typeof usersData === 'string' && !isNaN(usersData)) {
-                        totalUsers = parseInt(usersData);
-                    }
-                    // Si es un objeto con una propiedad específica
-                    else if (usersData && typeof usersData === 'object') {
-                        totalUsers = usersData.count || usersData.total || usersData.totalUsers || usersData.length || 0;
-                    }
                     
                     
                     // Actualizar stats
