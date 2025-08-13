@@ -295,5 +295,45 @@ namespace API.Controllers
             var resultado = await _torneosFlujo.TorneosActivos();
             return Ok(resultado);
         }
+        [HttpGet("participando-activos")]
+        public async Task<ActionResult> ObtenerTorneosParticipandoActivos()
+        {
+            try
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Unauthorized("No se pudo identificar al usuario");
+                }
+
+                var torneos = await _torneosFlujo.ObtenerTorneosParticipandoActivos(id);
+                return Ok(torneos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        [HttpGet("participando-completados")]
+        public async Task<ActionResult> ObtenerTorneosParticipandoCompletados()
+        {
+            try
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Unauthorized("No se pudo identificar al usuario");
+                }
+
+                var torneos = await _torneosFlujo.ObtenerTorneosParticipandoCompletados(id);
+                return Ok(torneos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
     }
+
 }

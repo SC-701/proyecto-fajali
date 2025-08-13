@@ -1,5 +1,8 @@
 ﻿import { useState, useEffect } from 'react';
-import { getParticipatingTournaments, getSportName, getStateName } from '../API/Tournament.js';
+import {
+    getParticipatingActiveTournaments,
+    getParticipatingCompletedTournaments
+} from '../API/Tournament.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentCard from '../components/Tournament/TournamentCard.jsx';
@@ -29,33 +32,18 @@ const Participando = () => {
         setLoading(true);
         setError(null);
         try {
+            let result;
             if (activeTab === 'participando') {
-                // Obtener torneos activos (estados 0-3)
-                const results = await Promise.all([
-                    getParticipatingTournaments(0), // Por iniciar
-                    getParticipatingTournaments(1), // Cuartos
-                    getParticipatingTournaments(2), // Semis  
-                    getParticipatingTournaments(3)  // Final
-                ]);
-
-                const allTournaments = [];
-                results.forEach(result => {
-                    if (result.success && result.data) {
-                        allTournaments.push(...result.data);
-                    }
-                });
-
-                setTournaments(allTournaments.sort((a, b) =>
-                    new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
-                ));
+                result = await getParticipatingActiveTournaments();
             } else {
-                // Obtener torneos completados (estado 4)
-                const completedResult = await getParticipatingTournaments(4);
-                const completed = completedResult.success ? (completedResult.data || []) : [];
+                result = await getParticipatingCompletedTournaments();
+            }
 
-                setTournaments(completed.sort((a, b) =>
-                    new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
-                ));
+            if (result.success) {
+                setTournaments(result.data || []);
+            } else {
+                setError(result.error || "Error al cargar los torneos");
+                setTournaments([]);
             }
         } catch (error) {
             console.error("Error loading tournaments:", error);
