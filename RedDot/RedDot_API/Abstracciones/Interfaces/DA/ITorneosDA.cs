@@ -20,6 +20,8 @@ namespace Abstracciones.Interfaces.DA
         Task<bool> ActualizarMatch(MatchChangeRequest matchStatus);
         Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo);
         Task<RespuestaListaTorneos> TorneosActivos();
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoActivos(string idUsuario);
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoCompletados(string idUsuario);
 
     }
 }

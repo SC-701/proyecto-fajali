@@ -23,5 +23,8 @@ namespace Abstracciones.Interfaces.Flujo
         Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0);
         Task<RespuestaListaTorneos> TorneosActivos();
 
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoActivos(string idUsuario);
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoCompletados(string idUsuario);
+
     }
 }
