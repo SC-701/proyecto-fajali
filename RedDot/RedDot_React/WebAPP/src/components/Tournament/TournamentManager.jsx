@@ -1,10 +1,8 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
     getMyTournaments,
     getAllTournaments,
-    
     getSportName,
-    getStateName,
     accessTournamentWithKey
 } from '../../API/Tournament.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -12,7 +10,7 @@ import LoadingSpinner from '../UI/LoadingSpinner.jsx';
 import CreateTournamentModal from './CreateTournamentModal.jsx';
 import AccessKeyModal from './AccessKeyModal.jsx';
 import TournamentCard from './TournamentCard.jsx';
-import './TournamentManager.css';
+import '../../styles/TournamentManager.css';
 
 const TournamentManager = ({ onTournamentSelect }) => {
     const [activeTab, setActiveTab] = useState('all');
@@ -141,9 +139,10 @@ const TournamentManager = ({ onTournamentSelect }) => {
                     >
                         <option value="">Todos</option>
                         <option value={0}>Por Iniciar</option>
-                        <option value={1}>En Progreso</option>
-                        <option value={2}>Terminado</option>
-                        <option value={3}>Cancelado</option>
+                        <option value={1}>Cuartos</option>
+                        <option value={2}>Semifinal</option>
+                        <option value={3}>Final</option>
+                        <option value={4}>Terminado</option>
                     </select>
                 </div>
 
@@ -180,6 +179,7 @@ const TournamentManager = ({ onTournamentSelect }) => {
                                 key={tournament.id}
                                 tournament={tournament}
                                 onSelect={onTournamentSelect}
+                                onJoin={handleAccessWithKey}
                             />
                         ))}
                     </div>

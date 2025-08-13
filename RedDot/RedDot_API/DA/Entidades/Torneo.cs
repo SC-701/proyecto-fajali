@@ -27,7 +27,7 @@ namespace DA.Entidades
 
 
         [BsonElement("cupos_maximos")]
-        public int? CuposMaximos { get; set; }
+        public int CuposMaximos { get; set; }
 
         [BsonElement("estado")]
         public int Estado { get; set; } 
@@ -48,7 +48,7 @@ namespace DA.Entidades
         public string? DescripcionPremio { get; set; }
 
         [BsonElement("participantes")]
-        public List<Equipo>? Participantes { get; set; }
+        public List<ParticipanteTorneo>? Participantes { get; set; }
 
         [BsonElement("categoria")]
         public int Categoria { get; set; }
@@ -59,7 +59,6 @@ namespace DA.Entidades
         [BsonElement("rondas")]
         public Rondas? Rondas { get; set; }
 
-        [BsonElement("Equipos")]
-        public List<Equipo> Equipos { get; set; }
+       
     }
 }

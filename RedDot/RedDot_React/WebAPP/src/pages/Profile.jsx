@@ -14,8 +14,6 @@ const Profile = () => {
         tournamentsJoined: 0,
         tournamentsWon: 0,
         tournaments: []
-
-
     });
 
     const [loading, setLoading] = useState(true);
@@ -24,7 +22,6 @@ const Profile = () => {
 
     useEffect(() => {
         loadProfileData();
-
     }, []);
 
     const loadProfileData = async () => {
@@ -40,7 +37,6 @@ const Profile = () => {
             setLoading(false);
         }
     };
-
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -93,20 +89,20 @@ const Profile = () => {
     }
 
     return (
-        <>
-            <div className="profile-page">
-                <div className="profile-header">
-                    <h1>Mi Perfil</h1>
-                    <p className="profile-subtitle">Gestiona tu información personal y estadísticas</p>
-                </div>
+        <div className="profile-page">
+            <div className="profile-header">
+                <h1>Mi Perfil 👤</h1>
+                <p className="page-subtitle">
+                    Gestiona tu información personal en RedDot.
+                </p>
+            </div>
 
+            <div className="profile-container">
                 <div className="profile-content">
                     <div className="profile-sidebar">
                         <div className="profile-avatar">
                             <div className="avatar-circle">
-                                {
-                                    getInitials(profileData.username)
-                                }
+                                {getInitials(profileData.username)}
                             </div>
                             <h2 className="profile-name">
                                 {profileData.username}
@@ -124,42 +120,18 @@ const Profile = () => {
                                 <span className="stat-label">🥇 Torneos Ganados</span>
                                 <span className="stat-value">{profileData.tournamentsWon}</span>
                             </div>
-
                         </div>
                     </div>
 
                     <div className="profile-main">
-                        <div className="profile-form-header">
-                            <h3>Información Personal</h3>
-                            {!editing ? (
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={() => setEditing(true)}
-                                >
-                                    ✏️ Editar
-                                </button>
-                            ) : (
-                                <div className="edit-actions">
-                                    <button
-                                        className="btn btn-success"
-                                        onClick={handleSaveProfile}
-                                    >
-                                        💾 Guardar
-                                    </button>
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={handleCancelEdit}
-                                    >
-                                        ❌ Cancelar
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        <div className="profile-card">
+                            <div className="card-header-profile">
+                                <h3 className="card-title">Información Personal</h3>
+                            </div>
 
-                        <div className="profile-form">
-                            <div className="form-row">
+                            <div className="form-grid">
                                 <div className="form-group">
-                                    <label>Nombre de Usuario</label>
+                                    <label className="form-label">Nombre de Usuario</label>
                                     <input
                                         type="text"
                                         name="username"
@@ -170,7 +142,7 @@ const Profile = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Correo Electrónico</label>
+                                    <label className="form-label">Correo Electrónico</label>
                                     <input
                                         type="email"
                                         name="email"
@@ -180,45 +152,50 @@ const Profile = () => {
                                         className="form-input"
                                     />
                                 </div>
+                                <div className="form-group full-width">
+                                    <label className="form-label">Biografía</label>
+                                    <textarea
+                                        name="description"
+                                        value={editing ? formData.description : profileData.description}
+                                        onChange={handleInputChange}
+                                        disabled={!editing}
+                                        className="form-textarea"
+                                        rows="4"
+                                        placeholder="Cuéntanos algo sobre ti..."
+                                    />
+                                </div>
                             </div>
 
-
-
-                            <div className="form-group">
-                                <label>Biografía</label>
-                                <textarea
-                                    name="description"
-                                    value={editing ? formData.description : profileData.description}
-                                    onChange={handleInputChange}
-                                    disabled={!editing}
-                                    className="form-textarea"
-                                    rows="4"
-                                    placeholder="Cuéntanos algo sobre ti..."
-                                />
+                            <div className="form-actions">
+                                {editing ? (
+                                    <div className="edit-actions">
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={handleSaveProfile}
+                                        >
+                                            💾 Guardar
+                                        </button>
+                                        <button
+                                            className="btn btn-secondary"
+                                            onClick={handleCancelEdit}
+                                        >
+                                            ❌ Cancelar
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => setEditing(true)}
+                                    >
+                                        ✏️ Editar
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="profile-tournaments">
-                    <h3>Torneos Participados</h3>
-                    {profileData.tournaments && profileData.tournaments.length > 0 ? (
-                        <ul className="tournament-list">
-                            {profileData.tournaments.map(tournament => (
-                                <li key={tournament.id} className="tournament-item">
-                                    <h3>{tournament.nombre}</h3>
-                                    <p>{tournament.descripcion}</p>
-                                    <span className="tournament-date">Fecha: {new Date(tournament.fechaCreacion).toLocaleDateString()}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="no-tournaments">No has participado en ningún torneo aún.</p>
-                    )}
-                </div>
             </div>
-
-
-        </>
+        </div>
     );
 };
 

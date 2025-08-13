@@ -10,26 +10,14 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Abstracciones.Modelos
 {
-    public enum CategoriaTorneo
-    {
-        Contacto,
-        Equipo,
-        Raqueta,
-        Otros
-    }
-
-    public enum EstadoTorneo
-    {
-        PorIniciar,
-        EnProgreso,
-        Terminado,
-        Cancelado
-    }
 
     public class Participante
     {
         [BsonElement("idJugador")]
         public string IdJugador { get; set; }
+
+        [BsonElement("nombre")]
+        public string nombre { get; set; }
 
         [BsonElement("puntaje")]
         public int Puntaje { get; set; }
@@ -37,7 +25,6 @@ namespace Abstracciones.Modelos
         [BsonElement("isWinner")]
         public bool IsWinner { get; set; } = false;
     }
-
     public class Partido
     {
         [BsonElement("participantes")]
@@ -46,7 +33,6 @@ namespace Abstracciones.Modelos
         [BsonElement("completado")]
         public bool Completado { get; set; } = false;
     }
-
     public class Rondas
     {
         [BsonElement("cuartos")]
@@ -98,7 +84,6 @@ namespace Abstracciones.Modelos
         public string CreadorId { get; set; }
 
     }
-
     public class SolicitudActualizarPuntaje
     {
         [Required]
@@ -112,23 +97,15 @@ namespace Abstracciones.Modelos
 
         [Required]
         public List<Participante> Participantes { get; set; }
-    }
-
-    public class SolicitudAvanzarRonda
-    {
-        [Required]
-        public string IdTorneo { get; set; }
 
         [Required]
-        public string RondaActual { get; set; }
+        public Partido match { get; set; }
     }
-
     public class SolicitudAccesoConClave
     {
         [Required]
         public string AccessKey { get; set; }
     }
-
     public class RespuestaTorneo
     {
         public string Id { get; set; }
@@ -139,15 +116,17 @@ namespace Abstracciones.Modelos
         public string? Ubicacion { get; set; }
         public string? DescripcionPremio { get; set; }
         public string? AccessKey { get; set; } 
+        public int CuposMaximos { get; set; }
         public int Estado { get; set; }
         public string CreadoPor { get; set; }
+        public DateTime? FechaInicio { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public List<Equipo> Participantes { get; set; } = new();
+        public List<ParticipanteTorneo> Participantes { get; set; } = new();
         public Rondas Rondas { get; set; } = new();
         public bool EsCreador { get; set; }
         public bool TieneAcceso { get; set; }
+        public string Reglas {get; set; }
     }
-
     public class RespuestaListaTorneos
     {
         public List<RespuestaTorneo> Torneos { get; set; } = new List<RespuestaTorneo>();
@@ -156,25 +135,29 @@ namespace Abstracciones.Modelos
         public int TamanoPagina { get; set; }
         public int TotalPaginas { get; set; }
     }
-
     public class SolicitudCambiarEstado
     {
         [Required(ErrorMessage = "El ID del torneo es requerido")]
         public string IdTorneo { get; set; }
 
         [Required(ErrorMessage = "El nuevo estado es requerido")]
-        public EstadoTorneo NuevoEstado { get; set; }
+        public int NuevoEstado { get; set; }
     }
-
-    public class Equipo
+    public class ParticipanteTorneo
     {
-        [BsonId]
-        public string IdJugador { get; set; }
-
-        [Required(ErrorMessage = "El nombre del equipo es obligatorio")]
-        [BsonElement("puntaje")]
-        public int Puntaje { get; set; }
-       
+        public string id { get; set; }
+        public string name { get; set; }
+        public bool isSet { get; set; }
     }
+    public class  MatchChangeRequest
+    {
+        public List<ParticipanteTorneo> participantes { get; set; } 
+        public string matchIndex { get; set; }
+        public Partido match { get; set; }
+        public string tournamentId { get; set; }
+        public string roundName { get; set; }
+
+    }
+
 
 }

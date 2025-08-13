@@ -1,6 +1,5 @@
 import ApiService from '../services/apiService.js';
 
-// UNIFICADO - Todos los torneos son de eliminaci�n directa
 
 export async function getAllTournaments(page = 1, pageSize = 10, state = null, sportType = null) {
     let url = `Torneos/listar?numeroPagina=${page}&tamanoPagina=${pageSize}`;
@@ -12,13 +11,22 @@ export async function getAllTournaments(page = 1, pageSize = 10, state = null, s
 export async function createTournament(tournamentData) {
     return await ApiService.post('Torneos/crear', tournamentData);
 }
+
 export async function getCategorias() {
     return await ApiService.get('Torneos/categorias');
+}
+export async function getActiveTournaments() {
+    return await ApiService.get('Torneos/TorneosActivos');
 }
 
 export async function getMyTournaments(state = null) {
     const params = state !== null ? `?estado=${state}` : '';
     return await ApiService.get(`Torneos/mis-torneos${params}`);
+}
+
+export async function getParticipatingTournaments(state = null) {
+    const params = state !== null ? `?estado=${state}` : '';
+    return await ApiService.get(`Torneos/participando${params}`);
 }
 
 export async function getTournament(id, accessKey = null) {
@@ -30,56 +38,35 @@ export async function updateMatchScore(scoreData) {
     return await ApiService.put('Torneos/puntaje', scoreData);
 }
 
-export async function advanceRound(roundData) {
-    return await ApiService.post('Torneos/avanzar', roundData);
-}
-
 export async function accessTournamentWithKey(accessKey) {
     return await ApiService.post('Torneos/acceder', { accessKey });
 }
 
-export async function deleteTournament(id) {
-    return await ApiService.delete(`Torneos/${id}`);
-}
-
-export async function getLeaderboard(tournamentId) {
-    return await ApiService.get(`Torneos/LeaderBoard/${tournamentId}`);
-}
-
-// Estados y categor�as
-export const TournamentStates = {
-    POR_INICIAR: 0,
-    EN_PROGRESO: 1,
-    TERMINADO: 2,
-    CANCELADO: 3
-};
-
-export const TournamentCategories = {
-    CONTACTO: 0,
-    EQUIPO: 1,
-    RAQUETA: 2,
-    OTROS: 3
-};
-
 export async function getSportName() {
-    
+
     return await ApiService.getWithParams('Torneos/deportes');
-} 
+}
 
 export const getStateName = (state) => {
     const names = ['Por Iniciar', 'En Progreso', 'Terminado', 'Cancelado'];
     return names[state] || 'Desconocido';
 };
-export async function addTournamentParticipants(tournamentId, participantsIds) {
-    return await ApiService.post('Torneos/agregar-participantes', {
-        idTorneo: tournamentId,
-        participantesIds: participantsIds
-    });
-}
 
 export async function changeTournamentStatus(tournamentId, newStatus) {
-    return await ApiService.post('Torneos/cambiar-estado', {
+    return await ApiService.put('Torneos/cambiar-estado', {
         idTorneo: tournamentId,
         nuevoEstado: newStatus
     });
+}
+
+export async function changeMatchStatus (matchStatus) {
+    return await ApiService.put('Torneos/actualizar-match', matchStatus);
+}
+
+export async function getParticipatingActiveTournaments() {
+    return await ApiService.get('Torneos/participando-activos');
+}
+
+export async function getParticipatingCompletedTournaments() {
+    return await ApiService.get('Torneos/participando-completados');
 }

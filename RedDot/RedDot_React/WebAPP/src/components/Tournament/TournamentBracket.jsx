@@ -1,10 +1,11 @@
-﻿import React from 'react';
+﻿import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import BracketMatch from './BracketMatch.jsx';
-import './TournamentBracket.css';
+import '../../styles/TournamentBracket.css';
 
-const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
+const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound, onActivePlayers }) => {
     const { user } = useAuth();
+    const [showModal, setShowModal] = useState(false);
 
     if (!tournament || !tournament.rondas) {
         return (
@@ -17,7 +18,9 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
         );
     }
 
-    const  rondas = tournament.rondas;
+    const activePlayers = onActivePlayers ? onActivePlayers(tournament) : false;
+
+    const rondas = tournament.rondas;
     const isAdmin = tournament.esCreador;
 
     const isRoundComplete = (matches) => {
@@ -29,48 +32,142 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
         return tournament.participantes?.[winnerId] || winnerId;
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) return 'No especificada';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
+    const handleModalClose = () => {
+        setShowModal(false);
+    };
+
     return (
         <div className="bracket-container">
             <div className="bracket-header">
                 <div className="tournament-info">
-                    <h2>{tournament.nombre}</h2>
+                    <hr />
                     <div className="tournament-meta">
-                        <span className="tournament-sport">{tournament.tipoDeporte}</span>
+
+                        <div className='card-header-bracket'>
+                            <h4
+                                onClick={() => setShowModal(true)}
+                                style={{ cursor: 'pointer', color: '#007bff' }}
+                                title="Click para ver detalles del torneo"
+                            >
+                                Detalles del Torneo
+                            </h4>
+                        </div>
                         <span className={`tournament-status status-${tournament.estado}`}>
                             {tournament.estado === 0 && 'Por Iniciar'}
-                            {tournament.estado === 1 && 'En Progreso'}
-                            {tournament.estado === 2 && 'Terminado'}
-                            {tournament.estado === 3 && 'Cancelado'}
+                            {tournament.estado === 1 && 'Cuartos de Final'}
+                            {tournament.estado === 2 && 'Semifinales'}
+                            {tournament.estado === 3 && 'Finales'}
+                            {tournament.estado === 4 && 'Finalizado'}
                         </span>
                     </div>
                 </div>
+                {isAdmin && tournament.estado === 0 && (
+                    <div className="bracket-actions">
 
-                {/* Mostrar ganador si el torneo está terminado */}
-                {tournament.estado === 2 && rondas.ganador && (
-                    <div className="champion-section">
-                        <div className="champion-trophy">
-                            <h3>🏆 CAMPEÓN</h3>
-                            <div className="champion-name">
-                                {getWinnerName(rondas.ganador)}
-                            </div>
-                        </div>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => onAdvanceRound?.('cuartos')}
+                        >
+                            Avanzar a Cuartos de Final
+                        </button>
+
                     </div>
                 )}
+                {isAdmin && isRoundComplete(rondas.cuartos) && tournament.estado === 1 && (
+                    <button
+                        className="btn btn-success btn-sm"
+                        onClick={() => onAdvanceRound?.('semis')}
+                    >
+                        Avanzar a Semifinales
+                    </button>
+                )}
+
+                {isAdmin && isRoundComplete(rondas.semis) && tournament.estado === 2 && (
+                    <button
+                        className="btn btn-success btn-sm"
+                        onClick={() => onAdvanceRound?.('semis')}
+                    >
+                        Avanzar a Finales
+                    </button>
+                )}
+
+                {isAdmin && isRoundComplete(rondas.final) && tournament.estado === 3 && (
+                    <button
+                        className="btn btn-warning btn-sm"
+                        onClick={() => onAdvanceRound?.('final')}
+                    >
+                        Finalizar Torneo
+                    </button>
+                )}
+
+                {
+                    tournament.estado === 4 && rondas.ganador && (
+                        <div className="champion-section">
+                            <div className="champion-trophy">
+                                <h3>🏆 CAMPEÓN</h3>
+                                <div className="champion-name">
+                                    {getWinnerName(rondas.ganador)}
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
             </div>
 
+            {showModal && (
+                <div className="modal-overlay" onClick={handleModalClose}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Detalles del Torneo</h2>
+                            <button
+                                className="modal-close"
+                                onClick={handleModalClose}
+                                aria-label="Cerrar modal"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="detail-section">
+                                <h3>📋 Descripción</h3>
+                                <p>{tournament.descripcion || 'Sin descripción disponible'}</p>
+                            </div>
+
+                            <div className="detail-section">
+                                <h3>📜 Reglas</h3>
+                                <p>{tournament.reglas || 'Sin reglas específicas'}</p>
+                            </div>
+
+                            <div className="detail-section">
+                                <h3>📅 Fecha de Inicio</h3>
+                                <p>{formatDate(tournament.fechaCreacion)}</p>
+                            </div>
+
+                            <div className="detail-section">
+                                <h3>🏆 Premio</h3>
+                                <p>{tournament.descripcionPremio || 'Sin premio especificado'}</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
             <div className="bracket-grid">
-                {/* Cuartos de Final */}
                 <div className="bracket-round">
                     <div className="round-header">
                         <h3>Cuartos de Final</h3>
-                        {isAdmin && isRoundComplete(rondas.cuartos) && tournament.estado === 1 && (
-                            <button
-                                className="btn btn-success btn-sm"
-                                onClick={() => onAdvanceRound?.('cuartos')}
-                            >
-                                Avanzar a Semifinales
-                            </button>
-                        )}
+
                     </div>
                     <div className="round-matches">
                         {rondas.cuartos?.map((match, index) => (
@@ -79,9 +176,10 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                                 match={match}
                                 matchIndex={index}
                                 round="cuartos"
+                                matchState={tournament.estado}
                                 roundName="Cuartos de Final"
                                 isAdmin={isAdmin}
-                                canEdit={tournament.estado === 0}
+                                canEdit={activePlayers || tournament.estado === 1}
                                 onMatchClick={(matchData) => onMatchClick?.({
                                     ...matchData,
                                     round: 'cuartos',
@@ -92,7 +190,6 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                     </div>
                 </div>
 
-                {/* Semifinales */}
                 <div className="bracket-round">
                     <div className="round-header">
                         <h3>Semifinales</h3>
@@ -112,9 +209,10 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                                 match={match}
                                 matchIndex={index}
                                 round="semis"
+                                matchState={tournament.estado}
                                 roundName="Semifinales"
                                 isAdmin={isAdmin}
-                                canEdit={tournament.estado === 1}
+                                canEdit={activePlayers || tournament.estado === 2}
                                 onMatchClick={(matchData) => onMatchClick?.({
                                     ...matchData,
                                     round: 'semis',
@@ -125,18 +223,10 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                     </div>
                 </div>
 
-                {/* Final */}
                 <div className="bracket-round">
                     <div className="round-header">
                         <h3>Final</h3>
-                        {isAdmin && isRoundComplete(rondas.final) && tournament.estado === 1 && (
-                            <button
-                                className="btn btn-warning btn-sm"
-                                onClick={() => onAdvanceRound?.('final')}
-                            >
-                                Finalizar Torneo
-                            </button>
-                        )}
+
                     </div>
                     <div className="round-matches">
                         {rondas.final?.map((match, index) => (
@@ -145,9 +235,10 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                                 match={match}
                                 matchIndex={index}
                                 round="final"
+                                matchState={tournament.estado}
                                 roundName="Final"
                                 isAdmin={isAdmin}
-                                canEdit={tournament.estado === 1}
+                                canEdit={activePlayers || tournament.estado === 3}
                                 onMatchClick={(matchData) => onMatchClick?.({
                                     ...matchData,
                                     round: 'final',
@@ -159,7 +250,6 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                 </div>
             </div>
 
-            {/* Información adicional */}
             <div className="bracket-footer">
                 <div className="bracket-legend">
                     <div className="legend-item">

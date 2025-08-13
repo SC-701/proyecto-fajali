@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 "use client"
 
 import { useState } from "react"
@@ -14,10 +13,10 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    
+
   })
-  
-   const navigate = useNavigate()
+
+  const navigate = useNavigate()
 
 
   const [showPassword, setShowPassword] = useState(false)
@@ -37,46 +36,46 @@ const Register = () => {
       alert("Las contraseñas no coinciden")
       return
     }
-      try {
-          const { success, error } = await registerUser(
+    try {
+      const { success, error } = await registerUser(
 
-              formData["username"],
-              formData["password"],
-              formData["email"]
+        formData["username"],
+        formData["password"],
+        formData["email"]
 
-          );
-          if (!success) {
-              Swal.fire({
-                  icon: "error",
-                  title: error[0].title || "Error",
-                  text: error[0].errorData,
-                  confirmButtonColor: "#d33",
-              })
-              return
-          } else {
-              Swal.fire({
-                  icon: "success",
-                  title: "Registro",
-                  text: "Registro de usuario exitoso",
-                  timer: 1500,
-                  showConfirmButton: false,
-              }).then(() => {
-                 navigate("/")
-              })
-          }
-
-
-
-
-      } catch (error) {
-          Swal.fire({
-              icon: "error",
-              title: "Error del servidor",
-              text: error,
-              confirmButtonColor: "#d33",
-          })
-
+      );
+      if (!success) {
+        Swal.fire({
+          icon: "error",
+          title: error[0].title || "Error",
+          text: error[0].errorData,
+          confirmButtonColor: "#d33",
+        })
+        return
+      } else {
+        Swal.fire({
+          icon: "success",
+          title: "Registro",
+          text: "Registro de usuario exitoso",
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          navigate("/")
+        })
       }
+
+
+
+
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error del servidor",
+        text: error,
+        confirmButtonColor: "#d33",
+      })
+
+    }
   }
 
   return (
@@ -90,23 +89,23 @@ const Register = () => {
         <form className="register-form" onSubmit={handleSubmit}>
           <h2 className="form-title">Crear Cuenta</h2>
 
-          
-            <div className="form-group">
-              <label htmlFor="firstName" className="form-label">
-                Usuario
-              </label>
-              <input
-                type="text"
-                id="username"
-                          name="username"
-                className="form-input"
-                placeholder="Usuario"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-              />
-                      </div>
-           
+
+          <div className="form-group">
+            <label htmlFor="firstName" className="form-label">
+              Usuario
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              className="form-input"
+              placeholder="Usuario"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
 
           <div className="form-group">
             <label htmlFor="email" className="form-label">
@@ -124,9 +123,9 @@ const Register = () => {
             />
           </div>
 
-          
 
-          
+
+
 
           <div className="form-row">
             <div className="form-group">
@@ -192,7 +191,7 @@ const Register = () => {
           <div className="form-footer">
             <p>
               ¿Ya tienes cuenta?{" "}
-                          <Link to="/" className="login-link">Inicia Sesión Aqui</Link>
+              <Link to="/" className="login-link">Inicia Sesión Aqui</Link>
             </p>
           </div>
         </form>

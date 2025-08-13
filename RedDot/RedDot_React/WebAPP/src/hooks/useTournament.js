@@ -7,18 +7,33 @@ export const useTournament = (tournamentId, accessKey = null) => {
     const [error, setError] = useState(null);
 
     const refreshTournament = async () => {
-        if (!tournamentId) return;
+        if (!tournamentId) {
+            setLoading(false);
+            return;
+        }
 
         setLoading(true);
+        setError(null);
+
         try {
-            const result = await getTournament(tournamentId, accessKey);
+            let result;
+
+
+            if (accessKey === null) {
+                result = await getTournament(tournamentId);
+            } else {
+                result = await getTournament(tournamentId, accessKey);
+            }
+
             if (result.success) {
                 setTournament(result.data);
                 setError(null);
             } else {
+                setTournament(null);
                 setError(result.error || 'Error al cargar el torneo');
             }
         } catch (err) {
+            setTournament(null);
             setError(err.message || 'Error inesperado');
         } finally {
             setLoading(false);

@@ -1,7 +1,6 @@
 ﻿using Abstracciones.Interfaces.API;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
-using DA.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -11,17 +10,16 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
+
     public class TorneosController : ControllerBase, ITorneosController
     {
         private readonly ITorneosFlujo _torneosFlujo;
-        private readonly IUsuariosFlujo _usuariosFlujo;
         private readonly ICategoriasFlujo _categoriasFlujo;
 
-        public TorneosController(ITorneosFlujo torneosFlujo, IUsuariosFlujo usuariosFlujo, ICategoriasFlujo categoriasFlujo)
+        public TorneosController(ITorneosFlujo torneosFlujo, ICategoriasFlujo categoriasFlujo)
         {
             _torneosFlujo = torneosFlujo;
-            _usuariosFlujo = usuariosFlujo;
             _categoriasFlujo = categoriasFlujo;
         }
 
@@ -53,15 +51,7 @@ namespace API.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
-        public class SolicitudAgregarParticipantes
-        {
-            [Required(ErrorMessage = "El ID del torneo es requerido")]
-            public string IdTorneo { get; set; }
-
-            [Required(ErrorMessage = "La lista de participantes es requerida")]
-            public List<string> ParticipantesIds { get; set; } = new();
-        }
-
+        
         [HttpPut("puntaje")]
         public async Task<ActionResult> ActualizarPuntaje([FromBody] SolicitudActualizarPuntaje solicitud)
         {
@@ -86,45 +76,6 @@ namespace API.Controllers
                 }
 
                 return Ok(new { Mensaje = "Puntaje actualizado exitosamente" });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
-        }
-
-        [HttpPost("avanzar")]
-        public async Task<ActionResult> AvanzarRonda([FromBody] SolicitudAvanzarRonda solicitud)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(id))
-                {
-                    return Unauthorized("No se pudo identificar al usuario");
-                }
-
-                var resultado = await _torneosFlujo.AvanzarRonda(solicitud, id);
-
-                if (!resultado)
-                {
-                    return BadRequest("No se pudo avanzar de ronda");
-                }
-
-                return Ok(new { Mensaje = "Ronda avanzada exitosamente" });
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -170,13 +121,14 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
-                if (string.IsNullOrEmpty(nombreUsuario))
+                var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(usuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
                 }
 
-                var torneo = await _torneosFlujo.AccederTorneoConClave(solicitud.AccessKey, nombreUsuario);
+                var torneo = await _torneosFlujo.AccederTorneoConClave(solicitud.AccessKey, usuario);
 
                 if (torneo == null)
                 {
@@ -240,42 +192,9 @@ namespace API.Controllers
             }
         }
 
-        [HttpDelete("{idTorneo}")]
-        public async Task<ActionResult> EliminarTorneo(string idTorneo)
-        {
-            try
-            {
-                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(nombreUsuario))
-                {
-                    return Unauthorized("No se pudo identificar al usuario");
-                }
+        
 
-                var resultado = await _torneosFlujo.EliminarTorneo(idTorneo, nombreUsuario);
-
-                if (!resultado)
-                {
-                    return BadRequest("No se pudo eliminar el torneo");
-                }
-
-                return Ok(new { Mensaje = "Torneo eliminado exitosamente" });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
-        }
-
-
-        [HttpPatch("cambiar-estado")]
+        [HttpPut("cambiar-estado")]
         public async Task<ActionResult> CambiarEstadoTorneo([FromBody] SolicitudCambiarEstado solicitud)
         {
             try
@@ -285,7 +204,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; 
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -314,25 +233,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("obtener/{idTorneo}")]
-        public async Task<ActionResult> ObtenerTorneoPorId(string idTorneo)
-        {
-            try
-            {
-                var torneo = await _torneosFlujo.ObtenerTorneoPorId(idTorneo);
-
-                if (torneo == null)
-                {
-                    return NotFound("Torneo no encontrado");
-                }
-
-                return Ok(torneo);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
-        }
+     
         [HttpGet("categorias")]
 
         public async Task<ActionResult> ObtenerCategorias()
@@ -347,6 +248,25 @@ namespace API.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
+        [HttpGet("participando")]
+        public async Task<ActionResult> ObtenerTorneosParticipando([FromQuery] int estado = 0)
+        {
+            try
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Unauthorized("No se pudo identificar al usuario");
+                }
+
+                var torneos = await _torneosFlujo.ObtenerTorneosParticipando(id, estado);
+                return Ok(torneos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
 
         [HttpGet("deportes")]
         public async Task<ActionResult> ObtenerDeportes()
@@ -355,27 +275,65 @@ namespace API.Controllers
             var deportes = await _categoriasFlujo.ObtenerDeportes();
             return Ok(deportes);
         }
-        [HttpPatch("agregar-participantes/{idTorneo}/{numeroPartido}")]
-        public async Task<ActionResult> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase)
+     
+        [HttpPut("actualizar-match")]
+        public async Task<ActionResult> ActualizarMatch(MatchChangeRequest matchStatus)
         {
-            var resultado = await _torneosFlujo.AgregarJugadorATorneo(idTorneo, numeroPartido, equipo, fase);
-            return Ok($"Jugador {equipo.IdJugador} agregado");
-        }
-        [HttpPatch("calificar-jugador/{idTorneo}/{idJugador}")]
-        public async Task<ActionResult> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion)
-        {
-            var resultado = await _torneosFlujo.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
+            var resultado = await _torneosFlujo.ActualizarMatch(matchStatus);
             if (resultado)
             {
-                return Ok($"Calificacion de jugador {idJugador} modificada");
+                return Ok($"Match {matchStatus.matchIndex} actualizado exitosamente");
             }
             else
             {
-                throw new Exception("No se pudo modificar la puntuación del participante");
+                throw new Exception("No se pudo actualizar el match");
             }
+        }
+        [HttpGet("TorneosActivos")]
+        public async Task<ActionResult> TorneosActivos()
+        {
+            var resultado = await _torneosFlujo.TorneosActivos();
+            return Ok(resultado);
+        }
+        [HttpGet("participando-activos")]
+        public async Task<ActionResult> ObtenerTorneosParticipandoActivos()
+        {
+            try
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Unauthorized("No se pudo identificar al usuario");
+                }
 
+                var torneos = await _torneosFlujo.ObtenerTorneosParticipandoActivos(id);
+                return Ok(torneos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        [HttpGet("participando-completados")]
+        public async Task<ActionResult> ObtenerTorneosParticipandoCompletados()
+        {
+            try
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Unauthorized("No se pudo identificar al usuario");
+                }
+
+                var torneos = await _torneosFlujo.ObtenerTorneosParticipandoCompletados(id);
+                return Ok(torneos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
     }
+
 }
-
-

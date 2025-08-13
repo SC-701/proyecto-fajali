@@ -1,17 +1,12 @@
-﻿import React, { useState, useEffect } from 'react';
-import { createTournament, TournamentCategories, getCategorias } from '../../API/Tournament.js';
+﻿import { useState, useEffect } from 'react';
+import { createTournament, getCategorias } from '../../API/Tournament.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Modal from '../UI/Modal.jsx';
-import './CreateTournamentModal.css';
+import '../../styles/CreateTournamentModal.css';
 
-const SPORTS_MAPPING = {
-    0: ['Boxeo', 'Karate', 'MMA', 'Taekwondo', 'Judo'], // Contacto
-    1: ['Fútbol', 'Baloncesto', 'Voleibol', 'Rugby', 'Hockey'], // Equipo
-    2: ['Tennis', 'Badminton', 'Squash', 'Paddle', 'Ping Pong'], // Raqueta
-    3: ['Ajedrez', 'Natación', 'Atletismo', 'Golf', 'Ciclismo'] // Otros
-};
+
 
 const CreateTournamentModal = ({ onClose, onSuccess }) => {
     const { user } = useAuth();
@@ -23,7 +18,6 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
         tipoDeporte: '',
         ubicacion: '',
         descripcionPremio: '',
-
         reglas: '',
         creadorId: user,
         cupos: 0,
@@ -37,16 +31,7 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
     const [validationErrors, setValidationErrors] = useState({});
     const [deportesDisponibles, setDeportesDisponibles] = useState([]);
 
-    // Actualizar deportes disponibles cuando cambia la categoría
-    useEffect(() => {
-        setDeportesDisponibles(SPORTS_MAPPING[formData.categoria] || []);
-        // Resetear el tipo de deporte si no está en la nueva lista
-        if (!SPORTS_MAPPING[formData.categoria]?.includes(formData.tipoDeporte)) {
-            setFormData(prev => ({ ...prev, tipoDeporte: '' }));
-        }
-    }, [formData.categoria]);
 
-   
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -85,7 +70,7 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'categoria' || name === 'cupos'? parseInt(value) : value
+            [name]: name === 'categoria' || name === 'cupos' ? parseInt(value) : value
         }));
 
         if (validationErrors[name]) {
@@ -238,7 +223,7 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
 
                         >
                             <option value="">Seleccione un deporte</option>
-                            {deportes.map(deporte=> (
+                            {deportes.map(deporte => (
                                 <option key={deporte.nombre} value={deporte.nombre}>
                                     {deporte.nombre}
                                 </option>
@@ -273,7 +258,7 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                             placeholder="Descripción del premio"
                         />
                     </div>
-                   
+
                 </div>
                 <div className="form-row">
                     <div className="form-group">
@@ -299,12 +284,11 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                             className={validationErrors.cupos ? 'input-error' : ''}
                         >
                             <option value="">Seleccione los cupos</option>
-                            <option value="4">4</option>
                             <option value="8">8</option>
                         </select>
                         {validationErrors.cupos && <div className="error-message">{validationErrors.cupos}</div>}
                     </div>
-                    </div>
+                </div>
 
                 <div className="info-alert">
                     Los participantes se agregarán después de crear el torneo.

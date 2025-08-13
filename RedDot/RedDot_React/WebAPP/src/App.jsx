@@ -1,6 +1,6 @@
 ﻿import './styles/app.css'
-import './components/UI/Modal.css'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import './styles/Modal.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/common/ProtectedRoute.jsx'
 import Layout from './components/layout/Layout.jsx'
@@ -8,8 +8,8 @@ import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Tournaments from './pages/Tournaments.jsx'
+import Participando from './pages/Participando.jsx'
 import Profile from './pages/Profile.jsx'
-import TournamentParticipants from './components/Tournament/TournamentParticipants.jsx'
 
 function App() {
     document.body.style.backgroundColor = '#111827';
@@ -21,11 +21,9 @@ function App() {
         <AuthProvider>
             <Router>
                 <Routes>
-                    {/* Public Routes */}
+                
                     <Route path="/" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-
-                    {/* Protected Routes */}
                     <Route path="/dashboard" element={
                         <ProtectedRoute>
                             <Layout>
@@ -33,7 +31,6 @@ function App() {
                             </Layout>
                         </ProtectedRoute>
                     } />
-
                     <Route path="/tournaments" element={
                         <ProtectedRoute>
                             <Layout>
@@ -41,14 +38,15 @@ function App() {
                             </Layout>
                         </ProtectedRoute>
                     } />
-
-                    <Route path="/torneos/:id/participantes" element={
+                    <Route path="/participando" element={
                         <ProtectedRoute>
                             <Layout>
-                                <TournamentParticipants />
+                                <Participando />
                             </Layout>
                         </ProtectedRoute>
                     } />
+
+                    
 
                     <Route path="/profile" element={
                         <ProtectedRoute>

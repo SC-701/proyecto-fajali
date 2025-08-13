@@ -6,6 +6,13 @@
     overflow-x: auto;
 }
 
+.bracket-container-compact {
+    padding: 0;
+    background-color: #111827;
+    color: #f9fafb;
+    overflow-x: auto;
+}
+
 .bracket-header {
     margin-bottom: 2rem;
     text-align: center;
@@ -13,7 +20,7 @@
 }
 
 .tournament-info h2 {
-    color: #dc2626;
+    color: #f9fafb;
     font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 1rem 0;
@@ -25,7 +32,15 @@
     justify-content: center;
     gap: 1rem;
     flex-wrap: wrap;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
+    margin-top: 3%;
+}
+
+.card-header-bracket {
+    background: rgba(55, 65, 81, 0.8);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .tournament-sport {
@@ -35,6 +50,7 @@
     border-radius: 20px;
     font-weight: 500;
     font-size: 0.9rem;
+    text-transform: uppercase;
 }
 
 .tournament-status {
@@ -65,9 +81,9 @@
         color: #ef4444;
     }
 
-/* Sección del campeón */
+/* Secciï¿½n del campeï¿½n */
 .champion-section {
-    margin: 2rem 0;
+    margin: 1rem 0 2rem 0;
     display: flex;
     justify-content: center;
 }
@@ -114,7 +130,7 @@
     justify-content: center;
     align-items: flex-start;
     min-height: 600px;
-    padding: 2rem 0;
+    padding: 1rem 0;
 }
 
 /* Rondas del bracket */
@@ -219,7 +235,7 @@
     }
 
     .legend-color.pending {
-        background-color: #6b7280;
+        background-color: #8b5cf6;
     }
 
     .legend-color.editable {
@@ -273,6 +289,10 @@
         padding: 1rem;
     }
 
+    .bracket-container-compact {
+        padding: 0;
+    }
+
     .tournament-info h2 {
         font-size: 2rem;
     }
@@ -292,6 +312,10 @@
     .bracket-footer {
         flex-direction: column;
         text-align: center;
+    }
+
+    .bracket-grid {
+        padding: 0.5rem 0;
     }
 }
 

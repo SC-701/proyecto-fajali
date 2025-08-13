@@ -28,18 +28,6 @@ namespace Flujo.Usuarios
             return resultado;
         }
 
-        public Task<bool> EliminarUsuarioEnTorneo(RespuestaTorneo torneo, string idUsuario)
-        {
-          var resultado = _usuariosDA.EliminarUsuarioEnTorneo(torneo, idUsuario);
-            return resultado;
-        }
-
-        public Task<bool> InscribirUsuarioTorneo(RespuestaTorneo torneo, string IdUsuario)
-        {
-            var resultado = _usuariosDA.InscribirUsuarioTorneo(torneo, IdUsuario);
-            return resultado;
-        }
-
         public async Task<TokenDTO> Login(UserBase usuario)
         {
             var resultado =  await _usuariosDA.Login(usuario);
@@ -61,5 +49,12 @@ namespace Flujo.Usuarios
             var resultado = await _usuariosDA.Register(usuario);
             return resultado;
         }
+
+        public Task<List<UserResponse>> ListarUsuarios()
+        {
+            var resultado = _usuariosDA.ListarUsuarios();
+            return resultado;
+        }
+
     }
 }

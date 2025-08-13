@@ -9,7 +9,6 @@ export async function updateUserProfile(profileData) {
 }
 
 export async function searchUsers(searchTerm) {
-    // Por ahora retorna datos mock hasta queeste en el endpoint en la API
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve({
@@ -26,4 +25,8 @@ export async function searchUsers(searchTerm) {
 
 export async function getDashboardStats() {
     return await ApiService.get('Dashboard/stats');
+}
+
+export async function getUsers() {
+    return await ApiService.get('Usuarios/ListarUsuarios');
 }

@@ -1,13 +1,18 @@
-﻿import React from 'react';
-import '../../styles/TournamentCard.css';
+﻿import '../../styles/TournamentCard.css';
+import AccessKeyModal from './AccessKeyModal.jsx';
+import { useState } from 'react';
+import { accessTournamentWithKey } from '../../API/Tournament.js';
 
-const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
+const TournamentCard = ({ tournament, onSelect, OnJoin, onLeave, user, isParticipating = false }) => {
+    const [showAccessModal, setShowAccessModal] = useState(false);
+
     const getStatusColor = (estado) => {
         const colors = {
             0: 'status-pending',
             1: 'status-active',
-            2: 'status-finished',
-            3: 'status-cancelled'
+            2: 'status-active',
+            3: 'status-active',
+            4: 'status-finished'
         };
         return colors[estado] || 'status-pending';
     };
@@ -15,19 +20,34 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
     const getStatusText = (estado) => {
         const texts = {
             0: 'Por Iniciar',
-            1: 'En Progreso',
-            2: 'Terminado',
-            3: 'Cancelado'
+            1: 'Cuartos de Final',
+            2: 'Semifinales',
+            3: 'Finales',
+            4: 'Finalizado'
         };
         return texts[estado] || 'Desconocido';
     };
 
-    const formatDate = (dateString) => { 
+    const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'short',
             year: 'numeric'
         });
+    };
+
+    const handleAccessWithKey = async (accessKeyValue) => {
+        try {
+            const result = await accessTournamentWithKey(accessKeyValue);
+            if (result.success) {
+                onSelect(result.data);
+                return true;
+            } else {
+                throw new Error(result.error || 'Clave de acceso inválida');
+            }
+        } catch (error) {
+            throw error;
+        }
     };
 
     return (
@@ -69,6 +89,13 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
                         <code className="access-key">{tournament.accessKey}</code>
                     </div>
                 )}
+                {/* Mostrar ganador si el torneo está finalizado */}
+                {tournament.estado === 4 && tournament.rondas?.ganador && (
+                    <div className="detail-item">
+                        <span className="detail-label">Ganador:</span>
+                        <span className="detail-value">🏆 {tournament.rondas.ganador}</span>
+                    </div>
+                )}
             </div>
 
             <div className="tournament-description">
@@ -82,6 +109,16 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
                 >
                     {tournament.esCreador ? 'Gestionar' : 'Ver Detalles'}
                 </button>
+
+                {/* Solo mostrar botón "Unirse" si NO está participando y el torneo está por iniciar */}
+                {tournament.estado === 0 && !tournament.esCreador && !isParticipating && (
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => setShowAccessModal(true)}
+                    >
+                        Unirse
+                    </button>
+                )}
 
                 {tournament.accessKey && tournament.esCreador && (
                     <button
@@ -103,6 +140,13 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
                     </button>
                 )}
             </div>
+
+            {showAccessModal && (
+                <AccessKeyModal
+                    onClose={() => setShowAccessModal(false)}
+                    onSuccess={handleAccessWithKey}
+                />
+            )}
         </div>
     );
 };
