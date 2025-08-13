@@ -1,4 +1,3 @@
-
 # <img src="https://github.com/user-attachments/assets/9db2d349-dff6-4051-bae8-57f2127652f7" alt="RedDot Logo" width="60"/> **RedDot**  
 ### Sistema de Torneos
 
