@@ -121,14 +121,14 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                if (string.IsNullOrEmpty(nombreUsuario))
+                if (string.IsNullOrEmpty(usuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
                 }
 
-                var torneo = await _torneosFlujo.AccederTorneoConClave(solicitud.AccessKey, nombreUsuario);
+                var torneo = await _torneosFlujo.AccederTorneoConClave(solicitud.AccessKey, usuario);
 
                 if (torneo == null)
                 {
