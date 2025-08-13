@@ -139,9 +139,10 @@ const TournamentManager = ({ onTournamentSelect }) => {
                     >
                         <option value="">Todos</option>
                         <option value={0}>Por Iniciar</option>
-                        <option value={1}>En Progreso</option>
-                        <option value={2}>Terminado</option>
-                        <option value={3}>Cancelado</option>
+                        <option value={1}>Cuartos</option>
+                        <option value={2}>Semifinal</option>
+                        <option value={3}>Final</option>
+                        <option value={4}>Terminado</option>
                     </select>
                 </div>
 
