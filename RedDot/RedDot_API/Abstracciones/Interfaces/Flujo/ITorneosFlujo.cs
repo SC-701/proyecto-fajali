@@ -13,6 +13,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<RespuestaTorneo> CrearTorneo(SolicitudCrearTorneo solicitud);
         Task<bool> ActualizarPuntajePartido(SolicitudActualizarPuntaje solicitud, string nombreUsuario);
         Task<bool> AvanzarRonda(SolicitudAvanzarRonda solicitud, string nombreUsuario);
+        Task<bool> AvanzarRondaManual(SolicitudAvanzarRondaManual solicitud, string nombreUsuario);
         Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, int estado = 0);
         Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario);
         Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo, string nombreUsuario, string? accessKey = null);

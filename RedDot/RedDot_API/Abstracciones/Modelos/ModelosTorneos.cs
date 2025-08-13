@@ -115,6 +115,9 @@ namespace Abstracciones.Modelos
 
         [Required]
         public List<Participante> Participantes { get; set; }
+
+        [Required]
+        public Partido match { get; set; }
     }
 
     public class SolicitudAvanzarRonda
@@ -124,6 +127,18 @@ namespace Abstracciones.Modelos
 
         [Required]
         public string RondaActual { get; set; }
+    }
+
+    public class SolicitudAvanzarRondaManual
+    {
+        [Required]
+        public string IdTorneo { get; set; }
+
+        [Required]
+        public string RondaActual { get; set; }
+
+        [Required]
+        public List<string> GanadoresSeleccionados { get; set; } = new();
     }
 
     public class SolicitudAccesoConClave
@@ -151,6 +166,7 @@ namespace Abstracciones.Modelos
         public Rondas Rondas { get; set; } = new();
         public bool EsCreador { get; set; }
         public bool TieneAcceso { get; set; }
+        public string Reglas {get; set; }
     }
 
     public class RespuestaListaTorneos

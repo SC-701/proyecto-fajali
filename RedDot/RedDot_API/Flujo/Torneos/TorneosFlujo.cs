@@ -22,7 +22,7 @@ namespace Flujo.Torneos
         // MÉTODO PRINCIPAL - Crear Torneo (siempre de eliminación)
         public async Task<RespuestaTorneo> CrearTorneo(SolicitudCrearTorneo solicitud)
         {
-           
+
 
             var idTorneo = await _torneosDA.CrearTorneo(solicitud);
 
@@ -48,31 +48,20 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("Solo el creador del torneo puede actualizar puntajes");
             }
 
-            if (torneo.Estado != 2 && torneo.Estado != 0)
-            {
-                throw new ArgumentException("No se pueden actualizar puntajes en un torneo terminado o cancelado");
-            }
+           
 
-            if (!EsRondaValida(solicitud.Ronda, solicitud.IndicePartido))
-            {
-                throw new ArgumentException("Ronda o índice de partido inválido");
-            }
+            
 
-            if (!ValidarParticipantesPartido(torneo, solicitud.Ronda, solicitud.IndicePartido, solicitud.Participantes))
-            {
-                throw new ArgumentException("Los participantes no corresponden al partido especificado");
-            }
+          
 
-            if (torneo.Estado == 0)
-            {
-                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, 1);
-            }
+           
 
             return await _torneosDA.ActualizarPuntajePartido(
                 solicitud.IdTorneo,
                 solicitud.Ronda,
                 solicitud.IndicePartido,
-                solicitud.Participantes);
+                solicitud.Participantes,
+                solicitud.match);
         }
 
         public async Task<bool> AvanzarRonda(SolicitudAvanzarRonda solicitud, string nombreUsuario)
@@ -139,9 +128,9 @@ namespace Flujo.Torneos
             }
 
             var esCreador = torneo.CreadoPor == nombreUsuario;
-           
 
-            if (!esCreador  )
+
+            if (!esCreador)
             {
                 return torneo;
             }
@@ -265,21 +254,60 @@ namespace Flujo.Torneos
             return await _torneosDA.ObtenerTorneosParticipando(idUsuario, estado);
         }
 
-      
+
 
         public Task<bool> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase)
         {
-            return _torneosDA.AgregarJugadorATorneo(idTorneo, numeroPartido, equipo,fase);
+            return _torneosDA.AgregarJugadorATorneo(idTorneo, numeroPartido, equipo, fase);
         }
 
         public Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion)
         {
-           return _torneosDA.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
+            return _torneosDA.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
         }
 
         public async Task<bool> ActualizarMatch(MatchChangeRequest matchStatus)
         {
-            return await _torneosDA.ActualizarMatch( matchStatus);
+            return await _torneosDA.ActualizarMatch(matchStatus);
+        }
+
+        public async Task<bool> AvanzarRondaManual(SolicitudAvanzarRondaManual solicitud, string nombreUsuario)
+        {
+            var torneo = await _torneosDA.ObtenerTorneoPorId(solicitud.IdTorneo);
+            if (torneo == null)
+            {
+                throw new ArgumentException("El torneo no existe");
+            }
+
+            if (torneo.CreadoPor != nombreUsuario)
+            {
+                throw new UnauthorizedAccessException("Solo el creador del torneo puede avanzar rondas");
+            }
+
+            if (torneo.Estado != 1)
+            {
+                throw new ArgumentException("El torneo debe estar en progreso para avanzar rondas");
+            }
+
+            var ganadoresEsperados = solicitud.RondaActual.ToLower() switch
+            {
+                "cuartos" or "cuartos de final" => 4,
+                "semis" or "semifinales" => 2,
+                "final" => 1,
+                _ => 0
+            };
+
+            if (solicitud.GanadoresSeleccionados.Count != ganadoresEsperados)
+            {
+                throw new ArgumentException($"Se esperaban {ganadoresEsperados} ganadores para {solicitud.RondaActual}");
+            }
+
+            if (solicitud.RondaActual.ToLower() == "final")
+            {
+                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, 3);
+            }
+
+            return await _torneosDA.AvanzarRondaManual(solicitud.IdTorneo, solicitud.RondaActual, solicitud.GanadoresSeleccionados);
         }
 
         public async Task<RespuestaListaTorneos> TorneosActivos()

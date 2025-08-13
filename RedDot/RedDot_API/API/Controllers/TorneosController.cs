@@ -140,6 +140,45 @@ namespace API.Controllers
             }
         }
 
+        [HttpPost("avanzar-manual")]
+        public async Task<ActionResult> AvanzarRondaManual([FromBody] SolicitudAvanzarRondaManual solicitud)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Unauthorized("No se pudo identificar al usuario");
+                }
+
+                var resultado = await _torneosFlujo.AvanzarRondaManual(solicitud, id);
+
+                if (!resultado)
+                {
+                    return BadRequest("No se pudo avanzar de ronda manualmente");
+                }
+
+                return Ok(new { Mensaje = "Ronda avanzada manualmente exitosamente" });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
         [HttpGet("mis-torneos")]
         public async Task<ActionResult> ObtenerMisTorneos([FromQuery] int estado = 0)
         {
@@ -416,5 +455,3 @@ namespace API.Controllers
         }
     }
 }
-
-

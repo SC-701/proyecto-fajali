@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { changeMatchStatus, getTournament } from '../../API/Tournament.js';
+import { changeMatchStatus, getTournament,updateMatchScore } from '../../API/Tournament.js';
 import Modal from '../UI/Modal.jsx';
 
 // Componente para el modal de agregar participantes
@@ -66,7 +66,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
     }
 
     // ESTADOS DEL COMPONENTE - Solo después de validaciones
-    const { match, roundName, matchIndex } = matchData;
+    const { match, round, roundName,matchIndex } = matchData;
     const [bracketMatch, setBracketMatch] = useState(match);
     const [participantesTotales, setParticipantesTotales] = useState([]);
     const [partipantesTorneo, setPartipantesTorneo] = useState([]);
@@ -153,7 +153,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
 
             const result = await changeMatchStatus({
                 participantes: partipantesTorneo
-                , match: bracketMatch, tournamentId: tournamentId, roundName: roundName, matchIndex: matchIndex
+                , match: bracketMatch, tournamentId: tournamentId, roundName: round, matchIndex: matchIndex
             });
             if (result.success) {
                 Swal.fire({
@@ -161,7 +161,7 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                     title: '¡Éxito!',
                     text: 'Participantes agregados correctamente'
                 });
-                    onScoreUpdated();
+                    
                 if (onClose) onClose();
             } else {
                 throw new Error(result.error || 'Error al actualizar los participantes');
@@ -173,6 +173,8 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
                 title: 'Error',
                 text: error.message
             });
+        }finally {
+             onScoreUpdated();
         }
     };
 
@@ -329,24 +331,130 @@ const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose
     );
 };
 
+const ScoreInputModal = ({ matchData, tournamentId, onScoreUpdated, onClose }) => {
+
+const { match, round,roundName, matchIndex } = matchData;
+    const [bracketMatch, setBracketMatch] = useState(match);
+    const [participantesTotales, setParticipantesTotales] = useState([]);
+    const [partipantesTorneo, setPartipantesTorneo] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const handleSubmit = async () => {
+        try {
+
+            if(bracketMatch.participantes[0].puntaje === undefined || bracketMatch.participantes[1].puntaje === undefined){
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Faltan puntajes',
+                    text: 'Debes ingresar los puntajes de ambos participantes'
+                });
+                return;
+            }
+            if (bracketMatch.participantes[0].puntaje === '' || bracketMatch.participantes[1].puntaje === '') {
+                Swal.fire({ 
+                    icon: 'warning',
+                    title: 'Puntajes incompletos',
+                    text: 'Debes ingresar los puntajes de ambos participantes'
+                }); 
+                return;
+            }
+
+            if(bracketMatch.participantes[0].isWinner === bracketMatch.participantes[1].isWinner){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ganadores duplicados',
+                    text: 'Debes seleccionar un ganador diferente para cada participante'
+                });
+                return;
+            }
+            var respuesta = await updateMatchScore({
+                Participantes: partipantesTorneo
+                , match: bracketMatch, IdTorneo: tournamentId, Ronda: round, IndicePartido: matchIndex
+            });
+
+            if (respuesta.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: 'Puntajes actualizados correctamente'
+                });
+                
+                if (onClose) onClose();
+            }
+            else {
+                throw new Error(respuesta.error || 'Error al actualizar los puntajes');
+            }
+
+        } catch (error) {
+            console.error('Error en handleSubmit:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message
+            });
+        } finally {
+            if (onScoreUpdated) onScoreUpdated();
+        }
+    }
+    return (
+        <Modal
+        title={`Ingresar Puntajes - ${roundName} - Partido ${matchIndex + 1}`}
+        isOpen={true}
+        onClose={onClose || (() => { })}
+        onSubmit={handleSubmit}
+        children={
+            <div className="score-input-modal">
+                <h3>Partido {roundName} - Match {matchIndex + 1}</h3>
+                <div className="participants-list">
+                    <span className="participants-title">Puntajes</span>
+                    {bracketMatch.participantes && bracketMatch.participantes.map((participant, index) => (
+                        <div key={index} className="participant-score-input">
+                            <label>{participant.nombre || `Participante ${index + 1}`}</label>
+                            <input
+                                type="text"
+                                value={participant.puntaje || ''}
+                                onChange={(e) => {
+                                    const newScore = e.target.value;
+                                    setBracketMatch(prev => {
+                                        const newParticipants = [...prev.participantes];
+                                        newParticipants[index] = { ...newParticipants[index], puntaje: newScore };
+                                        return { ...prev, participantes: newParticipants };
+                                    });
+                                }}
+                            />
+                            <input
+                                type="checkbox"
+                                checked={participant.isWinner || false}
+                                onChange={(e) => {
+                                    setBracketMatch(prev => {
+                                        const newParticipants = [...prev.participantes];
+                                        newParticipants[index] = { ...newParticipants[index], isWinner: e.target.checked };
+                                        return { ...prev, participantes: newParticipants };
+                                    });
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                <button onClick={handleSubmit} className="btn btn-primary">Guardar Puntajes</button>
+            </div>
+        }
+    />
+    );
+    
+
+}
+
 // Función para mostrar el modal (ahora sin hooks)
-export const showScoreInputModal = ({ matchData, tournamentId, isPlayersSet, OnCloseFuntion, onScoreUpdated }) => {
+export const showScoreInputModal = ({ matchData, tournamentId, isPlayersSet, activePlayers,OnCloseFuntion, onScoreUpdated }) => {
     // Validación de parámetros
     if (!matchData || !tournamentId) {
         console.error('showScoreInputModal: Faltan parámetros requeridos', { matchData, tournamentId });
         return null;
     }
 
-    function changeBracket(matchData) {
-        matchData.match.participantes = matchData.match.participantes.map(participant => {
-            return {
-                ...participant,
-                isSet: false 
-            };
-        });
-        return matchData;
-    }
-
+    
 
 
    
@@ -370,6 +478,17 @@ export const showScoreInputModal = ({ matchData, tournamentId, isPlayersSet, OnC
 
 
     };
+
+    if(activePlayers){
+        return (
+            <ScoreInputModal
+                matchData={matchData}
+                tournamentId={tournamentId}
+                onScoreUpdated={onScoreUpdated}
+                onClose={OnCloseFuntion || (() => { })}
+            />
+        );
+    }
 
     // Aquí puedes agregar la lógica para cuando ya hay jugadores establecidos
     // Por ahora retornamos null o podrías tener otro componente

@@ -125,7 +125,7 @@ const Profile = () => {
 
                     <div className="profile-main">
                         <div className="profile-card">
-                            <div className="card-header">
+                            <div className="card-header-profile">
                                 <h3 className="card-title">Información Personal</h3>
                             </div>
 
