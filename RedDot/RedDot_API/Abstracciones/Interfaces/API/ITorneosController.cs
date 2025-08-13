@@ -16,6 +16,8 @@ namespace Abstracciones.Interfaces.API
         Task<ActionResult> ObtenerDeportes();
         Task<ActionResult> ActualizarMatch(MatchChangeRequest matchStatus);
         Task<ActionResult> TorneosActivos();
-
+        Task<ActionResult> ObtenerTorneosParticipando(int estado = 0);
+        Task<ActionResult> ObtenerTorneosParticipandoActivos();
+        Task<ActionResult> ObtenerTorneosParticipandoCompletados();
     }
 }
