@@ -29,25 +29,31 @@ const Participando = () => {
         setLoading(true);
         setError(null);
         try {
-            let result;
             if (activeTab === 'participando') {
-                const porIniciarResult = await getParticipatingTournaments(0);
-                const enProgresoResult = await getParticipatingTournaments(1);
+                // Obtener torneos activos (estados 0-3)
+                const results = await Promise.all([
+                    getParticipatingTournaments(0), // Por iniciar
+                    getParticipatingTournaments(1), // Cuartos
+                    getParticipatingTournaments(2), // Semis  
+                    getParticipatingTournaments(3)  // Final
+                ]);
 
-                const porIniciar = porIniciarResult.success ? (porIniciarResult.data || []) : [];
-                const enProgreso = enProgresoResult.success ? (enProgresoResult.data || []) : [];
+                const allTournaments = [];
+                results.forEach(result => {
+                    if (result.success && result.data) {
+                        allTournaments.push(...result.data);
+                    }
+                });
 
-                setTournaments([...porIniciar, ...enProgreso].sort((a, b) =>
+                setTournaments(allTournaments.sort((a, b) =>
                     new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
                 ));
             } else {
-                const terminadoResult = await getParticipatingTournaments(2);
-                const canceladoResult = await getParticipatingTournaments(3);
+                // Obtener torneos completados (estado 4)
+                const completedResult = await getParticipatingTournaments(4);
+                const completed = completedResult.success ? (completedResult.data || []) : [];
 
-                const terminado = terminadoResult.success ? (terminadoResult.data || []) : [];
-                const cancelado = canceladoResult.success ? (canceladoResult.data || []) : [];
-
-                setTournaments([...terminado, ...cancelado].sort((a, b) =>
+                setTournaments(completed.sort((a, b) =>
                     new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
                 ));
             }
@@ -73,8 +79,8 @@ const Participando = () => {
 
     const getEmptyMessage = () => {
         return activeTab === 'participando'
-            ? "Aún no estás participando en ningún torneo."
-            : "No hay historial de torneos.";
+            ? "Aún no estás participando en ningún torneo activo."
+            : "No hay historial de torneos completados.";
     };
 
     if (activeView === 'bracket' && selectedTournament) {
@@ -85,7 +91,7 @@ const Participando = () => {
                         className="btn btn-secondary"
                         onClick={handleBackToTournaments}
                     >
-                        ← Volver a Mis Torneos
+                        ← Volver a Participando
                     </button>
                     <h1>🏆 {selectedTournament?.nombre || 'Torneo'}</h1>
                     <p className="page-subtitle">
@@ -103,7 +109,7 @@ const Participando = () => {
                             className="btn btn-primary"
                             onClick={handleBackToTournaments}
                         >
-                            Volver a Mis Torneos
+                            Volver a Participando
                         </button>
                     </div>
                 ) : selectedTournament ? (
@@ -119,7 +125,7 @@ const Participando = () => {
                             className="btn btn-primary"
                             onClick={handleBackToTournaments}
                         >
-                            Volver a Mis Torneos
+                            Volver a Participando
                         </button>
                     </div>
                 )}
@@ -179,6 +185,7 @@ const Participando = () => {
                                 tournament={tournament}
                                 onSelect={handleTournamentSelect}
                                 user={user}
+                                isParticipating={true}
                             />
                         ))}
                     </div>
