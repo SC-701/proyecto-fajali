@@ -1,9 +1,9 @@
 ﻿import '../../styles/TournamentCard.css';
 import AccessKeyModal from './AccessKeyModal.jsx';
 import { useState } from 'react';
-import { accessTournamentWithKey } from '../../API/Tournament.js'; 
+import { accessTournamentWithKey } from '../../API/Tournament.js';
 
-const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
+const TournamentCard = ({ tournament, onSelect, OnJoin, onLeave, user, isParticipating = false }) => {
     const [showAccessModal, setShowAccessModal] = useState(false);
 
     const getStatusColor = (estado) => {
@@ -12,8 +12,7 @@ const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
             1: 'status-active',
             2: 'status-active',
             3: 'status-active',
-            4: 'status-finished',
-            3: 'status-cancelled'
+            4: 'status-finished'
         };
         return colors[estado] || 'status-pending';
     };
@@ -29,7 +28,7 @@ const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
         return texts[estado] || 'Desconocido';
     };
 
-    const formatDate = (dateString) => { 
+    const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'short',
@@ -90,6 +89,13 @@ const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
                         <code className="access-key">{tournament.accessKey}</code>
                     </div>
                 )}
+                {/* Mostrar ganador si el torneo está finalizado */}
+                {tournament.estado === 4 && tournament.rondas?.ganador && (
+                    <div className="detail-item">
+                        <span className="detail-label">Ganador:</span>
+                        <span className="detail-value">🏆 {tournament.rondas.ganador}</span>
+                    </div>
+                )}
             </div>
 
             <div className="tournament-description">
@@ -104,10 +110,11 @@ const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
                     {tournament.esCreador ? 'Gestionar' : 'Ver Detalles'}
                 </button>
 
-                {tournament.estado === 0 && !tournament.esCreador && (
+                {/* Solo mostrar botón "Unirse" si NO está participando y el torneo está por iniciar */}
+                {tournament.estado === 0 && !tournament.esCreador && !isParticipating && (
                     <button
                         className="btn btn-secondary"
-                        onClick={() => setShowAccessModal(true)} 
+                        onClick={() => setShowAccessModal(true)}
                     >
                         Unirse
                     </button>

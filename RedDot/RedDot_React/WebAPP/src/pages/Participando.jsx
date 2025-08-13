@@ -1,5 +1,8 @@
 ﻿import { useState, useEffect } from 'react';
-import { getParticipatingTournaments, getSportName, getStateName } from '../API/Tournament.js';
+import {
+    getParticipatingActiveTournaments,
+    getParticipatingCompletedTournaments
+} from '../API/Tournament.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentCard from '../components/Tournament/TournamentCard.jsx';
@@ -31,25 +34,16 @@ const Participando = () => {
         try {
             let result;
             if (activeTab === 'participando') {
-                const porIniciarResult = await getParticipatingTournaments(0);
-                const enProgresoResult = await getParticipatingTournaments(1);
-
-                const porIniciar = porIniciarResult.success ? (porIniciarResult.data || []) : [];
-                const enProgreso = enProgresoResult.success ? (enProgresoResult.data || []) : [];
-
-                setTournaments([...porIniciar, ...enProgreso].sort((a, b) =>
-                    new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
-                ));
+                result = await getParticipatingActiveTournaments();
             } else {
-                const terminadoResult = await getParticipatingTournaments(2);
-                const canceladoResult = await getParticipatingTournaments(3);
+                result = await getParticipatingCompletedTournaments();
+            }
 
-                const terminado = terminadoResult.success ? (terminadoResult.data || []) : [];
-                const cancelado = canceladoResult.success ? (canceladoResult.data || []) : [];
-
-                setTournaments([...terminado, ...cancelado].sort((a, b) =>
-                    new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
-                ));
+            if (result.success) {
+                setTournaments(result.data || []);
+            } else {
+                setError(result.error || "Error al cargar los torneos");
+                setTournaments([]);
             }
         } catch (error) {
             console.error("Error loading tournaments:", error);
@@ -73,8 +67,8 @@ const Participando = () => {
 
     const getEmptyMessage = () => {
         return activeTab === 'participando'
-            ? "Aún no estás participando en ningún torneo."
-            : "No hay historial de torneos.";
+            ? "Aún no estás participando en ningún torneo activo."
+            : "No hay historial de torneos completados.";
     };
 
     if (activeView === 'bracket' && selectedTournament) {
@@ -85,7 +79,7 @@ const Participando = () => {
                         className="btn btn-secondary"
                         onClick={handleBackToTournaments}
                     >
-                        ← Volver a Mis Torneos
+                        ← Volver a Participando
                     </button>
                     <h1>🏆 {selectedTournament?.nombre || 'Torneo'}</h1>
                     <p className="page-subtitle">
@@ -103,7 +97,7 @@ const Participando = () => {
                             className="btn btn-primary"
                             onClick={handleBackToTournaments}
                         >
-                            Volver a Mis Torneos
+                            Volver a Participando
                         </button>
                     </div>
                 ) : selectedTournament ? (
@@ -119,7 +113,7 @@ const Participando = () => {
                             className="btn btn-primary"
                             onClick={handleBackToTournaments}
                         >
-                            Volver a Mis Torneos
+                            Volver a Participando
                         </button>
                     </div>
                 )}
@@ -179,6 +173,7 @@ const Participando = () => {
                                 tournament={tournament}
                                 onSelect={handleTournamentSelect}
                                 user={user}
+                                isParticipating={true}
                             />
                         ))}
                     </div>

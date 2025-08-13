@@ -284,7 +284,6 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
                             className={validationErrors.cupos ? 'input-error' : ''}
                         >
                             <option value="">Seleccione los cupos</option>
-                            <option value="4">4</option>
                             <option value="8">8</option>
                         </select>
                         {validationErrors.cupos && <div className="error-message">{validationErrors.cupos}</div>}

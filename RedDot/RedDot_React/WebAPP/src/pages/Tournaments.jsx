@@ -162,7 +162,6 @@ const Tournaments = () => {
                         onClick={() => {
                             setActiveView('tournaments');
                             setSelectedTournament(null);
-                            // Limpiar modal si está activo
                             setActiveModal(null);
                             setModalProps(null);
                         }}
@@ -226,11 +225,9 @@ const Tournaments = () => {
         <div className="tournaments-page">
             <div className="tournaments-header">
                 <h1>🏆 Torneos 🏆</h1>
-                <div className="header-actions">
-                    <p className="welcome-text">
-                        Bienvenido, <strong>{user?.username}</strong>
-                    </p>
-                </div>
+                <p className="page-subtitle">
+                    Bienvenido, {user?.username} en esta sección puedes participar y crear tus torneos.
+                </p>
             </div>
 
             <TournamentManager onTournamentSelect={handleTournamentSelect} />

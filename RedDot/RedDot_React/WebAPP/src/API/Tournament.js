@@ -62,3 +62,11 @@ export async function changeTournamentStatus(tournamentId, newStatus) {
 export async function changeMatchStatus (matchStatus) {
     return await ApiService.put('Torneos/actualizar-match', matchStatus);
 }
+
+export async function getParticipatingActiveTournaments() {
+    return await ApiService.get('Torneos/participando-activos');
+}
+
+export async function getParticipatingCompletedTournaments() {
+    return await ApiService.get('Torneos/participando-completados');
+}
