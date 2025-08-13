@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { getAllTournaments } from '../API/Tournament.js';
 import ApiService from '../services/apiService.js';
@@ -25,7 +25,6 @@ const Dashboard = () => {
     const loadDashboardData = async () => {
         setLoading(true);
         try {
-            // Cargar estadísticas generales
             const [tournamentsResult, statsResult] = await Promise.all([
                 getAllTournaments(),
                 ApiService.get('Dashboard/stats')
@@ -44,7 +43,6 @@ const Dashboard = () => {
                     userTournaments: userTournaments.length
                 }));
 
-                // Mostrar torneos más recientes
                 const recent = tournaments
                     .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion))
                     .slice(0, 3);
@@ -58,7 +56,6 @@ const Dashboard = () => {
                 }));
             }
 
-            // Cargar actividad reciente del usuario
             const activityResult = await ApiService.get('Users/activity');
             if (activityResult.success) {
                 setUserActivity(activityResult.data || []);

@@ -1,10 +1,8 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
     getMyTournaments,
     getAllTournaments,
-    
     getSportName,
-    getStateName,
     accessTournamentWithKey
 } from '../../API/Tournament.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -12,7 +10,7 @@ import LoadingSpinner from '../UI/LoadingSpinner.jsx';
 import CreateTournamentModal from './CreateTournamentModal.jsx';
 import AccessKeyModal from './AccessKeyModal.jsx';
 import TournamentCard from './TournamentCard.jsx';
-import './TournamentManager.css';
+import '../../styles/TournamentManager.css';
 
 const TournamentManager = ({ onTournamentSelect }) => {
     const [activeTab, setActiveTab] = useState('all');

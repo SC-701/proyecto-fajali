@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { getParticipatingTournaments, getSportName, getStateName } from '../API/Tournament.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
@@ -77,7 +77,6 @@ const Participando = () => {
             : "No hay historial de torneos.";
     };
 
-    // Vista del bracket del torneo
     if (activeView === 'bracket' && selectedTournament) {
         return (
             <div className="tournaments-page">
@@ -111,7 +110,7 @@ const Participando = () => {
                     <TournamentBracket
                         tournament={selectedTournament}
                         onMatchClick={() => { }}
-                        onAdvanceRound={() => { }} 
+                        onAdvanceRound={() => { }}
                     />
                 ) : (
                     <div className="error-container">
@@ -128,7 +127,6 @@ const Participando = () => {
         );
     }
 
-    // Vista principal de la lista de torneos
     return (
         <div className="tournaments-page">
             <div className="tournaments-header">

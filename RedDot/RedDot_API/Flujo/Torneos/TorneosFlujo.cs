@@ -19,20 +19,18 @@ namespace Flujo.Torneos
             _torneosDA = torneosDA;
         }
 
-        // MÉTODO PRINCIPAL - Crear Torneo (siempre de eliminación)
         public async Task<RespuestaTorneo> CrearTorneo(SolicitudCrearTorneo solicitud)
         {
 
 
-            var idTorneo = await _torneosDA.CrearTorneo(solicitud);
+            var Torneo = await _torneosDA.CrearTorneo(solicitud);
 
-            if (string.IsNullOrEmpty(idTorneo))
+            if (Torneo==null)
             {
                 throw new Exception("Error al crear el torneo en la base de datos");
             }
 
-            var torneoCreado = await _torneosDA.ObtenerTorneoPorId(idTorneo);
-            return torneoCreado ?? throw new Exception("Error al recuperar el torneo creado");
+            return Torneo ?? throw new Exception("Error al recuperar el torneo creado");
         }
 
         public async Task<bool> ActualizarPuntajePartido(SolicitudActualizarPuntaje solicitud, string nombreUsuario)
@@ -62,37 +60,6 @@ namespace Flujo.Torneos
                 solicitud.IndicePartido,
                 solicitud.Participantes,
                 solicitud.match);
-        }
-
-        public async Task<bool> AvanzarRonda(SolicitudAvanzarRonda solicitud, string nombreUsuario)
-        {
-            var torneo = await _torneosDA.ObtenerTorneoPorId(solicitud.IdTorneo);
-            if (torneo == null)
-            {
-                throw new ArgumentException("El torneo no existe");
-            }
-
-            if (torneo.CreadoPor != nombreUsuario)
-            {
-                throw new UnauthorizedAccessException("Solo el creador del torneo puede avanzar rondas");
-            }
-
-            if (torneo.Estado != 1)
-            {
-                throw new ArgumentException("El torneo debe estar en progreso para avanzar rondas");
-            }
-
-            if (!ValidarRondaCompleta(torneo, solicitud.RondaActual))
-            {
-                throw new ArgumentException($"No todos los partidos de {solicitud.RondaActual} están completos");
-            }
-
-            if (solicitud.RondaActual == "final")
-            {
-                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, 3);
-            }
-
-            return await _torneosDA.AvanzarRondaTorneo(solicitud.IdTorneo, solicitud.RondaActual);
         }
 
         public async Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, int estado = 0)
@@ -177,93 +144,9 @@ namespace Flujo.Torneos
             return await _torneosDA.ActualizarEstadoTorneo(idTorneo, estado);
         }
 
-        public async Task<bool> EliminarTorneo(string idTorneo, string nombreUsuario)
-        {
-            var torneo = await _torneosDA.ObtenerTorneoPorId(idTorneo);
-            if (torneo == null)
-            {
-                throw new ArgumentException("El torneo no existe");
-            }
-
-            if (torneo.CreadoPor != nombreUsuario)
-            {
-                throw new UnauthorizedAccessException("No tienes permisos para eliminar este torneo");
-            }
-
-            if (torneo.Estado == 1 || torneo.Estado == 3)
-            {
-                throw new ArgumentException("No se puede eliminar un torneo que ya inició o finalizó");
-            }
-
-            return await _torneosDA.EliminarTorneo(idTorneo);
-        }
-
-
-
-        public async Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo)
-        {
-            return await _torneosDA.ObtenerTorneoPorId(idTorneo);
-        }
-
-        private static bool EsRondaValida(string ronda, int indicePartido)
-        {
-            return ronda switch
-            {
-                "cuartos" => indicePartido >= 0 && indicePartido < 4,
-                "semis" => indicePartido >= 0 && indicePartido < 2,
-                "final" => indicePartido == 0,
-                _ => false
-            };
-        }
-
-        private static bool ValidarParticipantesPartido(RespuestaTorneo torneo, string ronda, int indicePartido, List<Participante> participantes)
-        {
-            if (participantes.Count != 2)
-                return false;
-
-            var partidos = ronda switch
-            {
-                "cuartos" => torneo.Rondas.Cuartos,
-                "semis" => torneo.Rondas.Semis,
-                "final" => torneo.Rondas.Final,
-                _ => null
-            };
-
-            if (partidos == null || indicePartido >= partidos.Count)
-                return false;
-
-            var partidoActual = partidos[indicePartido];
-            return partidoActual.Participantes.Count == 2 &&
-                   partidoActual.Participantes.All(p => participantes.Any(np => np.IdJugador == p.IdJugador));
-        }
-
-        private static bool ValidarRondaCompleta(RespuestaTorneo torneo, string ronda)
-        {
-            var partidos = ronda switch
-            {
-                "cuartos" => torneo.Rondas.Cuartos,
-                "semis" => torneo.Rondas.Semis,
-                "final" => torneo.Rondas.Final,
-                _ => null
-            };
-
-            return partidos?.All(p => p.Completado) ?? false;
-        }
         public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0)
         {
             return await _torneosDA.ObtenerTorneosParticipando(idUsuario, estado);
-        }
-
-
-
-        public Task<bool> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase)
-        {
-            return _torneosDA.AgregarJugadorATorneo(idTorneo, numeroPartido, equipo, fase);
-        }
-
-        public Task<bool> ModificarPuntuacionParticipante(string idTorneo, string ronda, int numeroPartido, string idJugador, int nuevaPuntuacion)
-        {
-            return _torneosDA.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
         }
 
         public async Task<bool> ActualizarMatch(MatchChangeRequest matchStatus)
@@ -271,44 +154,6 @@ namespace Flujo.Torneos
             return await _torneosDA.ActualizarMatch(matchStatus);
         }
 
-        public async Task<bool> AvanzarRondaManual(SolicitudAvanzarRondaManual solicitud, string nombreUsuario)
-        {
-            var torneo = await _torneosDA.ObtenerTorneoPorId(solicitud.IdTorneo);
-            if (torneo == null)
-            {
-                throw new ArgumentException("El torneo no existe");
-            }
-
-            if (torneo.CreadoPor != nombreUsuario)
-            {
-                throw new UnauthorizedAccessException("Solo el creador del torneo puede avanzar rondas");
-            }
-
-            if (torneo.Estado != 1)
-            {
-                throw new ArgumentException("El torneo debe estar en progreso para avanzar rondas");
-            }
-
-            var ganadoresEsperados = solicitud.RondaActual.ToLower() switch
-            {
-                "cuartos" or "cuartos de final" => 4,
-                "semis" or "semifinales" => 2,
-                "final" => 1,
-                _ => 0
-            };
-
-            if (solicitud.GanadoresSeleccionados.Count != ganadoresEsperados)
-            {
-                throw new ArgumentException($"Se esperaban {ganadoresEsperados} ganadores para {solicitud.RondaActual}");
-            }
-
-            if (solicitud.RondaActual.ToLower() == "final")
-            {
-                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, 3);
-            }
-
-            return await _torneosDA.AvanzarRondaManual(solicitud.IdTorneo, solicitud.RondaActual, solicitud.GanadoresSeleccionados);
-        }
     }
 
 }

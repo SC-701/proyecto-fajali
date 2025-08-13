@@ -13,18 +13,18 @@ export const useTournament = (tournamentId, accessKey = null) => {
         }
 
         setLoading(true);
-        setError(null); 
-        
+        setError(null);
+
         try {
             let result;
-            
-            
+
+
             if (accessKey === null) {
                 result = await getTournament(tournamentId);
             } else {
                 result = await getTournament(tournamentId, accessKey);
             }
-            
+
             if (result.success) {
                 setTournament(result.data);
                 setError(null);
