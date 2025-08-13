@@ -118,10 +118,11 @@ const Dashboard = () => {
         return 'Buenas noches';
     };
     const estadoMap = {
-    0: 'Por Iniciar',
-    1: 'En Progreso',
-    2: 'Terminado',
-    3: 'Cancelado'
+   0: 'Por Iniciar',
+1: 'Cuartos de Final',
+2: 'Semifinales',
+3: 'Finales',
+4: 'Finalizado'
 };
 
     const renderDashboardHeader = () => (

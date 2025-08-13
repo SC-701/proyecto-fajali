@@ -521,6 +521,8 @@ namespace DA.Torneos
                 Id = torneo.Id ?? string.Empty,
                 Nombre = torneo.Nombre,
                 Descripcion = torneo.Descripcion,
+                CuposMaximos = torneo.CuposMaximos,
+                Categoria = torneo.Categoria,
                 TipoDeporte = torneo.TipoDeporte,
                 Ubicacion = torneo.Ubicacion,
                 DescripcionPremio = torneo.DescripcionPremio,
