@@ -4,6 +4,7 @@ import { getAllTournaments } from '../API/Tournament.js';
 import { getUsers } from '../API/User.js'; 
 import { getMyTournaments } from '../API/Tournament.js';
 import { getActiveTournaments } from '../API/Tournament.js';
+import { getParticipatingTournaments } from '../API/Tournament.js';
 import ApiService from '../services/apiService.js';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import { Link } from 'react-router-dom';
@@ -34,10 +35,12 @@ const Dashboard = () => {
             let tournamentsResult;
             let misTorneos;
             let torneosActivos;
+            let torneosParticipando;
             try {
                 tournamentsResult = await getAllTournaments();
                 misTorneos = await getMyTournaments();
                 torneosActivos = await getActiveTournaments();
+                torneosParticipando = await getParticipatingTournaments();
             } catch (error) {
                 tournamentsResult = { success: false };
             }
@@ -50,7 +53,8 @@ const Dashboard = () => {
                 setStats(prev => ({
                     ...prev,
                     activeTournaments: torneosActivos.data.torneos.length,
-                    userTournaments: misTorneos.data.length
+                    userTournaments: misTorneos.data.length,
+                    recentActivity: torneosParticipando.data.length
                 }));
 
                 // Mostrar torneos más recientes
@@ -109,17 +113,6 @@ const Dashboard = () => {
             } else {
                 console.log('Users result failed:', usersResult);
             }
-
-            // Cargar actividad reciente del usuario
-            try {
-                const activityResult = await ApiService.get('Users/activity');
-                if (activityResult && activityResult.success) {
-                    setUserActivity(activityResult.data || []);
-                }
-            } catch (error) {
-                console.error('Error loading user activity:', error);
-            }
-
         } catch (error) {
             console.error('General error loading dashboard:', error);
         } finally {
@@ -212,7 +205,7 @@ const Dashboard = () => {
                         <div className="stat-icon warning">📊</div>
                         <div className="stat-content">
                             <h3>{stats.recentActivity || 0}</h3>
-                            <p>Actividad Reciente</p>
+                            <p>Torneos Participando</p>
                         </div>
                     </div>
                 </div>
@@ -233,9 +226,8 @@ const Dashboard = () => {
                                         <div className="tournament-info">
                                             <h4>{tournament.nombre}</h4>
                                             <p className="tournament-meta">
-                                                {formatDate(tournament.fechaInicio)} •
+                                                {formatDate(tournament.fechaInicio)} • {tournament.participantes.length} / {tournament.cuposMaximos} cupos
                                                 
-                                                {tournament.cupos_maximos} cupos
                                             </p>
                                         </div>
                                         <div className="tournament-status">
@@ -253,35 +245,7 @@ const Dashboard = () => {
                         )}
                     </div>
 
-                    <div className="section">
-                        <div className="section-header">
-                            <h2><span className="emoji">📈</span> Actividad Reciente</h2>
-                        </div>
-
-                        {userActivity.length > 0 ? (
-                            <div className="activity-list">
-                                {userActivity.slice(0, 5).map((activity, index) => (
-                                    <div key={index} className="activity-item">
-                                        <div className="activity-icon">
-                                            {activity.type === 'join' ? '✅' :
-                                                activity.type === 'win' ? '🏆' :
-                                                    activity.type === 'create' ? '➕' : '📝'}
-                                        </div>
-                                        <div className="activity-content">
-                                            <p>{activity.description}</p>
-                                            <span className="activity-time">
-                                                {formatDate(activity.fecha)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-state">
-                                <p>No hay actividad reciente</p>
-                            </div>
-                        )}
-                    </div>
+                   
                 </div>
             </div>
         </div>
