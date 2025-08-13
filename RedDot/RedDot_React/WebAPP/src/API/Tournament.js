@@ -15,6 +15,9 @@ export async function createTournament(tournamentData) {
 export async function getCategorias() {
     return await ApiService.get('Torneos/categorias');
 }
+export async function getActiveTournaments() {
+    return await ApiService.get('Torneos/TorneosActivos');
+}
 
 export async function getMyTournaments(state = null) {
     const params = state !== null ? `?estado=${state}` : '';

@@ -1,6 +1,9 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { getAllTournaments } from '../API/Tournament.js';
+import { getUsers } from '../API/User.js'; 
+import { getMyTournaments } from '../API/Tournament.js';
+import { getActiveTournaments } from '../API/Tournament.js';
 import ApiService from '../services/apiService.js';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import { Link } from 'react-router-dom';
@@ -22,26 +25,32 @@ const Dashboard = () => {
         loadDashboardData();
     }, []);
 
+
     const loadDashboardData = async () => {
         setLoading(true);
         try {
-            // Cargar estadísticas generales
-            const [tournamentsResult, statsResult] = await Promise.all([
-                getAllTournaments(),
-                ApiService.get('Dashboard/stats')
-            ]);
+            
+            // Cargar torneos primero
+            let tournamentsResult;
+            let misTorneos;
+            let torneosActivos;
+            try {
+                tournamentsResult = await getAllTournaments();
+                misTorneos = await getMyTournaments();
+                torneosActivos = await getActiveTournaments();
+            } catch (error) {
+                tournamentsResult = { success: false };
+            }
 
-            if (tournamentsResult.success) {
-                const tournaments = tournamentsResult.data || [];
-                const activeTournaments = tournaments.filter(t => t.estado?.toLowerCase() === 'activo');
-                const userTournaments = tournaments.filter(t =>
-                    t.participantes?.includes(user?.id)
-                );
-
+            // Procesar torneos
+            if (tournamentsResult && tournamentsResult.success) {
+             
+                let tournaments = tournamentsResult.data.torneos;
+              
                 setStats(prev => ({
                     ...prev,
-                    activeTournaments: activeTournaments.length,
-                    userTournaments: userTournaments.length
+                    activeTournaments: torneosActivos.data.torneos.length,
+                    userTournaments: misTorneos.data.length
                 }));
 
                 // Mostrar torneos más recientes
@@ -51,21 +60,68 @@ const Dashboard = () => {
                 setRecentTournaments(recent);
             }
 
-            if (statsResult.success) {
-                setStats(prev => ({
-                    ...prev,
-                    ...statsResult.data
-                }));
+            // Cargar usuarios de forma separada y con manejo de errores
+            let usersResult;
+            try {
+                usersResult = await getUsers();
+            } catch (error) {
+                console.error('Error calling getUsers:', error);
+                usersResult = { success: false, error: error.message };
+            }
+
+            // Procesar usuarios
+            if (usersResult && usersResult.success) {
+                const usersData = usersResult.data;
+                
+                let totalUsers = 0;
+                
+                try {
+                    // Si es un array, contar elementos
+                    if (Array.isArray(usersData)) {
+                        totalUsers = usersData.length;
+                    }
+                    // Si es un número directo
+                    else if (typeof usersData === 'number') {
+                        totalUsers = usersData;
+                    }
+                    // Si es un string que contiene un número
+                    else if (typeof usersData === 'string' && !isNaN(usersData)) {
+                        totalUsers = parseInt(usersData);
+                    }
+                    // Si es un objeto con una propiedad específica
+                    else if (usersData && typeof usersData === 'object') {
+                        totalUsers = usersData.count || usersData.total || usersData.totalUsers || usersData.length || 0;
+                    }
+                    
+                    
+                    // Actualizar stats
+                    setStats(prevStats => {
+                        const newStats = {
+                            ...prevStats,
+                            totalUsers: totalUsers
+                        };
+                        return newStats;
+                    });
+                    
+                } catch (error) {
+                    console.error('Error processing users data:', error);
+                }
+            } else {
+                console.log('Users result failed:', usersResult);
             }
 
             // Cargar actividad reciente del usuario
-            const activityResult = await ApiService.get('Users/activity');
-            if (activityResult.success) {
-                setUserActivity(activityResult.data || []);
+            try {
+                const activityResult = await ApiService.get('Users/activity');
+                if (activityResult && activityResult.success) {
+                    setUserActivity(activityResult.data || []);
+                }
+            } catch (error) {
+                console.error('Error loading user activity:', error);
             }
 
         } catch (error) {
-            console.error('Error loading dashboard:', error);
+            console.error('General error loading dashboard:', error);
         } finally {
             setLoading(false);
         }
@@ -85,6 +141,12 @@ const Dashboard = () => {
         if (hour < 18) return 'Buenas tardes';
         return 'Buenas noches';
     };
+    const estadoMap = {
+    0: 'Por Iniciar',
+    1: 'En Progreso',
+    2: 'Terminado',
+    3: 'Cancelado'
+};
 
     const renderDashboardHeader = () => (
         <div className="dashboard-header">
@@ -141,7 +203,7 @@ const Dashboard = () => {
                     <div className="stat-card info">
                         <div className="stat-icon info">👥</div>
                         <div className="stat-content">
-                            <h3>{stats.totalUsers || 0}</h3>
+                            <h3>{stats.totalUsers}</h3>
                             <p>Usuarios Registrados</p>
                         </div>
                     </div>
@@ -172,12 +234,13 @@ const Dashboard = () => {
                                             <h4>{tournament.nombre}</h4>
                                             <p className="tournament-meta">
                                                 {formatDate(tournament.fechaInicio)} •
-                                                {tournament.cuposDisponibles}/{tournament.cuposMaximos} cupos
+                                                
+                                                {tournament.cupos_maximos} cupos
                                             </p>
                                         </div>
                                         <div className="tournament-status">
-                                            <span className={`status-badge ${tournament.estado?.toLowerCase()}`}>
-                                                {tournament.estado}
+                                            <span className={`status-badge ${estadoMap[tournament.estado]?.toLowerCase().replace(/\s/g, '-')}`}>
+                                                {estadoMap[tournament.estado]}
                                             </span>
                                         </div>
                                     </div>

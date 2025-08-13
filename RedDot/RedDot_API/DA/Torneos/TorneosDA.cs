@@ -138,13 +138,14 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, int estado = 0)
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string creador, int estado = 0)
         {
             try
             {
+
                 var constructorFiltro = Builders<Torneo>.Filter;
                 var filtro = constructorFiltro.Or(
-                    constructorFiltro.Eq(t => t.CreadoPor, nombreUsuario)
+                    constructorFiltro.Eq(t => t.CreadoPor, creador)
                 );
 
                 if (estado > 0)
@@ -157,7 +158,7 @@ namespace DA.Torneos
                     .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
                     .ToListAsync();
 
-                return torneos.Select(t => MapearARespuesta(t, nombreUsuario)).ToList();
+                return torneos.Select(t => MapearARespuesta(t, creador)).ToList();
             }
             catch (Exception)
             {
@@ -653,11 +654,11 @@ namespace DA.Torneos
 
             var resultadoTorneo = await _coleccionTorneos.Find(filtroTorneo).FirstOrDefaultAsync();
 
-            var index= int.Parse(matchStatus.matchIndex);
+            var index = int.Parse(matchStatus.matchIndex);
 
-            if (resultadoTorneo!=null)
+            if (resultadoTorneo != null)
             {
-                var filtroPartido = Builders<Torneo>.Filter.Eq(x=> x.Id,matchStatus.tournamentId);
+                var filtroPartido = Builders<Torneo>.Filter.Eq(x => x.Id, matchStatus.tournamentId);
 
                 var listaParticipantes = matchStatus.match.Participantes.Select(p => new ParticipanteTorneo
                 {
@@ -668,15 +669,15 @@ namespace DA.Torneos
 
                 var participantes = matchStatus.participantes;
 
-                
+
                 participantes.ForEach(p =>
                 {
-                    var participanteExistente = listaParticipantes.FirstOrDefault(x => x.id== p.id);
-                    if (participanteExistente!=null)
+                    var participanteExistente = listaParticipantes.FirstOrDefault(x => x.id == p.id);
+                    if (participanteExistente != null)
                     {
                         p.isSet = true;
                     }
-                  
+
                 });
 
 
@@ -712,7 +713,7 @@ namespace DA.Torneos
                         var resultadoFinal = await _coleccionTorneos.UpdateOneAsync(filtroPartido, updateFinal);
                         return resultadoFinal.ModifiedCount > 0;
 
-                    
+
 
                     default:
                         return false;
@@ -721,6 +722,15 @@ namespace DA.Torneos
             return false;
         }
 
-      
+        public async Task<RespuestaListaTorneos> TorneosActivos()
+        {
+            var filtro = Builders<Torneo>.Filter.Eq(x => x.Estado, 0);
+            var torneos = await _coleccionTorneos
+                    .Find(filtro)
+                    .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
+                    .ToListAsync();
+            return new RespuestaListaTorneos { Torneos = torneos.Select(t => MapearARespuesta(t, string.Empty)).ToList() };
+
+        }
     }
 }

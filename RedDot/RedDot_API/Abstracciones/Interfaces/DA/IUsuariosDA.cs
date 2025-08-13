@@ -15,6 +15,7 @@ namespace Abstracciones.Interfaces.DA
         Task<bool> EliminarUsuarioEnTorneo(RespuestaTorneo torneo, string idUsuario);
         Task<bool> EditarUsuario(UserUI usuario);
         Task<UserResponse?> ObtenerUsuarioPorId(string idUsuario);
+        Task<List<UserResponse>> ListarUsuarios();
 
 
 

@@ -30,6 +30,12 @@ namespace API.Controllers
             }
             return Ok(resultado);
         }
+        [HttpGet("ListarUsuarios")]
+        public async Task<ActionResult> ListarUsuarios()
+        {
+            var usuarios = await _usuariosFlujo.ListarUsuarios();
+            return Ok(usuarios.Count());
+        }
 
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] UserBase usuario)
@@ -70,6 +76,7 @@ namespace API.Controllers
 
             return Ok("Usuario registrado correctamente");
         }
+
 
         
     }

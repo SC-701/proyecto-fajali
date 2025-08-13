@@ -106,9 +106,9 @@ namespace Flujo.Torneos
             return await _torneosDA.AvanzarRondaTorneo(solicitud.IdTorneo, solicitud.RondaActual);
         }
 
-        public async Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, int estado = 0)
+        public async Task<List<RespuestaTorneo>> ObtenerMisTorneos(string id, int estado = 0)
         {
-            return await _torneosDA.ObtenerTorneosPorUsuario(nombreUsuario, estado);
+            return await _torneosDA.ObtenerTorneosPorUsuario(id, estado);
         }
 
         public async Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario)
@@ -280,6 +280,11 @@ namespace Flujo.Torneos
         public async Task<bool> ActualizarMatch(MatchChangeRequest matchStatus)
         {
             return await _torneosDA.ActualizarMatch( matchStatus);
+        }
+
+        public async Task<RespuestaListaTorneos> TorneosActivos()
+        {
+            return await _torneosDA.TorneosActivos();
         }
     }
 
