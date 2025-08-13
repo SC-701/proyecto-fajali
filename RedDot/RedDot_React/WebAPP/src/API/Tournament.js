@@ -31,7 +31,7 @@ export async function getParticipatingTournaments(state = null) {
 
 export async function getTournament(id, accessKey = null) {
     const params = accessKey ? `?accessKey=${accessKey}` : '';
-    return await ApiService.get(` /${id}${params}`);
+    return await ApiService.get(`Torneos/${id}${params}`);
 }
 
 export async function updateMatchScore(scoreData) {
