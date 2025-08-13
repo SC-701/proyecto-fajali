@@ -129,6 +129,12 @@ namespace DA.Torneos
                 {
                     var usuario = await _users.Find(x => x.Id == id).FirstOrDefaultAsync();
 
+                    var usuarioExiste = usuario.Torneos.Any(x => x.Contains(torneo.Id));
+
+                    if(usuario != null)
+                    {
+                        return null;
+                    }
 
                     usuario.Torneos.Add(torneo.Id);
                     usuario.TournamentsJoined++;
