@@ -58,14 +58,14 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<bool> ActualizarPuntajePartido(string idTorneo, string ronda, int indicePartido, List<Participante> participantes)
+        public async Task<bool> ActualizarPuntajePartido(string idTorneo, string ronda, int indicePartido, List<Participante> participantes, Partido match)
         {
             try
             {
                 var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
                 var torneo = await _coleccionTorneos.Find(filtro).FirstOrDefaultAsync();
 
-                if (torneo?.Rondas == null) return false;
+                
 
                 var partidos = ronda switch
                 {
@@ -75,15 +75,10 @@ namespace DA.Torneos
                     _ => null
                 };
 
-                if (partidos == null || indicePartido >= partidos.Count) return false;
+                
 
-                var ganador = participantes.OrderByDescending(p => p.Puntaje).First();
-                foreach (var p in participantes)
-                {
-                    p.IsWinner = p.IdJugador == ganador.IdJugador;
-                }
-
-                partidos[indicePartido].Participantes = participantes;
+               
+                partidos[indicePartido] = match;
                 partidos[indicePartido].Completado = true;
 
                 var actualizacion = Builders<Torneo>.Update.Set(t => t.Rondas, torneo.Rondas);
@@ -230,8 +225,10 @@ namespace DA.Torneos
 
 
                     usuario.Torneos.Add(torneo.Id);
+                    usuario.TournamentsJoined++;
                     var filtro = Builders<User>.Filter.Eq(x => x.Id, usuario.Id);
-                    var Agregar = Builders<User>.Update.Set(x => x.Torneos, usuario.Torneos);
+                    var Agregar = Builders<User>.Update.Set(x => x.Torneos, usuario.Torneos)
+                                                       .Set(x => x.TournamentsJoined, usuario.TournamentsJoined);
                     var resultado = await _users.UpdateOneAsync(filtro, Agregar);
                     if (resultado.ModifiedCount > 0)
                     {
@@ -333,11 +330,105 @@ namespace DA.Torneos
         {
             try
             {
-                estado = estado + 1;
-                var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
-                var actualizacion = Builders<Torneo>.Update.Set(t => t.Estado, estado);
-                var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
-                return resultado.ModifiedCount > 0;
+                
+                   var estadoActualizado = estado + 1;
+                    var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
+                    var actualizacion = Builders<Torneo>.Update.Set(t => t.Estado, estadoActualizado);
+                    var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
+
+                if (estado == 0)
+                {
+                    return resultado.ModifiedCount > 0;
+                }
+
+                var torneo = await _coleccionTorneos.Find(x => x.Id == idTorneo).FirstOrDefaultAsync();
+
+                if (estado == 1) {
+
+
+                    var participantesSemis = torneo.Rondas.Cuartos.Select(
+
+                        y => y.Participantes.Where(z => z.IsWinner).Select(z => z.IdJugador)
+
+                        ).ToList();
+
+                    torneo.Participantes.ForEach(
+                        x =>
+                        {
+                            if (participantesSemis.Any(y => y.Contains(x.id)))
+                            {
+                                x.isSet = false;
+                            }
+                            
+                        });
+                    var actualizaPartipantes = Builders<Torneo>.Update.Set(x => x.Participantes, torneo.Participantes);
+
+                    var resultadoPartipantes = await _coleccionTorneos.UpdateOneAsync(filtro, actualizaPartipantes);
+
+                  
+                        return resultado.ModifiedCount > 0;
+                    
+
+
+                }
+                if(estado == 2)
+                {
+
+                    var participantesFinal = torneo.Rondas.Semis.Select(
+
+                        y => y.Participantes.Where(z => z.IsWinner).Select(z => z.IdJugador)
+
+                        ).ToList();
+
+                    torneo.Participantes.ForEach(
+                        x =>
+                        {
+                            if (participantesFinal.Any(y => y.Contains(x.id)))
+                            {
+                                x.isSet = false;
+                            }
+
+                        });
+                    var actualizaPartipantes = Builders<Torneo>.Update.Set(x => x.Participantes, torneo.Participantes);
+
+                    var resultadoPartipantes = await _coleccionTorneos.UpdateOneAsync(filtro, actualizaPartipantes);
+
+
+                    return resultado.ModifiedCount > 0;
+                }
+                if (estado == 3)
+                {
+                    var ganadorId = torneo.Rondas.Final
+                     .SelectMany(y => y.Participantes)
+                     .Where(z => z.IsWinner)
+                     .Select(z => z.IdJugador)
+                     .FirstOrDefault();
+                    var jugador = await _users.Find(x => x.Id == ganadorId).FirstOrDefaultAsync();
+
+                    torneo.Rondas.Ganador = jugador.UserName;
+
+                    var actualizaPartipantes = Builders<Torneo>.Update.Set(x => x.Rondas.Ganador, torneo.Rondas.Ganador);
+
+                    var resultadoPartipantes = await _coleccionTorneos.UpdateOneAsync(filtro, actualizaPartipantes);
+
+                   
+
+                    jugador.TournamentsWon++;
+
+                    var actualizarJugador = Builders<User>.Update.Set(x => x.TournamentsWon, jugador.TournamentsWon);
+                    var filtroJugador = Builders<User>.Filter.Eq(x => x.Id, jugador.Id);
+
+                    var actualizarGanador = await _users.UpdateOneAsync(filtroJugador, actualizarJugador);
+
+                    return actualizarGanador.ModifiedCount > 0;
+
+
+                }
+
+                return false;
+
+
+
             }
             catch (Exception)
             {
@@ -477,6 +568,7 @@ namespace DA.Torneos
                 TipoDeporte = torneo.TipoDeporte,
                 Ubicacion = torneo.Ubicacion,
                 DescripcionPremio = torneo.DescripcionPremio,
+                Reglas = torneo.Reglas,
                 AccessKey = torneo.AccessKey,
                 Estado = torneo.Estado,
                 CreadoPor = torneo.CreadoPor,

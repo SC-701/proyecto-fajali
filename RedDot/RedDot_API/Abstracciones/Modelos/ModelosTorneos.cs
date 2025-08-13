@@ -115,6 +115,9 @@ namespace Abstracciones.Modelos
 
         [Required]
         public List<Participante> Participantes { get; set; }
+
+        [Required]
+        public Partido match { get; set; }
     }
 
     public class SolicitudAvanzarRonda
@@ -161,6 +164,7 @@ namespace Abstracciones.Modelos
         public Rondas Rondas { get; set; } = new();
         public bool EsCreador { get; set; }
         public bool TieneAcceso { get; set; }
+        public string Reglas {get; set; }
     }
 
     public class RespuestaListaTorneos

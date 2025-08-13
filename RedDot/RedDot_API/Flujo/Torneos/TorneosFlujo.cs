@@ -48,31 +48,20 @@ namespace Flujo.Torneos
                 throw new UnauthorizedAccessException("Solo el creador del torneo puede actualizar puntajes");
             }
 
-            if (torneo.Estado != 2 && torneo.Estado != 0 && torneo.Estado != 1)
-            {
-                throw new ArgumentException("No se pueden actualizar puntajes en un torneo terminado o cancelado");
-            }
+           
 
-            if (!EsRondaValida(solicitud.Ronda, solicitud.IndicePartido))
-            {
-                throw new ArgumentException("Ronda o índice de partido inválido");
-            }
+            
 
-            if (!ValidarParticipantesPartido(torneo, solicitud.Ronda, solicitud.IndicePartido, solicitud.Participantes))
-            {
-                throw new ArgumentException("Los participantes no corresponden al partido especificado");
-            }
+          
 
-            if (torneo.Estado == 0)
-            {
-                await _torneosDA.ActualizarEstadoTorneo(solicitud.IdTorneo, 1);
-            }
+           
 
             return await _torneosDA.ActualizarPuntajePartido(
                 solicitud.IdTorneo,
                 solicitud.Ronda,
                 solicitud.IndicePartido,
-                solicitud.Participantes);
+                solicitud.Participantes,
+                solicitud.match);
         }
 
         public async Task<bool> AvanzarRonda(SolicitudAvanzarRonda solicitud, string nombreUsuario)

@@ -133,6 +133,16 @@
     gap: 0.5rem;
 }
 
+.card-header-profile{
+ 
+   background-color: #1f2937;
+   
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
