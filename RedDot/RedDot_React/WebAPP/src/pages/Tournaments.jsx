@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { changeTournamentStatus} from '../API/Tournament.js';
+import { changeTournamentStatus,getTournament} from '../API/Tournament.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/UI/LoadingSpinner.jsx';
 import TournamentManager from '../components/Tournament/TournamentManager.jsx';
@@ -16,7 +16,7 @@ const Tournaments = () => {
     const [activeModal, setActiveModal] = useState(false);
     const [modal,setModal]= useState(null);
 
-    const { loading, error, refreshTournament } = useTournament(
+    const { loading, error,tournament, refreshTournament } = useTournament(
         selectedTournament?.id,
         selectedTournament?.accessKey
     );
@@ -29,6 +29,56 @@ const Tournaments = () => {
        
         
     };
+
+    const handleAllActivePartipantes = (tournament) => {
+            var allActiveParticipants = 0;
+            tournament.participantes.forEach(participant => {
+                if (participant.isSet) {
+                    allActiveParticipants++;
+                }
+            });
+            return allActiveParticipants == 8 ;
+        };
+
+        const handleScoreUpdate = async () => {
+            closeModal();
+            
+            var result = await getTournament(selectedTournament.id, selectedTournament.accessKey);
+            if (!result.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al actualizar torneo',
+                    text: result.error || 'No se pudo obtener el torneo actualizado'
+                });
+                return;
+            }
+
+            handleTournamentSelect(result.data);
+            
+
+        };
+
+         const handleUpdate = async () => {
+          
+            var result = await getTournament(selectedTournament.id, selectedTournament.accessKey);
+            if (!result.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al actualizar torneo',
+                    text: result.error || 'No se pudo obtener el torneo actualizado'
+                });
+                return;
+            }
+
+            handleTournamentSelect(result.data);
+            
+
+        };
+
+         const closeModal = () => {
+            setActiveModal(false);
+           
+        };
 
     const handleMatchClick = (matchData) => {
         // Validación básica de datos
@@ -50,18 +100,13 @@ const Tournaments = () => {
         const hasPlayers = handlePutPlayers(matchData);
 
         // Función para cerrar el modal
-        const closeModal = () => {
-            setActiveModal(false);
-           
-        };
+       
 
         // Función callback para cuando se actualiza el score
-        const handleScoreUpdate = async () => {
-            closeModal();
-            await refreshTournament();
-        };
+        
 
-      
+        
+            const ActivePlayers = handleAllActivePartipantes(selectedTournament);
         
         
         
@@ -71,7 +116,9 @@ const Tournaments = () => {
             tournamentId: selectedTournament.id,
             isPlayersSet: hasPlayers,
             onScoreUpdated: handleScoreUpdate,
-            onClose: closeModal}
+            onClose: closeModal,
+            activePlayers : ActivePlayers
+        }
         );
 
         
@@ -114,7 +161,7 @@ const Tournaments = () => {
                     title: 'Ronda avanzada',
                     text: `Se ha avanzado a la ronda de ${round}`
                 });
-                await refreshTournament();
+                await handleUpdate();
             } else {
                 throw new Error(result.error || 'Error al avanzar la ronda');
             }
@@ -166,6 +213,7 @@ const Tournaments = () => {
                             tournament={selectedTournament}
                             onMatchClick={handleMatchClick}
                             onAdvanceRound={handleAdvanceRound}
+                            onActivePlayers={handleAllActivePartipantes}
                         />
                         
                         {/* Renderizar el modal activo con validación mejorada */}
@@ -175,7 +223,8 @@ const Tournaments = () => {
                                 tournamentId: modal.tournamentId,
                                 isPlayersSet: modal.isPlayersSet,
                                 onScoreUpdated: modal.onScoreUpdated,
-                                OnCloseFuntion: modal.onClose
+                                OnCloseFuntion: modal.onClose,
+                                activePlayers: modal.activePlayers
                             })
                         )}
                         

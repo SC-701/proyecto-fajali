@@ -32,7 +32,15 @@
     justify-content: center;
     gap: 1rem;
     flex-wrap: wrap;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
+    margin-top: 3%;
+}
+
+.card-header-bracket {
+    background: rgba(55, 65, 81, 0.8);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .tournament-sport {
@@ -42,6 +50,7 @@
     border-radius: 20px;
     font-weight: 500;
     font-size: 0.9rem;
+    text-transform: uppercase;
 }
 
 .tournament-status {
@@ -72,7 +81,7 @@
         color: #ef4444;
     }
 
-/* Sección del campeón */
+/* Secciï¿½n del campeï¿½n */
 .champion-section {
     margin: 1rem 0 2rem 0;
     display: flex;

@@ -11,7 +11,7 @@ namespace Abstracciones.Interfaces.DA
     public interface ITorneosDA
     {
         Task<string> CrearTorneo(SolicitudCrearTorneo solicitud);
-        Task<bool> ActualizarPuntajePartido(string idTorneo, string ronda, int indicePartido, List<Participante> participantes);
+        Task<bool> ActualizarPuntajePartido(string idTorneo, string ronda, int indicePartido, List<Participante> participantes, Partido match);
         Task<bool> AvanzarRondaTorneo(string idTorneo, string rondaActual);
         Task<bool> AvanzarRondaManual(string idTorneo, string rondaActual, List<string> ganadoresSeleccionados);
         Task<List<RespuestaTorneo>> ObtenerTorneosPorUsuario(string nombreUsuario, int estado = 0);

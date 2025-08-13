@@ -9,6 +9,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DA.Entidades
 {
+    [BsonIgnoreExtraElements]
     public class User
     {
         [BsonId]

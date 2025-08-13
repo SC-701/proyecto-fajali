@@ -11,7 +11,9 @@ const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
         const colors = {
             0: 'status-pending',
             1: 'status-active',
-            2: 'status-finished',
+            2: 'status-active',
+            3: 'status-active',
+            4: 'status-finished',
             3: 'status-cancelled'
         };
         return colors[estado] || 'status-pending';
@@ -20,9 +22,10 @@ const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
     const getStatusText = (estado) => {
         const texts = {
             0: 'Por Iniciar',
-            1: 'En Progreso',
-            2: 'Terminado',
-            3: 'Cancelado'
+            1: 'Cuartos de Final',
+            2: 'Semifinales',
+            3: 'Finales',
+            4: 'Finalizado'
         };
         return texts[estado] || 'Desconocido';
     };
