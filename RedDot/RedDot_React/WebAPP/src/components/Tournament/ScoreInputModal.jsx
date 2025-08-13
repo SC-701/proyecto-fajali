@@ -1,220 +1,378 @@
-﻿import React from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { updateMatchScore } from '../../API/Tournament.js';
-export const showScoreInputModal = async (matchData, tournamentId, onScoreUpdated) => {
-    const { match, round, matchIndex, roundName } = matchData;
+import { changeMatchStatus, getTournament } from '../../API/Tournament.js';
+import Modal from '../UI/Modal.jsx';
 
-    if (!match.participantes || match.participantes.length < 2) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No hay suficientes participantes para este partido'
-        });
-        return;
+// Componente para el modal de agregar participantes
+const AddParticipantsModal = ({ matchData, tournamentId, onScoreUpdated, onClose }) => {
+    // VALIDACIÓN TEMPRANA MEJORADA
+    if (!matchData) {
+        console.error('AddParticipantsModal: matchData is null or undefined');
+        // Llamar onClose después de un breve delay para evitar problemas de estado
+        React.useEffect(() => {
+            const timer = setTimeout(() => {
+                if (onClose) onClose();
+            }, 100);
+            return () => clearTimeout(timer);
+        }, [onClose]);
+
+        return (
+            <Modal
+                title="Error"
+                isOpen={true}
+                onClose={onClose || (() => { })}
+                children={<div>Error: Datos del partido no disponibles</div>}
+            />
+        );
     }
 
-    const participant1 = match.participantes[0];
-    const participant2 = match.participantes[1];
+    // VALIDACIÓN MEJORADA DE LA ESTRUCTURA
+    if (!matchData.match) {
+        console.error('AddParticipantsModal: matchData.match is missing', matchData);
+        React.useEffect(() => {
+            const timer = setTimeout(() => {
+                if (onClose) onClose();
+            }, 100);
+            return () => clearTimeout(timer);
+        }, [onClose]);
 
-    const { value: scores } = await Swal.fire({
-        title: `${roundName} - Partido ${matchIndex + 1}`,
-        html: `
-            <div style="text-align: left; margin: 20px 0;">
-                <h4 style="color: #374151; margin-bottom: 15px;">Ingresa los puntajes:</h4>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #4b5563;">
-                        ${participant1.idJugador}
-                    </label>
-                    <input 
-                        id="score1" 
-                        type="number" 
-                        min="0" 
-                        max="999"
-                        value="${participant1.puntaje || 0}"
-                        style="width: 100%; padding: 8px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 16px;"
-                        placeholder="Puntaje participante 1"
-                    />
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #4b5563;">
-                        ${participant2.idJugador}
-                    </label>
-                    <input 
-                        id="score2" 
-                        type="number" 
-                        min="0" 
-                        max="999"
-                        value="${participant2.puntaje || 0}"
-                        style="width: 100%; padding: 8px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 16px;"
-                        placeholder="Puntaje participante 2"
-                    />
-                </div>
-                
-                <div style="background: #f3f4f6; padding: 10px; border-radius: 6px; margin-top: 15px;">
-                    <small style="color: #6b7280;">
-                        <strong>Nota:</strong> El participante con mayor puntaje será marcado como ganador automáticamente.
-                    </small>
-                </div>
-            </div>
-        `,
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: 'Guardar Resultado',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#059669',
-        cancelButtonColor: '#6b7280',
-        preConfirm: () => {
-            const score1 = parseInt(document.getElementById('score1').value);
-            const score2 = parseInt(document.getElementById('score2').value);
-
-            // Validaciones
-            if (isNaN(score1) || isNaN(score2)) {
-                Swal.showValidationMessage('Por favor ingresa puntajes válidos');
-                return false;
-            }
-
-            if (score1 < 0 || score2 < 0) {
-                Swal.showValidationMessage('Los puntajes no pueden ser negativos');
-                return false;
-            }
-
-            if (score1 === score2) {
-                Swal.showValidationMessage('No se permiten empates. Debe haber un ganador.');
-                return false;
-            }
-
-            return { score1, score2 };
-        }
-    });
-
-    // Si el usuario confirmó, procesar los puntajes
-    if (scores) {
-        const { score1, score2 } = scores;
-
-        // Preparar los datos de los participantes con puntajes actualizados
-        const updatedParticipants = [
-            {
-                idJugador: participant1.idJugador,
-                puntaje: score1,
-                isWinner: score1 > score2
-            },
-            {
-                idJugador: participant2.idJugador,
-                puntaje: score2,
-                isWinner: score2 > score1
-            }
-        ];
-
-        // Mostrar loading
-        Swal.fire({
-            title: 'Guardando resultado...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        try {
-            // Llamar a la API para actualizar el puntaje
-            const result = await updateMatchScore({
-                idTorneo: tournamentId,
-                ronda: round,
-                indicePartido: matchIndex,
-                participantes: updatedParticipants
-            });
-
-            if (result.success) {
-                await Swal.fire({
-                    icon: 'success',
-                    title: '¡Resultado guardado!',
-                    html: `
-                        <div style="text-align: center;">
-                            <h4 style="color: #059669; margin: 15px 0;">Resultado del partido:</h4>
-                            <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 10px 0;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                    <span style="font-weight: bold;">${participant1.idJugador}</span>
-                                    <span style="font-size: 20px; font-weight: bold; color: ${score1 > score2 ? '#059669' : '#6b7280'};">
-                                        ${score1}
-                                    </span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="font-weight: bold;">${participant2.idJugador}</span>
-                                    <span style="font-size: 20px; font-weight: bold; color: ${score2 > score1 ? '#059669' : '#6b7280'};">
-                                        ${score2}
-                                    </span>
-                                </div>
-                            </div>
-                            <div style="margin-top: 15px;">
-                                <span style="color: #059669; font-weight: bold;">
-                                    🏆 Ganador: ${score1 > score2 ? participant1.idJugador : participant2.idJugador}
-                                </span>
-                            </div>
-                        </div>
-                    `,
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-
-                // Notificar al componente padre para refrescar los datos
-                onScoreUpdated?.();
-            } else {
-                throw new Error(result.error || 'Error al guardar el resultado');
-            }
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error al guardar',
-                text: error.message || 'No se pudo guardar el resultado. Intenta de nuevo.'
-            });
-        }
+        return (
+            <Modal
+                title="Error"
+                isOpen={true}
+                onClose={onClose || (() => { })}
+                children={<div>Error: Estructura de datos del partido inválida</div>}
+            />
+        );
     }
-};
 
-// Función para confirmar avance de ronda
-export const showAdvanceRoundModal = async (round, onAdvanceConfirmed) => {
-    const roundNames = {
-        'cuartos': 'Semifinales',
-        'semis': 'Final',
-        'final': 'Finalizar Torneo'
+    if (!matchData.roundName || matchData.matchIndex === undefined) {
+        console.error('AddParticipantsModal: roundName or matchIndex is missing', matchData);
+        React.useEffect(() => {
+            const timer = setTimeout(() => {
+                if (onClose) onClose();
+            }, 100);
+            return () => clearTimeout(timer);
+        }, [onClose]);
+
+        return (
+            <Modal
+                title="Error"
+                isOpen={true}
+                onClose={onClose || (() => { })}
+                children={<div>Error: Información de ronda incompleta</div>}
+            />
+        );
+    }
+
+    // ESTADOS DEL COMPONENTE - Solo después de validaciones
+    const { match, roundName, matchIndex } = matchData;
+    const [bracketMatch, setBracketMatch] = useState(match);
+    const [participantesTotales, setParticipantesTotales] = useState([]);
+    const [partipantesTorneo, setPartipantesTorneo] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const handleActivePlayers = (participantesEnMatch) => {
+        if (!Array.isArray(participantesEnMatch)) {
+            console.warn('handleActivePlayers: participantesEnMatch no es un array', participantesEnMatch);
+            return [];
+        }
+        return participantesEnMatch.filter(player => player && player.isSet !== true);
     };
 
-    const nextRound = roundNames[round];
-    const isFinishing = round === 'final';
+    useEffect(() => {
+        const loadTournament = async () => {
+            try {
+                if (!tournamentId) {
+                    throw new Error('Tournament ID es requerido');
+                }
 
-    const result = await Swal.fire({
-        title: isFinishing ? '🏆 ¿Finalizar Torneo?' : `🚀 ¿Avanzar a ${nextRound}?`,
-        html: isFinishing
-            ? `
-                <div style="text-align: center;">
-                    <p style="margin: 15px 0;">Esto marcará el torneo como <strong>terminado</strong> y definirá al campeón.</p>
-                    <div style="background: #fef3c7; padding: 10px; border-radius: 6px; margin: 10px 0;">
-                        <small style="color: #92400e;">
-                            <strong>⚠️ Advertencia:</strong> Esta acción no se puede deshacer.
-                        </small>
-                    </div>
-                </div>
-            `
-            : `
-                <div style="text-align: center;">
-                    <p style="margin: 15px 0;">Los ganadores de la ronda actual avanzarán a <strong>${nextRound}</strong>.</p>
-                    <div style="background: #dbeafe; padding: 10px; border-radius: 6px; margin: 10px 0;">
-                        <small style="color: #1e40af;">
-                            <strong>ℹ️ Información:</strong> Asegúrate de que todos los resultados estén correctos.
-                        </small>
-                    </div>
-                </div>
-            `,
-        icon: isFinishing ? 'warning' : 'question',
-        showCancelButton: true,
-        confirmButtonText: isFinishing ? 'Sí, finalizar' : `Sí, avanzar a ${nextRound}`,
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: isFinishing ? '#dc2626' : '#059669',
-        cancelButtonColor: '#6b7280'
-    });
+                const resultado = await getTournament(tournamentId);
 
-    if (result.isConfirmed) {
-        onAdvanceConfirmed?.(round);
+                if (!resultado.success) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al obtener el torneo',
+                        text: resultado.error || 'No se pudo obtener el torneo'
+                    });
+                    if (onClose) onClose();
+                    return;
+                }
+
+                if (!resultado.data || !resultado.data.participantes) {
+                    throw new Error('Datos de participantes no disponibles');
+                }
+
+                setParticipantesTotales(handleActivePlayers(resultado.data.participantes || []));
+                setPartipantesTorneo(resultado.data.participantes || []);
+            } catch (error) {
+                console.error('Error en loadTournament:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Error al cargar los participantes'
+                });
+                if (onClose) onClose();
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadTournament();
+    }, [tournamentId, onClose]);
+
+    const handleSubmit = async () => {
+        try {
+            // Validación antes de enviar
+            if (!bracketMatch.participantes || bracketMatch.participantes.length < 2) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Faltan participantes',
+                    text: 'Debes configurar ambos participantes'
+                });
+                return;
+            }
+
+            if (!bracketMatch.participantes[0]?.idJugador || !bracketMatch.participantes[1]?.idJugador) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Faltan participantes',
+                    text: 'Debes seleccionar ambos participantes para continuar'
+                });
+                return;
+            }
+
+            if (bracketMatch.participantes[0].idJugador === bracketMatch.participantes[1].idJugador) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Participantes duplicados',
+                    text: 'No puedes seleccionar el mismo participante dos veces'
+                });
+                return;
+            }
+
+            const result = await changeMatchStatus({
+                participantes: partipantesTorneo
+                , match: bracketMatch, tournamentId: tournamentId, roundName: roundName, matchIndex: matchIndex
+            });
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: 'Participantes agregados correctamente'
+                });
+                    onScoreUpdated();
+                if (onClose) onClose();
+            } else {
+                throw new Error(result.error || 'Error al actualizar los participantes');
+            }
+        } catch (error) {
+            console.error('Error en handleSubmit:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message
+            });
+        }
+    };
+
+    if (loading) {
+        return (
+            <Modal
+                title="Cargando..."
+                isOpen={true}
+                onClose={onClose || (() => { })}
+                children={<div>Cargando participantes...</div>}
+            />
+        );
     }
+
+    return (
+        <Modal
+            title={`Agregar Participantes al Match ${roundName} - Partido ${matchIndex + 1}`}
+            isOpen={true}
+            onClose={onClose || (() => { })}
+            onSubmit={handleSubmit}
+            children={
+                <div className="score-input-modal">
+                    <h3>Partido {roundName} - Match {matchIndex + 1}</h3>
+                    <div className="participants-list">
+                        <span className="participants-title">Escoge al participante 1</span>
+                        <select
+                            name="participante1"
+                            className="form-select"
+                            value={bracketMatch.participantes && bracketMatch.participantes[0]?.idJugador ?
+                                JSON.stringify({
+                                    id: bracketMatch.participantes[0].idJugador,
+                                    name: bracketMatch.participantes[0].nombre
+                                }) : ''
+                            }
+                            onChange={(e) => {
+                                if (e.target.value === '') {
+                                    setBracketMatch(prev => ({
+                                        ...prev,
+                                        participantes: [
+                                            {},
+                                            (prev.participantes && prev.participantes[1]) || {}
+                                        ]
+                                    }));
+                                    return;
+                                }
+
+                                try {
+                                    const player1 = JSON.parse(e.target.value);
+
+                                    if (bracketMatch.participantes && bracketMatch.participantes[1]?.idJugador === player1.id) {
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: 'Participante ya seleccionado',
+                                            text: 'Este participante ya está seleccionado como Participante 2'
+                                        });
+                                        return;
+                                    }
+
+                                    setBracketMatch(prev => ({
+                                        ...prev,
+                                        participantes: [
+                                            { ...(prev.participantes ? prev.participantes[0] : {}), idJugador: player1.id, nombre: player1.name },
+                                            (prev.participantes && prev.participantes[1]) || {}
+                                        ]
+                                    }));
+                                } catch (error) {
+                                    console.error('Error parsing participant data:', error);
+                                }
+                            }}
+                        >
+                            <option value="">Selecciona un participante</option>
+                            {participantesTotales.map(player => {
+                                const isDisabled = bracketMatch.participantes && bracketMatch.participantes[1]?.idJugador === player.id;
+                                return (
+                                    <option
+                                        key={player.id}
+                                        value={JSON.stringify({ id: player.id, name: player.name })}
+                                        disabled={isDisabled}
+                                        style={{ color: isDisabled ? '#ccc' : 'inherit' }}
+                                    >
+                                        {player.name} {isDisabled ? '(Ya seleccionado)' : ''}
+                                    </option>
+                                );
+                            })}
+                        </select>
+
+                        <span className="participants-title">Escoge al participante 2</span>
+                        <select
+                            name="participante2"
+                            className="form-select"
+                            value={bracketMatch.participantes && bracketMatch.participantes[1]?.idJugador ?
+                                JSON.stringify({
+                                    id: bracketMatch.participantes[1].idJugador,
+                                    name: bracketMatch.participantes[1].nombre
+                                }) : ''
+                            }
+                            onChange={(e) => {
+                                if (e.target.value === '') {
+                                    setBracketMatch(prev => ({
+                                        ...prev,
+                                        participantes: [
+                                            (prev.participantes && prev.participantes[0]) || {},
+                                            {}
+                                        ]
+                                    }));
+                                    return;
+                                }
+
+                                try {
+                                    const player2 = JSON.parse(e.target.value);
+
+                                    if (bracketMatch.participantes && bracketMatch.participantes[0]?.idJugador === player2.id) {
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: 'Participante ya seleccionado',
+                                            text: 'Este participante ya está seleccionado como Participante 1'
+                                        });
+                                        return;
+                                    }
+
+                                    setBracketMatch(prev => ({
+                                        ...prev,
+                                        participantes: [
+                                            (prev.participantes && prev.participantes[0]) || {},
+                                            { ...(prev.participantes ? prev.participantes[1] : {}), idJugador: player2.id, nombre: player2.name }
+                                        ]
+                                    }));
+                                } catch (error) {
+                                    console.error('Error parsing participant data:', error);
+                                }
+                            }}
+                        >
+                            <option value="">Selecciona un participante</option>
+                            {participantesTotales.map(player => {
+                                const isDisabled = bracketMatch.participantes && bracketMatch.participantes[0]?.idJugador === player.id;
+                                return (
+                                    <option
+                                        key={player.id}
+                                        value={JSON.stringify({ id: player.id, name: player.name })}
+                                        disabled={isDisabled}
+                                        style={{ color: isDisabled ? '#ccc' : 'inherit' }}
+                                    >
+                                        {player.name} {isDisabled ? '(Ya seleccionado)' : ''}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </div>
+
+                    <button onClick={handleSubmit} className="btn btn-primary">Guardar Participantes</button>
+                </div>
+            }
+        />
+    );
+};
+
+// Función para mostrar el modal (ahora sin hooks)
+export const showScoreInputModal = ({ matchData, tournamentId, isPlayersSet, OnCloseFuntion, onScoreUpdated }) => {
+    // Validación de parámetros
+    if (!matchData || !tournamentId) {
+        console.error('showScoreInputModal: Faltan parámetros requeridos', { matchData, tournamentId });
+        return null;
+    }
+
+    function changeBracket(matchData) {
+        matchData.match.participantes = matchData.match.participantes.map(participant => {
+            return {
+                ...participant,
+                isSet: false 
+            };
+        });
+        return matchData;
+    }
+
+
+
+   
+    const { match } = matchData;
+
+    if (!match) {
+        console.error('showScoreInputModal: matchData.match es requerido', matchData);
+        return null;
+    }
+
+    if (!isPlayersSet) {
+        return (
+            <AddParticipantsModal
+                matchData={matchData}
+                tournamentId={tournamentId}
+                onScoreUpdated={onScoreUpdated}
+                onClose={OnCloseFuntion || (() => { })
+                }
+            />
+        );
+
+
+    };
+
+    // Aquí puedes agregar la lógica para cuando ya hay jugadores establecidos
+    // Por ahora retornamos null o podrías tener otro componente
+    
+    return null;
 };

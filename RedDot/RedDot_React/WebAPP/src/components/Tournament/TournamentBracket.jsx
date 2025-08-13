@@ -17,7 +17,7 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
         );
     }
 
-    const { rondas } = tournament;
+    const rondas = tournament.rondas;
     const isAdmin = tournament.esCreador;
 
     const isRoundComplete = (matches) => {
@@ -44,18 +44,32 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                         </span>
                     </div>
                 </div>
+                {isAdmin && tournament.estado === 0 &&(
+                    <div className="bracket-actions">
 
-                {/* Mostrar ganador si el torneo está terminado */}
-                {tournament.estado === 2 && rondas.ganador && (
-                    <div className="champion-section">
-                        <div className="champion-trophy">
-                            <h3>🏆 CAMPEÓN</h3>
-                            <div className="champion-name">
-                                {getWinnerName(rondas.ganador)}
-                            </div>
-                        </div>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => onAdvanceRound?.('cuartos')}
+                        >
+                            Avanzar a Cuartos de Final
+                        </button>
+
                     </div>
                 )}
+
+                {/* Mostrar ganador si el torneo está terminado */}
+                {
+                    tournament.estado === 2 && rondas.ganador && (
+                        <div className="champion-section">
+                            <div className="champion-trophy">
+                                <h3>🏆 CAMPEÓN</h3>
+                                <div className="champion-name">
+                                    {getWinnerName(rondas.ganador)}
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
             </div>
 
             <div className="bracket-grid">
@@ -81,7 +95,7 @@ const TournamentBracket = ({ tournament, onMatchClick, onAdvanceRound }) => {
                                 round="cuartos"
                                 roundName="Cuartos de Final"
                                 isAdmin={isAdmin}
-                                canEdit={tournament.estado === 1}
+                                canEdit={tournament.estado === 0}
                                 onMatchClick={(matchData) => onMatchClick?.({
                                     ...matchData,
                                     round: 'cuartos',

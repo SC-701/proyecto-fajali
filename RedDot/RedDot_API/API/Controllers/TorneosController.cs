@@ -1,7 +1,6 @@
 ﻿using Abstracciones.Interfaces.API;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
-using DA.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +10,8 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
+
     public class TorneosController : ControllerBase, ITorneosController
     {
         private readonly ITorneosFlujo _torneosFlujo;
@@ -72,7 +72,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -170,7 +170,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -196,7 +197,7 @@ namespace API.Controllers
         {
             try
             {
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -245,7 +246,7 @@ namespace API.Controllers
         {
             try
             {
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -275,7 +276,7 @@ namespace API.Controllers
         }
 
 
-        [HttpPatch("cambiar-estado")]
+        [HttpPut("cambiar-estado")]
         public async Task<ActionResult> CambiarEstadoTorneo([FromBody] SolicitudCambiarEstado solicitud)
         {
             try
@@ -285,7 +286,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var nombreUsuario = User.Identity?.Name;
+                var nombreUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(nombreUsuario))
                 {
                     return Unauthorized("No se pudo identificar al usuario");
@@ -347,6 +348,25 @@ namespace API.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
+        [HttpGet("participando")]
+        public async Task<ActionResult> ObtenerTorneosParticipando([FromQuery] int estado = 0)
+        {
+            try
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Unauthorized("No se pudo identificar al usuario");
+                }
+
+                var torneos = await _torneosFlujo.ObtenerTorneosParticipando(id, estado);
+                return Ok(torneos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
 
         [HttpGet("deportes")]
         public async Task<ActionResult> ObtenerDeportes()
@@ -374,6 +394,19 @@ namespace API.Controllers
                 throw new Exception("No se pudo modificar la puntuación del participante");
             }
 
+        }
+        [HttpPut("actualizar-match")]
+        public async Task<ActionResult> ActualizarMatch(MatchChangeRequest matchStatus)
+        {
+            var resultado = await _torneosFlujo.ActualizarMatch(matchStatus);
+            if (resultado)
+            {
+                return Ok($"Match {matchStatus.matchIndex} actualizado exitosamente");
+            }
+            else
+            {
+                throw new Exception("No se pudo actualizar el match");
+            }
         }
     }
 }

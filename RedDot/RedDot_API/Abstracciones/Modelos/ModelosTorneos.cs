@@ -31,6 +31,9 @@ namespace Abstracciones.Modelos
         [BsonElement("idJugador")]
         public string IdJugador { get; set; }
 
+        [BsonElement("nombre")]
+        public string nombre { get; set; }
+
         [BsonElement("puntaje")]
         public int Puntaje { get; set; }
 
@@ -50,13 +53,13 @@ namespace Abstracciones.Modelos
     public class Rondas
     {
         [BsonElement("cuartos")]
-        public List<Partido> Cuartos { get; set; } = new();
+        public List<Partido> Cuartos { get; set; } = new List<Partido>();
 
         [BsonElement("semis")]
-        public List<Partido> Semis { get; set; } = new();
+        public List<Partido> Semis { get; set; } = new List<Partido>();
 
         [BsonElement("final")]
-        public List<Partido> Final { get; set; } = new();
+        public List<Partido> Final { get; set; } = new List<Partido>();
 
         [BsonElement("ganador")]
         public string? Ganador { get; set; }
@@ -138,11 +141,11 @@ namespace Abstracciones.Modelos
         public string TipoDeporte { get; set; }
         public string? Ubicacion { get; set; }
         public string? DescripcionPremio { get; set; }
-        public string? AccessKey { get; set; } // Solo se muestra al creador
+        public string? AccessKey { get; set; } 
         public int Estado { get; set; }
         public string CreadoPor { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public List<Equipo> Participantes { get; set; } = new();
+        public List<ParticipanteTorneo> Participantes { get; set; } = new();
         public Rondas Rondas { get; set; } = new();
         public bool EsCreador { get; set; }
         public bool TieneAcceso { get; set; }
@@ -163,7 +166,7 @@ namespace Abstracciones.Modelos
         public string IdTorneo { get; set; }
 
         [Required(ErrorMessage = "El nuevo estado es requerido")]
-        public EstadoTorneo NuevoEstado { get; set; }
+        public int NuevoEstado { get; set; }
     }
 
     public class Equipo
@@ -176,5 +179,23 @@ namespace Abstracciones.Modelos
         public int Puntaje { get; set; }
        
     }
+
+    public class ParticipanteTorneo
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public bool isSet { get; set; }
+    }
+
+    public class  MatchChangeRequest
+    {
+        public List<ParticipanteTorneo> participantes { get; set; } 
+        public string matchIndex { get; set; }
+        public Partido match { get; set; }
+        public string tournamentId { get; set; }
+        public string roundName { get; set; }
+
+    }
+
 
 }

@@ -1,7 +1,12 @@
 ﻿import React from 'react';
 import '../../styles/TournamentCard.css';
+import AccessKeyModal from './AccessKeyModal.jsx';
+import { useState } from 'react';
+import { accessTournamentWithKey } from '../../API/Tournament.js'; // Add this import
 
-const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
+const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
+    const [showAccessModal, setShowAccessModal] = useState(false);
+
     const getStatusColor = (estado) => {
         const colors = {
             0: 'status-pending',
@@ -28,6 +33,20 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
             month: 'short',
             year: 'numeric'
         });
+    };
+
+    const handleAccessWithKey = async (accessKeyValue) => {
+        try {
+            const result = await accessTournamentWithKey(accessKeyValue);
+            if (result.success) {
+                onSelect(result.data);
+                return true;
+            } else {
+                throw new Error(result.error || 'Clave de acceso inválida');
+            }
+        } catch (error) {
+            throw error;
+        }
     };
 
     return (
@@ -83,6 +102,15 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
                     {tournament.esCreador ? 'Gestionar' : 'Ver Detalles'}
                 </button>
 
+                {tournament.estado === 0 && !tournament.esCreador && (
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => setShowAccessModal(true)} 
+                    >
+                        Unirse
+                    </button>
+                )}
+
                 {tournament.accessKey && tournament.esCreador && (
                     <button
                         className="btn btn-secondary"
@@ -103,6 +131,13 @@ const TournamentCard = ({ tournament, onSelect, onJoin, onLeave, user }) => {
                     </button>
                 )}
             </div>
+
+            {showAccessModal && (
+                <AccessKeyModal
+                    onClose={() => setShowAccessModal(false)}
+                    onSuccess={OnJoin}
+                />
+            )}
         </div>
     );
 };

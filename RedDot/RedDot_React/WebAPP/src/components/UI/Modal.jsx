@@ -2,7 +2,7 @@
 import { createPortal } from 'react-dom';
 import './Modal.css';
 
-const Modal = ({ title, onClose, children, size = 'medium' }) => {
+const Modal = ({ title, onClose, children, size = 'medium', isOpen = true }) => {
     const handleOverlayClick = (e) => {
         if (e.target === e.currentTarget) {
             onClose();
@@ -16,6 +16,8 @@ const Modal = ({ title, onClose, children, size = 'medium' }) => {
     };
 
     React.useEffect(() => {
+        if (!isOpen) return;
+
         document.addEventListener('keydown', handleKeyDown);
         document.body.style.overflow = 'hidden';
 
@@ -23,7 +25,14 @@ const Modal = ({ title, onClose, children, size = 'medium' }) => {
             document.removeEventListener('keydown', handleKeyDown);
             document.body.style.overflow = 'unset';
         };
-    }, []);
+    }, [isOpen]);
+
+    // No renderizar si no está abierto o no hay children
+    if (!isOpen || !children) {
+        return null;
+    }
+
+    
 
     return createPortal(
         <div className="modal-overlay" onClick={handleOverlayClick}>

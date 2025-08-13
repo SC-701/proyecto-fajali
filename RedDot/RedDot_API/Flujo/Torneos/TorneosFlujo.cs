@@ -113,7 +113,7 @@ namespace Flujo.Torneos
 
         public async Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario)
         {
-            var torneo = await _torneosDA.ObtenerTorneoPorAccessKey(accessKey);
+            var torneo = await _torneosDA.ObtenerTorneoPorAccessKey(accessKey, nombreUsuario);
             if (torneo == null)
             {
                 return null;
@@ -139,11 +139,11 @@ namespace Flujo.Torneos
             }
 
             var esCreador = torneo.CreadoPor == nombreUsuario;
-            var tieneAccesoConClave = !string.IsNullOrEmpty(accessKey) && torneo.AccessKey == accessKey;
+           
 
-            if (!esCreador  && !tieneAccesoConClave)
+            if (!esCreador  )
             {
-                throw new UnauthorizedAccessException("No tienes permisos para acceder a este torneo");
+                return torneo;
             }
 
             torneo.EsCreador = esCreador;
@@ -179,7 +179,7 @@ namespace Flujo.Torneos
             }
 
 
-            if (torneo.Estado == (int)EstadoTorneo.PorIniciar && estado == (int)EstadoTorneo.EnProgreso &&
+            if (
                 torneo.Participantes.Count != 8)
             {
                 throw new ArgumentException("No se puede iniciar un torneo con menos de 8 participantes");
@@ -260,11 +260,12 @@ namespace Flujo.Torneos
 
             return partidos?.All(p => p.Completado) ?? false;
         }
-
-        public Task<bool> CambiarEstadoTorneo(string idTorneo, EstadoTorneo estado, string nombreUsuario)
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0)
         {
-            throw new NotImplementedException();
+            return await _torneosDA.ObtenerTorneosParticipando(idUsuario, estado);
         }
+
+      
 
         public Task<bool> AgregarJugadorATorneo(string idTorneo, int numeroPartido, Equipo equipo, string fase)
         {
@@ -275,5 +276,11 @@ namespace Flujo.Torneos
         {
            return _torneosDA.ModificarPuntuacionParticipante(idTorneo, ronda, numeroPartido, idJugador, nuevaPuntuacion);
         }
+
+        public async Task<bool> ActualizarMatch(MatchChangeRequest matchStatus)
+        {
+            return await _torneosDA.ActualizarMatch( matchStatus);
+        }
     }
+
 }

@@ -30,7 +30,7 @@ const AccessKeyModal = ({ onClose, onSuccess }) => {
             Swal.fire({
                 icon: 'error',
                 title: 'Error de acceso',
-                text: error.message || 'Clave de acceso inválida'
+                text: error.message || 'Clave de acceso invï¿½lida'
             });
         } finally {
             setLoading(false);

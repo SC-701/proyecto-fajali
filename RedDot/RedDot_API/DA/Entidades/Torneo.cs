@@ -48,7 +48,7 @@ namespace DA.Entidades
         public string? DescripcionPremio { get; set; }
 
         [BsonElement("participantes")]
-        public List<string>? Participantes { get; set; }
+        public List<ParticipanteTorneo>? Participantes { get; set; }
 
         [BsonElement("categoria")]
         public int Categoria { get; set; }
@@ -59,7 +59,6 @@ namespace DA.Entidades
         [BsonElement("rondas")]
         public Rondas? Rondas { get; set; }
 
-        [BsonElement("Equipos")]
-        public List<Equipo> Equipos { get; set; }
+       
     }
 }

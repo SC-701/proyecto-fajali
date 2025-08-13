@@ -3,6 +3,7 @@ using Abstracciones.Interfaces.DA;
 using Abstracciones.Modelos;
 using DA.Entidades;
 using DA.Repositorio;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -12,10 +13,12 @@ namespace DA.Torneos
     public class TorneosDA : ITorneosDA
     {
         private readonly IMongoCollection<Torneo> _coleccionTorneos;
+        private readonly IMongoCollection<User> _users;
 
         public TorneosDA(IMongoDbContext context)
         {
             _coleccionTorneos = context.GetCollection<Torneo>("torneos");
+            _users = context.GetCollection<User>("users");
         }
 
         // MÉTODO UNIFICADO - Crear Torneo (siempre de eliminación con 8 participantes)
@@ -42,7 +45,7 @@ namespace DA.Torneos
                     CuposMaximos = solicitud.cupos,
                     FechaInicio = solicitud.fecha_inicio,
                     Reglas = solicitud.reglas,
-                    Rondas = new Rondas(),
+                    Rondas = InicializarRondas(),
                     Participantes = []
                 };
 
@@ -162,7 +165,7 @@ namespace DA.Torneos
             }
         }
 
-        public async Task<RespuestaTorneo?> ObtenerTorneoPorAccessKey(string accessKey)
+        public async Task<RespuestaTorneo?> ObtenerTorneoPorAccessKey(string accessKey, string id)
         {
             try
             {
@@ -170,7 +173,45 @@ namespace DA.Torneos
                     .Find(t => t.AccessKey == accessKey)
                     .FirstOrDefaultAsync();
 
-                return torneo != null ? MapearARespuesta(torneo, string.Empty) : null;
+                if (torneo != null)
+                {
+                    var usuario = await _users.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+
+                    usuario.Torneos.Add(torneo.Id);
+                    var filtro = Builders<User>.Filter.Eq(x => x.Id, usuario.Id);
+                    var Agregar = Builders<User>.Update.Set(x => x.Torneos, usuario.Torneos);
+                    var resultado = await _users.UpdateOneAsync(filtro, Agregar);
+                    if (resultado.ModifiedCount > 0)
+                    {
+
+                        torneo.Participantes.Add(new ParticipanteTorneo
+                        {
+
+                            id = usuario.Id,
+                            name = usuario.UserName,
+                            isSet = false,
+
+                        });
+
+                        var filtroTorneo = Builders<Torneo>.Filter.Eq(x => x.Id, torneo.Id);
+                        var agregarTorneo = Builders<Torneo>.Update.Set(x => x.Participantes, torneo.Participantes);
+                        var resultadoTorneo = await _coleccionTorneos.UpdateOneAsync(filtroTorneo, agregarTorneo);
+
+                        if (resultadoTorneo.ModifiedCount > 0)
+                        {
+                            return MapearARespuesta(torneo, string.Empty);
+                        }
+
+                        return null;
+
+                    }
+                    return null;
+
+                }
+                return null;
+
+
             }
             catch (Exception)
             {
@@ -186,7 +227,7 @@ namespace DA.Torneos
                     .Find(t => t.Id == idTorneo)
                     .FirstOrDefaultAsync();
 
-                return torneo != null ? MapearARespuesta(torneo, string.Empty) : null;
+                return torneo != null ? MapearARespuesta(torneo, torneo.CreadoPor) : null;
             }
             catch (Exception)
             {
@@ -241,6 +282,7 @@ namespace DA.Torneos
         {
             try
             {
+                estado = estado + 1;
                 var filtro = Builders<Torneo>.Filter.Eq(t => t.Id, idTorneo);
                 var actualizacion = Builders<Torneo>.Update.Set(t => t.Estado, estado);
                 var resultado = await _coleccionTorneos.UpdateOneAsync(filtro, actualizacion);
@@ -302,7 +344,7 @@ namespace DA.Torneos
             return Guid.NewGuid().ToString("N")[..8].ToUpper();
         }
 
-        private static Rondas InicializarRondas(List<string> participantes)
+        private static Rondas InicializarRondas()
         {
             var rondas = new Rondas();
 
@@ -312,12 +354,33 @@ namespace DA.Torneos
                 {
                     Participantes = new List<Participante>
                     {
-                        new() { IdJugador = participantes[i * 2], Puntaje = 0 },
-                        new() { IdJugador = participantes[i * 2 + 1], Puntaje = 0 }
+                        new Participante(),
+                        new Participante()
                     }
                 };
                 rondas.Cuartos.Add(partido);
             }
+
+            for (int i = 0; i < 2; i++)
+            {
+                var partido = new Partido
+                {
+                    Participantes = new List<Participante>
+                    {
+                        new Participante(),
+                        new Participante()
+                    }
+                };
+                rondas.Semis.Add(partido);
+            }
+            rondas.Final.Add(new Partido
+            {
+                Participantes = new List<Participante>
+                {
+                    new Participante(),
+                    new Participante()
+                }
+            });
 
             return rondas;
         }
@@ -369,7 +432,8 @@ namespace DA.Torneos
                 FechaCreacion = torneo.FechaCreacion,
                 Rondas = torneo.Rondas ?? new Rondas(),
                 EsCreador = torneo.CreadoPor == nombreUsuario,
-                TieneAcceso = false
+                TieneAcceso = false,
+                Participantes = torneo.Participantes
             };
         }
 
@@ -547,5 +611,116 @@ namespace DA.Torneos
                 return false;
             }
         }
+
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0)
+        {
+            try
+            {
+                var usuario = await _users.Find(u => u.Id == idUsuario).FirstOrDefaultAsync();
+                if (usuario?.Torneos == null || usuario.Torneos.Count == 0)
+                {
+                    return new List<RespuestaTorneo>();
+                }
+
+                var constructorFiltro = Builders<Torneo>.Filter;
+                var filtro = constructorFiltro.And(
+                    constructorFiltro.In(t => t.Id, usuario.Torneos),
+                    constructorFiltro.Ne(t => t.CreadoPor, idUsuario)
+                );
+
+                if (estado > 0)
+                {
+                    filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado));
+                }
+
+                var torneos = await _coleccionTorneos
+                    .Find(filtro)
+                    .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
+                    .ToListAsync();
+
+                return torneos.Select(t => MapearARespuesta(t, string.Empty)).ToList();
+            }
+            catch (Exception)
+            {
+                return new List<RespuestaTorneo>();
+            }
+        }
+
+
+        public async Task<bool> ActualizarMatch(MatchChangeRequest matchStatus)
+        {
+            var filtroTorneo = Builders<Torneo>.Filter.Eq(x => x.Id, matchStatus.tournamentId);
+
+            var resultadoTorneo = await _coleccionTorneos.Find(filtroTorneo).FirstOrDefaultAsync();
+
+            var index= int.Parse(matchStatus.matchIndex);
+
+            if (resultadoTorneo!=null)
+            {
+                var filtroPartido = Builders<Torneo>.Filter.Eq(x=> x.Id,matchStatus.tournamentId);
+
+                var listaParticipantes = matchStatus.match.Participantes.Select(p => new ParticipanteTorneo
+                {
+                    id = p.IdJugador,
+                    name = p.nombre,
+                    isSet = true,
+                }).ToList();
+
+                var participantes = matchStatus.participantes;
+
+                
+                participantes.ForEach(p =>
+                {
+                    var participanteExistente = listaParticipantes.FirstOrDefault(x => x.id== p.id);
+                    if (participanteExistente!=null)
+                    {
+                        p.isSet = true;
+                    }
+                  
+                });
+
+
+                var updateJugadores = Builders<Torneo>.Update.Set(x => x.Participantes, participantes);
+
+                var resultadoUpdateJugadores = await _coleccionTorneos.UpdateOneAsync(filtroPartido, updateJugadores);
+
+                if (resultadoUpdateJugadores.ModifiedCount == 0)
+                {
+                    return false;
+                }
+
+
+
+                switch (matchStatus.roundName)
+                {
+
+                    case "Cuartos de Final":
+
+                        var updateCuartos = Builders<Torneo>.Update.Set(x => x.Rondas.Cuartos[index], matchStatus.match);
+                        var resultadoCuartos = await _coleccionTorneos.UpdateOneAsync(filtroPartido, updateCuartos);
+                        return resultadoCuartos.ModifiedCount > 0;
+
+                    case "semis":
+
+                        var updateSemis = Builders<Torneo>.Update.Set(x => x.Rondas.Semis[index], matchStatus.match);
+                        var resultadoSemis = await _coleccionTorneos.UpdateOneAsync(filtroPartido, updateSemis);
+                        return resultadoSemis.ModifiedCount > 0;
+
+                    case "final":
+
+                        var updateFinal = Builders<Torneo>.Update.Set(x => x.Rondas.Final[index], matchStatus.match);
+                        var resultadoFinal = await _coleccionTorneos.UpdateOneAsync(filtroPartido, updateFinal);
+                        return resultadoFinal.ModifiedCount > 0;
+
+                    
+
+                    default:
+                        return false;
+                }
+            }
+            return false;
+        }
+
+      
     }
 }
