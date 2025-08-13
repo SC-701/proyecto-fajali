@@ -67,16 +67,16 @@ namespace Flujo.Torneos
             return await _torneosDA.ObtenerTorneosPorUsuario(nombreUsuario, estado);
         }
 
-        public async Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario)
+        public async Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string usuario)
         {
-            var torneo = await _torneosDA.ObtenerTorneoPorAccessKey(accessKey, nombreUsuario);
+            var torneo = await _torneosDA.ObtenerTorneoPorAccessKey(accessKey, usuario);
             if (torneo == null)
             {
                 return null;
             }
 
             torneo.TieneAcceso = true;
-            torneo.EsCreador = torneo.CreadoPor == nombreUsuario;
+            torneo.EsCreador = torneo.CreadoPor == usuario;
 
             if (!torneo.EsCreador)
             {

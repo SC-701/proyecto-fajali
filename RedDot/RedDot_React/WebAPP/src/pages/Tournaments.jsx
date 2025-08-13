@@ -22,7 +22,6 @@ const Tournaments = () => {
     );
 
     const handleTournamentSelect = (tournament) => {
-        console.log('🎯 Torneo seleccionado:', tournament);
         setSelectedTournament(tournament);
         setActiveView('bracket');
 
