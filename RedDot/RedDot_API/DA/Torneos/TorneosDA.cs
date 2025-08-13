@@ -131,7 +131,7 @@ namespace DA.Torneos
 
                     var usuarioExiste = usuario.Torneos.Any(x => x.Contains(torneo.Id));
 
-                    if(usuario != null)
+                    if(usuarioExiste)
                     {
                         return null;
                     }
