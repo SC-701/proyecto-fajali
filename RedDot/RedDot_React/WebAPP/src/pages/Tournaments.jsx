@@ -13,10 +13,8 @@ const Tournaments = () => {
     const { user } = useAuth();
     const [activeView, setActiveView] = useState('tournaments');
     const [selectedTournament, setSelectedTournament] = useState(null);
-    const [modalState, setModalState] = useState({
-        isActive: false,
-        data: null
-    });
+    const [activeModal, setActiveModal] = useState(false);
+    const [modal,setModal]= useState(null);
 
     const { loading, error, refreshTournament } = useTournament(
         selectedTournament?.id,

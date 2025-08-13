@@ -135,7 +135,7 @@ const TournamentCard = ({ tournament, onSelect, OnJoin,onLeave, user }) => {
             {showAccessModal && (
                 <AccessKeyModal
                     onClose={() => setShowAccessModal(false)}
-                    onSuccess={OnJoin}
+                    onSuccess={handleAccessWithKey}
                 />
             )}
         </div>
