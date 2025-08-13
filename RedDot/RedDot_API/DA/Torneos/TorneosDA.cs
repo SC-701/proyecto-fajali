@@ -50,7 +50,7 @@ namespace DA.Torneos
                 };
 
                 await _coleccionTorneos.InsertOneAsync(nuevoTorneo);
-                return MapearARespuesta(nuevoTorneo,nuevoTorneo.CreadoPor);
+                return MapearARespuesta(nuevoTorneo, nuevoTorneo.CreadoPor);
             }
             catch (Exception)
             {
@@ -129,6 +129,12 @@ namespace DA.Torneos
                 {
                     var usuario = await _users.Find(x => x.Id == id).FirstOrDefaultAsync();
 
+                    var usuarioExiste = usuario.Torneos.Any(x => x.Contains(torneo.Id));
+
+                    if (usuarioExiste)
+                    {
+                        return null;
+                    }
 
                     usuario.Torneos.Add(torneo.Id);
                     usuario.TournamentsJoined++;
@@ -340,10 +346,68 @@ namespace DA.Torneos
                     constructorFiltro.Ne(t => t.CreadoPor, idUsuario)
                 );
 
-                if (estado > 0)
+                if (estado >= 0)
                 {
                     filtro = constructorFiltro.And(filtro, constructorFiltro.Eq(t => t.Estado, estado));
                 }
+
+                var torneos = await _coleccionTorneos
+                    .Find(filtro)
+                    .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
+                    .ToListAsync();
+
+                return torneos.Select(t => MapearARespuesta(t, string.Empty)).ToList();
+            }
+            catch (Exception)
+            {
+                return new List<RespuestaTorneo>();
+            }
+        }
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoActivos(string idUsuario)
+        {
+            try
+            {
+                var usuario = await _users.Find(u => u.Id == idUsuario).FirstOrDefaultAsync();
+                if (usuario?.Torneos == null || usuario.Torneos.Count == 0)
+                {
+                    return new List<RespuestaTorneo>();
+                }
+
+                var constructorFiltro = Builders<Torneo>.Filter;
+                var filtro = constructorFiltro.And(
+                    constructorFiltro.In(t => t.Id, usuario.Torneos),
+                    constructorFiltro.Ne(t => t.CreadoPor, idUsuario),
+                    constructorFiltro.Lt(t => t.Estado, 4) 
+                );
+
+                var torneos = await _coleccionTorneos
+                    .Find(filtro)
+                    .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
+                    .ToListAsync();
+
+                return torneos.Select(t => MapearARespuesta(t, string.Empty)).ToList();
+            }
+            catch (Exception)
+            {
+                return new List<RespuestaTorneo>();
+            }
+        }
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoCompletados(string idUsuario)
+        {
+            try
+            {
+                var usuario = await _users.Find(u => u.Id == idUsuario).FirstOrDefaultAsync();
+                if (usuario?.Torneos == null || usuario.Torneos.Count == 0)
+                {
+                    return new List<RespuestaTorneo>();
+                }
+
+                var constructorFiltro = Builders<Torneo>.Filter;
+                var filtro = constructorFiltro.And(
+                    constructorFiltro.In(t => t.Id, usuario.Torneos),
+                    constructorFiltro.Ne(t => t.CreadoPor, idUsuario),
+                    constructorFiltro.Gte(t => t.Estado, 4) 
+                );
 
                 var torneos = await _coleccionTorneos
                     .Find(filtro)

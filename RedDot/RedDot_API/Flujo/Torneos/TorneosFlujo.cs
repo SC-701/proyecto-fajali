@@ -148,6 +148,15 @@ namespace Flujo.Torneos
         {
             return await _torneosDA.ObtenerTorneosParticipando(idUsuario, estado);
         }
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoActivos(string idUsuario)
+        {
+            return await _torneosDA.ObtenerTorneosParticipandoActivos(idUsuario);
+        }
+
+        public async Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoCompletados(string idUsuario)
+        {
+            return await _torneosDA.ObtenerTorneosParticipandoCompletados(idUsuario);
+        }
 
         public async Task<bool> ActualizarMatch(MatchChangeRequest matchStatus)
         {
@@ -158,6 +167,8 @@ namespace Flujo.Torneos
         {
             return await _torneosDA.TorneosActivos();
         }
+
+
     }
 
 }
