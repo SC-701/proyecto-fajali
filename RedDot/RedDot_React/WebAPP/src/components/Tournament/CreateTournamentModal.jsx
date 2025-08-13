@@ -31,13 +31,6 @@ const CreateTournamentModal = ({ onClose, onSuccess }) => {
     const [validationErrors, setValidationErrors] = useState({});
     const [deportesDisponibles, setDeportesDisponibles] = useState([]);
 
-    useEffect(() => {
-        setDeportesDisponibles(SPORTS_MAPPING[formData.categoria] || []);
-        if (!SPORTS_MAPPING[formData.categoria]?.includes(formData.tipoDeporte)) {
-            setFormData(prev => ({ ...prev, tipoDeporte: '' }));
-        }
-    }, [formData.categoria]);
-
 
 
     useEffect(() => {
