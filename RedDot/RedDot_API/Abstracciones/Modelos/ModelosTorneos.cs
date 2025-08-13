@@ -157,8 +157,10 @@ namespace Abstracciones.Modelos
         public string? Ubicacion { get; set; }
         public string? DescripcionPremio { get; set; }
         public string? AccessKey { get; set; } 
+        public int CuposMaximos { get; set; }
         public int Estado { get; set; }
         public string CreadoPor { get; set; }
+        public DateTime? FechaInicio { get; set; }
         public DateTime FechaCreacion { get; set; }
         public List<ParticipanteTorneo> Participantes { get; set; } = new();
         public Rondas Rondas { get; set; } = new();

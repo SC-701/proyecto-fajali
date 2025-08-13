@@ -447,5 +447,11 @@ namespace API.Controllers
                 throw new Exception("No se pudo actualizar el match");
             }
         }
+        [HttpGet("TorneosActivos")]
+        public async Task<ActionResult> TorneosActivos()
+        {
+            var resultado = await _torneosFlujo.TorneosActivos();
+            return Ok(resultado);
+        }
     }
 }

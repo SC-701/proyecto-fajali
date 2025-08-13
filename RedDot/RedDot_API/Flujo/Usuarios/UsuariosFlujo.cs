@@ -40,6 +40,12 @@ namespace Flujo.Usuarios
             return resultado;
         }
 
+        public Task<List<UserResponse>> ListarUsuarios()
+        {
+            var resultado = _usuariosDA.ListarUsuarios();
+            return resultado;
+        }
+
         public async Task<TokenDTO> Login(UserBase usuario)
         {
             var resultado =  await _usuariosDA.Login(usuario);

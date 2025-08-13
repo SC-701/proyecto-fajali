@@ -27,5 +27,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<bool> ActualizarMatch(MatchChangeRequest matchStatus);
 
         Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0);
+        Task<RespuestaListaTorneos> TorneosActivos();
+
     }
 }

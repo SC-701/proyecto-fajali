@@ -17,6 +17,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<bool> EditarUsuario(UserUI usuario);
         Task<UserResponse?> ObtenerUsuarioPorId(string idUsuario);
 
+        Task<List<UserResponse>> ListarUsuarios();
 
     }
 }
