@@ -9,7 +9,6 @@ export async function updateUserProfile(profileData) {
 }
 
 export async function searchUsers(searchTerm) {
-    // Por ahora retorna datos mock hasta queeste en el endpoint en la API
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve({

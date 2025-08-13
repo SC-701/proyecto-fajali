@@ -19,14 +19,6 @@ export async function loginUser(username, password) {
     return await ApiService.post('Usuarios/login', loginData);
 }
 
-export async function logoutUser() {
-    return await ApiService.post('Usuarios/logout');
-}
 
-export async function verifyEmail(token) {
-    return await ApiService.post('Usuarios/verify-email', { token });
-}
 
-export async function resetPassword(email) {
-    return await ApiService.post('Usuarios/reset-password', { email });
-}
+

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import {loginUser,logoutUser,registerUser} from '../API/Register.js'; 
+import { createContext, useContext, useState, useEffect } from 'react';
+import { loginUser, registerUser } from '../API/Register.js';
 
 const AuthContext = createContext();
 
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        
+
         const checkAuth = () => {
             const token = localStorage.getItem("token");
             const isAuth = localStorage.getItem("isAuthenticated");
@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem("isAuthenticated", "true");
                 localStorage.setItem("token", result.data.accessToken);
 
-                // Guardar datos del usuario si existen
                 if (result.data.user) {
                     localStorage.setItem("user", result.data.user);
                     setUser(result.data.user);
@@ -59,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (username, password, email) => {
-        return await registerUser( username, password, email );
+        return await registerUser(username, password, email);
     };
 
     const logout = () => {

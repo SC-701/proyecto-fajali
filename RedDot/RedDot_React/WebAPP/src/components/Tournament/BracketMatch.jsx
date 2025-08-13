@@ -1,5 +1,4 @@
-﻿import React from 'react';
-import './BracketMatch.css';
+﻿import '../../styles/BracketMatch.css';
 
 const BracketMatch = ({
     match,
@@ -82,7 +81,6 @@ const BracketMatch = ({
                         </div>
                     ))}
 
-                    {/* Mostrar placeholders si no hay suficientes participantes */}
                     {(!match.participantes || match.participantes.length < 2) && (
                         <>
                             {Array.from({ length: 2 - (match.participantes?.length || 0) }).map((_, index) => (
