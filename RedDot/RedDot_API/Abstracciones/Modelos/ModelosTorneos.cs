@@ -126,6 +126,18 @@ namespace Abstracciones.Modelos
         public string RondaActual { get; set; }
     }
 
+    public class SolicitudAvanzarRondaManual
+    {
+        [Required]
+        public string IdTorneo { get; set; }
+
+        [Required]
+        public string RondaActual { get; set; }
+
+        [Required]
+        public List<string> GanadoresSeleccionados { get; set; } = new();
+    }
+
     public class SolicitudAccesoConClave
     {
         [Required]
