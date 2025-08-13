@@ -56,6 +56,22 @@ namespace DA.Usuarios
             return respuestaToken;
         }
 
+        public async Task<List<UserResponse>> ListarUsuarios()
+        {
+            var datos = Builders<User>.Projection
+                .Include(x => x.Id)
+                .Include(x => x.UserName)
+                .Include(x => x.Email);
+
+
+            var usuarios = await _conexion
+                .Find(new BsonDocument())
+                .Project<UserResponse>(datos)
+                .ToListAsync();
+
+            return usuarios;
+        }
+
         public async Task<bool> Register(UserRegister usuario)
         {
             try

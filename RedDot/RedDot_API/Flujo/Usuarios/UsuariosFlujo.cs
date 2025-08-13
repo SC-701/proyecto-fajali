@@ -49,5 +49,12 @@ namespace Flujo.Usuarios
             var resultado = await _usuariosDA.Register(usuario);
             return resultado;
         }
+
+        public Task<List<UserResponse>> ListarUsuarios()
+        {
+            var resultado = _usuariosDA.ListarUsuarios();
+            return resultado;
+        }
+
     }
 }

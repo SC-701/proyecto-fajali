@@ -97,7 +97,7 @@ namespace DA.Torneos
 
                 var constructorFiltro = Builders<Torneo>.Filter;
                 var filtro = constructorFiltro.Or(
-                    constructorFiltro.Eq(t => t.CreadoPor, creador)
+                    constructorFiltro.Eq(t => t.CreadoPor, nombreUsuario)
                 );
 
                 if (estado > 0)
@@ -110,7 +110,7 @@ namespace DA.Torneos
                     .Sort(Builders<Torneo>.Sort.Descending(t => t.FechaCreacion))
                     .ToListAsync();
 
-                return torneos.Select(t => MapearARespuesta(t, creador)).ToList();
+                return torneos.Select(t => MapearARespuesta(t, nombreUsuario)).ToList();
             }
             catch (Exception)
             {

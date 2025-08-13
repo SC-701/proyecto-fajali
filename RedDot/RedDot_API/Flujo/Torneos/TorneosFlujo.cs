@@ -64,7 +64,7 @@ namespace Flujo.Torneos
 
         public async Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, int estado = 0)
         {
-            return await _torneosDA.ObtenerTorneosPorUsuario(id, estado);
+            return await _torneosDA.ObtenerTorneosPorUsuario(nombreUsuario, estado);
         }
 
         public async Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario)
