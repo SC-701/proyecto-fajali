@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1738743">
+  <PropertyGroup>
+    <StartupCommand>npm run dev</StartupCommand>
+    <JavaScriptTestRoot>src\</JavaScriptTestRoot>
+    <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\API\" />
+    <Folder Include="src\components\common\" />
+    <Folder Include="src\components\layout\" />
+    <Folder Include="src\context\" />
+    <Folder Include="src\hooks\" />
+    <Folder Include="src\services\" />
+    <Folder Include="src\settings\" />
+  </ItemGroup>
+</Project>

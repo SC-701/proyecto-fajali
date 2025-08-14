@@ -1,0 +1,248 @@
+.navbar {
+    background-color: #1f2937;
+    border-bottom: 1px solid #374151;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: 70px; /* Reducido a un tamaño más proporcionado */
+}
+
+.navbar-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: #f9fafb;
+    font-size: 1.5rem; /* Reducido para mejor proporción */
+    font-weight: 700;
+}
+
+.brand-logo {
+    width: 35px; /* Ligeramente reducido */
+    height: 35px;
+    object-fit: contain;
+}
+
+.brand-text {
+    color: #dc2626;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.nav-link {
+    color: #9ca3af;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem; /* Tamaño estándar y legible */
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+    .nav-link:hover {
+        color: #f9fafb;
+        background-color: #374151;
+    }
+
+    .nav-link.active {
+        color: #dc2626;
+        background-color: rgba(220, 38, 38, 0.1);
+    }
+
+.admin-link {
+    background-color: #dc2626 !important;
+    color: white !important;
+}
+
+    .admin-link:hover {
+        background-color: #b91c1c !important;
+    }
+
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.user-name {
+    color: #f9fafb;
+    font-weight: 600;
+    font-size: 1rem; /* Tamaño estándar y proporcionado */
+}
+
+.user-role {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.user-menu {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.profile-link {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+    .profile-link:hover {
+        color: #f9fafb;
+        background-color: #374151;
+    }
+
+/* Estilo para el botón de perfil con fondo rojo */
+.profile-link-btn {
+    background-color: #dc2626;
+    color: white;
+    text-decoration: none;
+    font-size: 1rem; /* Tamaño estándar */
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+    .profile-link-btn:hover {
+        background-color: #b91c1c;
+        text-decoration: none;
+    }
+
+.logout-btn {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+    .logout-btn:hover {
+        background-color: #b91c1c;
+    }
+
+/* Estilo para el botón de cerrar sesión con color gris */
+.user-logout-btn {
+    background-color: #6b7280;
+    color: white;
+    border: none;
+    font-size: 1rem; /* Tamaño estándar */
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+    .user-logout-btn:hover {
+        background-color: #4b5563;
+    }
+
+@media (max-width: 768px) {
+    .navbar {
+        height: 60px; /* Proporcionado para mobile */
+    }
+
+    .navbar-container {
+        padding: 0 1rem;
+    }
+
+    .brand-link {
+        font-size: 1.25rem;
+    }
+
+    .brand-logo {
+        width: 30px;
+        height: 30px;
+    }
+
+    .navbar-menu {
+        gap: 1rem;
+    }
+
+    .nav-link {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .user-name {
+        font-size: 0.875rem;
+    }
+
+    .profile-link-btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .user-logout-btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .user-menu {
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .navbar-menu {
+        display: none;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .navbar-container {
+        padding: 0 1rem;
+    }
+}

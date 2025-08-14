@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Abstracciones.Modelos;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Abstracciones.Interfaces.Flujo
+{
+    public interface ITorneosFlujo
+    {
+        Task<RespuestaTorneo?> CrearTorneo(SolicitudCrearTorneo solicitud);
+        Task<bool> ActualizarPuntajePartido(SolicitudActualizarPuntaje solicitud, string nombreUsuario);
+        Task<List<RespuestaTorneo>> ObtenerMisTorneos(string nombreUsuario, int estado = 0);
+        Task<RespuestaTorneo?> AccederTorneoConClave(string accessKey, string nombreUsuario);
+        Task<RespuestaTorneo?> ObtenerTorneoPorId(string idTorneo, string nombreUsuario, string? accessKey = null);
+        Task<RespuestaListaTorneos> ObtenerTorneos(string id, int numeroPagina = 1, int tamanoPagina = 10, int estado = 0, string? tipoDeporte = null);
+        Task<bool> CambiarEstadoTorneo(string idTorneo, int estado, string nombreUsuario);
+
+        Task<bool> ActualizarMatch(MatchChangeRequest matchStatus);
+
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipando(string idUsuario, int estado = 0);
+        Task<RespuestaListaTorneos> TorneosActivos();
+
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoActivos(string idUsuario);
+        Task<List<RespuestaTorneo>> ObtenerTorneosParticipandoCompletados(string idUsuario);
+
+    }
+}
